@@ -1,7 +1,9 @@
-export default function Home() {
+export default function HomePage() {
   return (
-    <main style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", fontSize: "24px" }}>
-      <h1>Welcome to Job and Roll!</h1>
-    </main>
+      <main>
+          <h1>Welcome to JobAndRoll</h1>
+          <p>Find your dream job or the perfect candidate.</p>
+      </main>
   );
 }
+
