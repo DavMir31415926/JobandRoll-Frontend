@@ -1,8 +1,17 @@
-export default function CompanyPage({ params }: { params: { id: string } }) {
+type Params = {
+    params: {
+      id: string;
+    };
+  };
+  
+  export default function CompanyPage({ params }: Params) {
+    const { id } = params;
     return (
-        <main>
-            <h1>Company Profile (ID: {params.id})</h1>
-            <p>Information about the company.</p>
-        </main>
+      <div>
+        <h1>Company Profile</h1>
+        <p>Company ID: {id}</p>
+      </div>
     );
-}
+  }
+  
+
