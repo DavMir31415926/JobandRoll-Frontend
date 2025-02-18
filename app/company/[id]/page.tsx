@@ -1,38 +1,23 @@
-// Import necessary Next.js types
-import { Metadata } from 'next';
 
-// Make the page function async
-export default async function CompanyPage({ params }: { params: { id: string } }) {
-  // Await the params to ensure the id is available
-  const { id } = await params;
-  
-  if (!id) {
-    return <p>Loading...</p>;
-  }
 
-  const decodedId = decodeURIComponent(id);
+export default async function CompanyDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const awaitedParams = await params; // ✅ Fix type issue
 
   return (
-    <div>
-      <h1>Company {decodedId}</h1>
-      {/* other content */}
-    </div>
+    <main>
+      <h1>Company Details (ID: {awaitedParams.id})</h1>
+      <p>Full details about the company.</p>
+    </main>
   );
 }
 
-// Metadata generation function (also async)
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const { id } = await params;
-  if (!id) {
-    return {
-      title: "Company",
-      description: "Loading...",
-    };
-  }
-  const decodedId = decodeURIComponent(id);
 
+
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const awaitedParams = await params; // ✅ Await params before using it
   return {
-    title: `Company ${decodedId}`,
-    description: "Company details",
+    title: `Company ${awaitedParams.id}`,
   };
 }
+
