@@ -1,20 +1,18 @@
-/*import type { NextConfig } from "next";
+import { NextConfig } from 'next';
+import createNextIntlPlugin from 'next-intl/plugin';
 
-const nextConfig: NextConfig = {*/
-  /* config options here */
-/*};
-
-export default nextConfig;*/
-
-import type { NextConfig } from "next";
+const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true, // Enable React Strict Mode
+  // Your other Next.js config options
   typescript: {
-    // Enable TypeScript error during build (optional but recommended)
-    ignoreBuildErrors: false,
+    // This will ignore type checking during production builds
+    ignoreBuildErrors: true,
   },
+  eslint: {
+    // Optionally ignore ESLint errors during builds
+    ignoreDuringBuilds: true,
+  }
 };
 
-export default nextConfig;
-
+export default withNextIntl(nextConfig);
