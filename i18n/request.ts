@@ -1,11 +1,15 @@
 // i18n/request.ts
+import { getRequestConfig } from 'next-intl/server';
+
 export const locales = ['en', 'de'];
 export const defaultLocale = 'en';
 
-export default function getRequestConfig() {
+export default getRequestConfig(async ({locale}) => {
+  // Load messages dynamically
+  const messages = (await import(`../messages/${locale}.json`)).default;
+  
   return {
-    locales,
-    defaultLocale,
-    messages: {} // Messages are handled in the layout
+    messages,
+    timeZone: 'Europe/Berlin'
   };
-}
+});

@@ -1,5 +1,4 @@
 "use client";
-
 import { NextIntlClientProvider } from "next-intl";
 import { ReactNode } from "react";
 
@@ -10,42 +9,24 @@ type TranslationMessages = Record<string, Record<string, string>>;
 export default function TranslationProvider({
   locale,
   messages,
-  children
+  children,
+  timeZone = "Europe/Berlin"  // Add default timeZone parameter
 }: {
   locale: string;
   messages: TranslationMessages;
   children: ReactNode;
+  timeZone?: string;  // Make it optional with a type
 }) {
   // Log to verify messages are available
   console.log("TranslationProvider received messages with keys:", Object.keys(messages));
   
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
+    <NextIntlClientProvider 
+      locale={locale} 
+      messages={messages}
+      timeZone={timeZone}  // Pass the timeZone to NextIntlClientProvider
+    >
       {children}
     </NextIntlClientProvider>
   );
 }
-
-
-/*"use client";
-
-import { NextIntlClientProvider } from "next-intl";
-import { ReactNode } from "react";
-
-export default function TranslationProvider({
-  locale,
-  messages,
-  children
-}: {
-  locale: string;
-  messages: any;
-  children: ReactNode;
-}) {
-  console.log("TranslationProvider received messages with keys:", Object.keys(messages));
-  
-  return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
-      {children}
-    </NextIntlClientProvider>
-  );
-}*/

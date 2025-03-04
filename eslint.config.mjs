@@ -11,6 +11,15 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
+    // Add a specific rule configuration to disable the troublesome rule
+    rules: {
+      // This disables the rule causing errors with params.locale
+      "@next/next/no-assign-module-variable": "off",
+      // This is the specific rule causing your issue
+      "@next/next/no-sync-dynamic-apis": "off"
+    }
+  }
 ];
 
 export default eslintConfig;

@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Search, Briefcase, Building2, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, RefObject } from 'react';
 
 // Animation variants for staggered animations
 const containerVariants = {
@@ -27,10 +27,10 @@ const itemVariants = {
   }
 };
 
-// Custom hook for scroll animations
-function useScrollAnimation() {
+// Custom hook for scroll animations with correct typing
+function useScrollAnimation(): [React.RefObject<HTMLDivElement | null>, boolean] {
   const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -57,8 +57,13 @@ function useScrollAnimation() {
   return [ref, isVisible];
 }
 
-// Number counter animation
-function CounterAnimation({ end, duration = 2 }) {
+// Updated CounterAnimation component
+interface CounterAnimationProps {
+  end: number;
+  duration?: number;
+}
+
+function CounterAnimation({ end, duration = 2 }: CounterAnimationProps) {
   const [count, setCount] = useState(0);
   const [ref, isVisible] = useScrollAnimation();
 
@@ -84,9 +89,14 @@ function CounterAnimation({ end, duration = 2 }) {
 }
 
 export default function HomePage() {
-  const t = useTranslations('home');
+  // Specify the type for the translations to avoid TypeScript errors
+  const t = useTranslations('home') as {
+    (key: string, params?: Record<string, string>): string;
+    rich: (key: string, params?: Record<string, string>) => React.ReactNode;
+  };
   
-  const [featuresRef, featuresVisible] = useScrollAnimation();
+  const [featuresHeaderRef, featuresHeaderVisible] = useScrollAnimation();
+  const [featuresGridRef, featuresGridVisible] = useScrollAnimation();
   const [jobsRef, jobsVisible] = useScrollAnimation();
   const [ctaRef, ctaVisible] = useScrollAnimation();
   
@@ -196,9 +206,9 @@ export default function HomePage() {
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <motion.div
-            ref={featuresRef}
+            ref={featuresHeaderRef}
             initial={{ opacity: 0, y: 40 }}
-            animate={featuresVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+            animate={featuresHeaderVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
             transition={{ duration: 0.7, ease: "easeOut" }}
           >
             <h2 className="text-3xl font-bold text-center mb-4">{t('howItWorks')}</h2>
@@ -207,9 +217,9 @@ export default function HomePage() {
           
           <motion.div 
             className="grid grid-cols-1 md:grid-cols-3 gap-10"
-            ref={featuresRef}
+            ref={featuresGridRef}
             initial="hidden"
-            animate={featuresVisible ? "visible" : "hidden"}
+            animate={featuresGridVisible ? "visible" : "hidden"}
             variants={containerVariants}
           >
             <motion.div 
