@@ -24,6 +24,19 @@
     "allRightsReserved": "All Rights Reserved",
     "footerTagline": "Connecting talented professionals with great job opportunities."
   },
+  "about": {
+    "title": "About Us",
+    "teamDescription": "Meet the passionate minds behind Job and Roll, committed to transforming the way people connect with opportunities",
+    "teamFooter": "We're a passionate team dedicated to transforming how people find jobs and build their careers. Our combined expertise in technology and business drives our mission forward every day.",
+    "founder1Name": "Leopold Schlemmer",
+    "founder1Role": "Co-founder & CEO",
+    "founder1Bio": "Tech enthusiast passionate about creating innovative solutions that transform how people find jobs. With a background in mathematics, Leopold is our top manager.",
+    "founder1Quote": "Technology should make job hunting easier, not harder.",
+    "founder2Name": "David Mirkovic",
+    "founder2Role": "Co-founder & CTO",
+    "founder2Bio": "Leading our vision to build the most accessible and efficient job platform globally. With a background in physics, David leads our technology initiatives to build smarter job-matching algorithms.",
+    "founder2Quote": "We're reimagining how people find meaningful work."
+  },
   "home": {
     "title": "Find Your Dream Job",
     "subtitle": "Thousands of jobs waiting for you",
@@ -43,7 +56,9 @@
     "readyToStart": "Ready to start your journey?",
     "readyToStartDesc": "Whether you're looking for your dream job or searching for top talent, we've got you covered.",
     "findJobs": "Find Jobs",
-    "postJob": "Post a Job"
+    "postJob": "Post a Job",
+    "search": "Search",
+    "howItWorksSubtitle": "Find your dream job in just a few simple steps"
   },
   "jobs": {
     "title": "Available Jobs",
@@ -135,23 +150,6 @@
     "signIn": "Sign in",
     "error": "There was an error creating your account",
     "success": "Account created successfully"
-  },
-  "about": {
-    "title": "About Us",
-    "ourMission": "Our Mission",
-    "missionText": "At JobAndRoll, we're dedicated to connecting talented professionals with great job opportunities. Our mission is to make job searching and hiring as efficient and enjoyable as possible.",
-    "ourStory": "Our Story",
-    "storyText": "Founded in 2023, JobAndRoll began as a small project to improve the job search experience. Today, we've grown into a comprehensive platform serving job seekers and employers around the world.",
-    "ourTeam": "Our Team",
-    "teamMember1Name": "Jane Doe",
-    "teamMember1Role": "CEO & Founder",
-    "teamMember1Bio": "Jane has over 15 years of experience in HR and tech. She founded JobAndRoll to revolutionize how people find jobs.",
-    "teamMember2Name": "John Smith",
-    "teamMember2Role": "CTO",
-    "teamMember2Bio": "John leads our engineering team, bringing 12 years of experience in developing scalable web applications.",
-    "teamMember3Name": "Alex Johnson",
-    "teamMember3Role": "Head of Operations",
-    "teamMember3Bio": "Alex ensures our platform runs smoothly and delivers exceptional service to all our users."
   },
   "settings": {
     "title": "Settings",

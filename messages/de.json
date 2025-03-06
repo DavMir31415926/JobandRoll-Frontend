@@ -24,6 +24,19 @@
     "allRightsReserved": "Alle Rechte vorbehalten",
     "footerTagline": "Wir verbinden talentierte Fachleute mit großartigen Jobmöglichkeiten."
   },
+  "about": {
+    "title": "Über uns",
+    "teamDescription": "Lerne die engagierten Köpfe hinter Job and Roll kennen, die sich dafür einsetzen, die Art und Weise zu verändern, wie Menschen mit Job Chancen verbunden werden",
+    "teamFooter": "Wir sind ein engagiertes Team, das sich der Transformation der Jobsuche und Karriereentwicklung widmet. Unsere kombinierte Expertise in Technologie und Wirtschaft treibt unsere Mission jeden Tag voran.",
+    "founder1Name": "Leopold Schlemmer",
+    "founder1Role": "Mitbegründer & CEO",
+    "founder1Bio": "Technik-Enthusiast mit Leidenschaft für innovative Lösungen, die verändern, wie Menschen Jobs finden. Mit einem Hintergrund in Mathematik ist Leopold unser Top-Manager.",
+    "founder1Quote": "Technologie sollte die Jobsuche einfacher machen, nicht schwieriger.",
+    "founder2Name": "David Mirkovic",
+    "founder2Role": "Mitbegründer & CTO",
+    "founder2Bio": "Führt unsere Vision, die zugänglichste und effizienteste Job-Plattform weltweit aufzubauen. Mit einem Hintergrund in Physik leitet David unsere Technologieinitiativen zur Entwicklung intelligenterer Job-Matching-Algorithmen.",
+    "founder2Quote": "Wir gestalten neu, wie Menschen sinnvolle Arbeit finden."
+  },
   "home": {
     "title": "Finde deinen Traumjob",
     "subtitle": "Tausende von Jobs warten auf dich",
@@ -43,7 +56,9 @@
     "readyToStart": "Bereit, deine Reise zu beginnen?",
     "readyToStartDesc": "Ob du nach deinem Traumjob suchst oder Top-Talente finden möchtest, wir haben die richtige Lösung für dich.",
     "findJobs": "Jobs finden",
-    "postJob": "Job anbieten"
+    "postJob": "Job anbieten",
+    "search": "Suchen",
+    "howItWorksSubtitle": "Finde deinen Traumjob in nur wenigen einfachen Schritten"
   },
   "jobs": {
     "title": "Verfügbare Stellen",
@@ -135,23 +150,6 @@
     "signIn": "Anmelden",
     "error": "Bei der Erstellung deines Kontos ist ein Fehler aufgetreten",
     "success": "Konto erfolgreich erstellt"
-  },
-  "about": {
-    "title": "Über uns",
-    "ourMission": "Unsere Mission",
-    "missionText": "Bei JobAndRoll haben wir uns zum Ziel gesetzt, talentierte Fachleute mit großartigen Jobmöglichkeiten zu verbinden. Unsere Mission ist es, die Jobsuche und Einstellung so effizient und angenehm wie möglich zu gestalten.",
-    "ourStory": "Unsere Geschichte",
-    "storyText": "JobAndRoll wurde 2023 als kleines Projekt gegründet, um die Erfahrung bei der Jobsuche zu verbessern. Heute sind wir zu einer umfassenden Plattform herangewachsen, die Jobsuchende und Arbeitgeber auf der ganzen Welt bedient.",
-    "ourTeam": "Unser Team",
-    "teamMember1Name": "Jane Doe",
-    "teamMember1Role": "CEO & Gründerin",
-    "teamMember1Bio": "Jane verfügt über mehr als 15 Jahre Erfahrung in HR und Technologie. Sie gründete JobAndRoll, um zu revolutionieren, wie Menschen Jobs finden.",
-    "teamMember2Name": "John Smith",
-    "teamMember2Role": "CTO",
-    "teamMember2Bio": "John leitet unser Entwicklungsteam und bringt 12 Jahre Erfahrung in der Entwicklung skalierbarer Webanwendungen mit.",
-    "teamMember3Name": "Alex Johnson",
-    "teamMember3Role": "Leiter des operativen Geschäfts",
-    "teamMember3Bio": "Alex sorgt dafür, dass unsere Plattform reibungslos läuft und allen unseren Nutzern einen außergewöhnlichen Service bietet."
   },
   "settings": {
     "title": "Einstellungen",

@@ -29,32 +29,28 @@ const teamItemVariants = {
 export default function AboutPage() {
   const t = useTranslations('about');
   
-  // Co-founders data with image paths
   const founders = [
     {
-      name: "Leopold Schlemmer",
-      role: "Co-founder & CEO",
-      bio: "Tech enthusiast passionate about creating innovative solutions that transform how people find jobs. With a background in mathematics, Leopold is our top manager.",
-      quote: "Technology should make job hunting easier, not harder.",
+      name: t('founder1Name'), // "Leopold Schlemmer"
+      role: t('founder1Role'), // "Co-founder & CEO"
+      bio: t('founder1Bio'), // Biography text
+      quote: t('founder1Quote'), // Quote text
       image: "/images/team/leopold.PNG"
     },
     {
-      name: "David Mirkovic",
-      role: "Co-founder & CTO ",
-      bio: "Leading our vision to build the most accessible and efficient job platform globally. With a background in physics, David leads our technology initiatives to build smarter job-matching algorithms.",
-      quote: "We're reimagining how people find meaningful work.",
+      name: t('founder2Name'), // "David Mirkovic"
+      role: t('founder2Role'), // "Co-founder & CTO"
+      bio: t('founder2Bio'), // Biography text
+      quote: t('founder2Quote'), // Quote text
       image: "/images/team/david.PNG"
     }
   ];
   
   // Refs for scroll animations
   const [teamRef, teamIsVisible] = useScrollAnimation();
-
+  
   return (
     <div className="bg-white">
-      {/* Other sections remain the same */}
-      
-      {/* Enhanced Team Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <motion.div
@@ -68,14 +64,14 @@ export default function AboutPage() {
               variants={teamItemVariants}
               className="text-3xl md:text-4xl font-bold mb-3 text-center"
             >
-              {t('ourTeam')}
+              {t('title')}
             </motion.h2>
             
             <motion.p 
               variants={teamItemVariants}
               className="text-lg text-gray-600 max-w-3xl mx-auto text-center mb-16"
             >
-              Meet the passionate minds behind Job and Roll, committed to transforming the way people connect with opportunities
+              {t('teamDescription')}
             </motion.p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16">
@@ -118,8 +114,7 @@ export default function AboutPage() {
             >
               <div className="bg-blue-50 rounded-xl p-8 max-w-3xl mx-auto mb-10">
                 <p className="text-lg text-gray-700 leading-relaxed">
-                  We're a passionate team dedicated to transforming how people find jobs and build their careers. 
-                  Our combined expertise in technology and business drives our mission forward every day.
+                 {t('teamFooter')}
                 </p>
               </div>
               
@@ -129,16 +124,14 @@ export default function AboutPage() {
         </div>
       </section>
       
-      {/* Other sections remain the same */}
     </div>
   );
 }
 
-// Custom hook for scroll animations
-function useScrollAnimation() {
+function useScrollAnimation(): [React.RefObject<HTMLDivElement>, boolean] {
   const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef(null);
-
+  const ref = useRef<HTMLDivElement>(null); // Add proper typing here
+  
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -161,5 +154,5 @@ function useScrollAnimation() {
     };
   }, []);
 
-  return [ref, isVisible];
+  return [ref as React.RefObject<HTMLDivElement>, isVisible];
 }
