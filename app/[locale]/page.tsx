@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Search, Briefcase, Building2, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useEffect, useState, useRef, RefObject } from 'react';
+import LocalizedApiData from '@/components/LocalizedApiData';
 
 // Animation variants for staggered animations
 const containerVariants = {
@@ -272,7 +273,25 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
+
+
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="max-w-3xl mx-auto"
+          >
+            <h2 className="text-3xl font-bold text-center mb-8">{t('apiSection') || 'Data from our API'}</h2>
+            <LocalizedApiData />
+          </motion.div>
+        </div>
+      </section>
+
       
+      
+
       {/* Featured Jobs Section - With scroll animations and card interactions */}
       <section className="py-20 bg-gradient-to-b from-white to-gray-50">
         <div className="container mx-auto px-4">

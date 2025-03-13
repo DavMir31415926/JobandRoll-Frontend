@@ -22,7 +22,14 @@
     "createAccount": "Konto erstellen",
     "pricing": "Preise",
     "allRightsReserved": "Alle Rechte vorbehalten",
-    "footerTagline": "Wir verbinden talentierte Fachleute mit großartigen Jobmöglichkeiten."
+    "footerTagline": "Wir verbinden talentierte Fachleute mit großartigen Jobmöglichkeiten.",
+    "apiDataTitle": "Daten von der API",
+    "loading": "Wird geladen...",
+    "error": "Fehler",
+    "locale": "Sprache",
+    "message": "Nachricht",
+    "serverTime": "Serverzeit",
+    "translationSample": "Übersetzungsbeispiel"
   },
   "about": {
     "title": "Über uns",
@@ -58,7 +65,8 @@
     "findJobs": "Jobs finden",
     "postJob": "Job anbieten",
     "search": "Suchen",
-    "howItWorksSubtitle": "Finde deinen Traumjob in nur wenigen einfachen Schritten"
+    "howItWorksSubtitle": "Finde deinen Traumjob in nur wenigen einfachen Schritten",
+    "apiSection": "Daten von unserer API"
   },
   "jobs": {
     "title": "Verfügbare Stellen",
@@ -75,12 +83,30 @@
     "onsite": "Vor Ort",
     "posted": "Veröffentlicht",
     "apply": "Jetzt bewerben",
-    "description": "Stellenbeschreibung",
     "requirements": "Anforderungen",
     "benefits": "Vorteile",
     "postedOn": "Veröffentlicht am",
     "applications": "Bewerbungen",
-    "deadline": "Bewerbungsfrist"
+    "deadline": "Bewerbungsfrist",
+    "loading": "Lade Stellen...",
+    "search": "Suchen",
+    "searchPlaceholder": "Suche nach Stellenbezeichnungen, Unternehmen oder Fähigkeiten...",
+    "error": "Fehler",
+    "noResults": "Keine Stellen gefunden, die Ihrer Suche entsprechen",
+    "tryDifferentSearch": "Versuchen Sie andere Suchbegriffe oder durchstöbern Sie alle Stellen",
+    "results": "Stellen gefunden",
+    "description": "Durchsuchen Sie unsere verfügbaren Positionen und finden Sie Ihren Traumjob",
+    "redirectInfo": "This job listing is hosted on the company's website. Click the button below to view the full job description and apply.",
+    "viewOriginal": "View Original Job Posting",
+    "backToJobs": "Back to jobs",
+    "viewCompany": "View Company",
+    "jobNotFound": "Job not found",
+    "notSpecified": "Nicht angegeben",
+    "typeNotSpecified": "Jobtyp nicht angegeben",
+    "dateNotSpecified": "Datum nicht angegeben",
+    "salaryNotSpecified": "Gehalt nicht angegeben",
+    "companyNotSpecified": "Unbekanntes Unternehmen",
+    "applyNow": "Jetzt bewerben"
   },
   "companies": {
     "title": "Partnerunternehmen",
@@ -93,7 +119,17 @@
     "about": "Über das Unternehmen",
     "openPositions": "Offene Stellen",
     "benefits": "Unternehmensvorteile",
-    "viewJobs": "Stellenangebote anzeigen"
+    "viewJobs": "Stellenangebote anzeigen",
+    "search": "Suchen",
+    "searchPlaceholder": "Suche nach Unternehmen, Branchen oder Standorten...",
+    "error": "Fehler",
+    "noResults": "Keine Unternehmen gefunden, die Ihrer Suche entsprechen",
+    "tryDifferentSearch": "Versuchen Sie andere Suchbegriffe oder durchstöbern Sie alle Unternehmen",
+    "results": "Unternehmen gefunden",
+    "filter": "Unternehmen filtern",
+    "companyNotFound": "Unternehmen nicht gefunden",
+    "backToCompanies": "Zurück zu Unternehmen",
+    "loading": "Unternehmen wird geladen..."
   },
   "contact": {
     "title": "Kontakt",

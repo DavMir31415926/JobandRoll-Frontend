@@ -1,5 +1,4 @@
-// app/[locale]/layout.tsx
-import { Geist, Geist_Mono } from "next/font/google";
+// app/[locale]/layout.tsx - UPDATED
 import { ReactNode } from "react";
 import LocaleWrapper from "@/components/LocaleWrapper";
 // Direct static imports
@@ -7,17 +6,6 @@ import enMessages from '../../messages/en.json';
 import deMessages from '../../messages/de.json';
 import { locales } from "@/i18n";
 import { redirect } from "next/navigation";
-
-// Load fonts outside of the component
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"]
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"]
-});
 
 export function generateStaticParams() {
   return locales.map(locale => ({ locale }));
@@ -28,7 +16,7 @@ interface RootLayoutProps {
   params: any; // Using 'any' to avoid type issues with params
 }
 
-export default function RootLayout(props: RootLayoutProps) {
+export default function LocaleLayout(props: RootLayoutProps) {
   // Using a safer approach that doesn't trigger the lint rule
   let currentLocale = "";
   
@@ -49,19 +37,11 @@ export default function RootLayout(props: RootLayoutProps) {
   const messages = currentLocale === 'en' ? enMessages : deMessages;
 
   return (
-    <html lang={currentLocale} className={`${geistSans.variable} ${geistMono.variable}`}>
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </head>
-      <body className="flex flex-col min-h-screen">
-        <LocaleWrapper 
-          locale={currentLocale} 
-          messages={messages}
-        >
-          {props.children}
-        </LocaleWrapper>
-      </body>
-    </html>
+    <LocaleWrapper 
+      locale={currentLocale} 
+      messages={messages}
+    >
+      {props.children}
+    </LocaleWrapper>
   );
 } //This is a test comment

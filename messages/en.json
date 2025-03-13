@@ -22,7 +22,14 @@
     "createAccount": "Create Account",
     "pricing": "Pricing",
     "allRightsReserved": "All Rights Reserved",
-    "footerTagline": "Connecting talented professionals with great job opportunities."
+    "footerTagline": "Connecting talented professionals with great job opportunities.",
+    "apiDataTitle": "Data from API",
+    "loading": "Loading...",
+    "error": "Error",
+    "locale": "Locale",
+    "message": "Message",
+    "serverTime": "Server Time",
+    "translationSample": "Translation Sample"
   },
   "about": {
     "title": "About Us",
@@ -58,7 +65,8 @@
     "findJobs": "Find Jobs",
     "postJob": "Post a Job",
     "search": "Search",
-    "howItWorksSubtitle": "Find your dream job in just a few simple steps"
+    "howItWorksSubtitle": "Find your dream job in just a few simple steps",
+    "apiSection": "Data from our API"
   },
   "jobs": {
     "title": "Available Jobs",
@@ -75,12 +83,30 @@
     "onsite": "On-site",
     "posted": "Posted",
     "apply": "Apply Now",
-    "description": "Job Description",
     "requirements": "Requirements",
     "benefits": "Benefits",
     "postedOn": "Posted on",
     "applications": "Applications",
-    "deadline": "Application Deadline"
+    "deadline": "Application Deadline",
+    "loading": "Loading jobs...",
+    "search": "Search",
+    "searchPlaceholder": "Search for job titles, companies, or skills...",
+    "error": "Error",
+    "noResults": "No jobs found matching your search",
+    "tryDifferentSearch": "Try different keywords or browse all jobs",
+    "results": "jobs found",
+    "description": "Browse our available positions and find your dream job",
+    "redirectInfo": "This job listing is hosted on the company's website. Click the button below to view the full job description and apply.",
+    "viewOriginal": "View Original Job Posting",
+    "backToJobs": "Back to jobs",
+    "viewCompany": "View Company",
+    "jobNotFound": "Job not found",
+    "notSpecified": "Not specified",
+    "typeNotSpecified": "Job type not specified",
+    "dateNotSpecified": "Date not specified",
+    "salaryNotSpecified": "Salary not specified",
+    "companyNotSpecified": "Unknown Company",
+    "applyNow": "Apply now"
   },
   "companies": {
     "title": "Partner Companies",
@@ -93,7 +119,17 @@
     "about": "About the Company",
     "openPositions": "Open Positions",
     "benefits": "Company Benefits",
-    "viewJobs": "View Jobs"
+    "viewJobs": "View Jobs",
+    "search": "Search",
+    "searchPlaceholder": "Search for companies, industries, or locations...",
+    "error": "Error",
+    "noResults": "No companies found matching your search",
+    "tryDifferentSearch": "Try different keywords or browse all companies",
+    "results": "companies found",
+    "filter": "Filter Companies",
+    "companyNotFound": "Company not found",
+    "backToCompanies": "Back to companies",
+    "loading": "Loading company..."
   },
   "contact": {
     "title": "Contact Us",

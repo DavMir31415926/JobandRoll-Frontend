@@ -1,130 +1,154 @@
+// app/[locale]/companies/[id]/page.tsx
 "use client";
 import { useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
+import { useState, useEffect } from 'react';
+import { Building2, MapPin, Globe, Users, Briefcase, Calendar } from 'lucide-react';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
 
-// Remove eslint disable since we don't need it anymore
-export default function CompanyDetailPage({ params }: { 
-  params: { 
-    id: string; 
-    locale: string;
+interface Company {
+  id: number;
+  name: string;
+  industry: string;
+  location: string;
+  employees: string;
+  description: string;
+  website?: string;
+  founded?: string;
+}
+
+export default function CompanyDetailPage({ params }: { params: { id: string } }) {
+  const locale = useLocale();
+  const t = useTranslations('companies');
+  const [company, setCompany] = useState<Company | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+ // In your app/[locale]/companies/[id]/page.tsx, update the useEffect:
+useEffect(() => {
+  async function loadCompany() {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/companies?locale=${locale}`);
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      const companyId = parseInt(params.id);
+      const foundCompany = data.companies.find((c: Company) => c.id === companyId);
+      
+      if (foundCompany) {
+        setCompany(foundCompany);
+        setError(null);
+      } else {
+        setError(t('companyNotFound') || 'Company not found');
+      }
+    } catch (error) {
+      console.error('Error loading company:', error);
+      setError(error instanceof Error ? error.message : 'Unknown error');
+    } finally {
+      setLoading(false);
+    }
   }
-}) {
-  const t = useTranslations('companies');
-  const companyId = params.id;
   
+  loadCompany();
+}, [locale, params.id, t]);
+
+  if (loading) {
+    return (
+      <main className="container mx-auto px-4 py-12">
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+          <p className="mt-4 text-gray-600">{t('loading') || "Loading company..."}</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (error || !company) {
+    return (
+      <main className="container mx-auto px-4 py-12">
+        <div className="text-center py-12 bg-red-50 rounded-lg">
+          <p className="text-red-600">{error || t('companyNotFound') || "Company not found"}</p>
+          <Link href={`/${locale}/companies`} className="mt-4 inline-block text-blue-600 hover:underline">
+            {t('backToCompanies') || "Back to companies"}
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
   return (
-    <main className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-4">{t('title')} - ID: {companyId}</h1>
-      
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <div className="flex items-center mb-6">
-          <div className="bg-gray-200 w-20 h-20 rounded-lg mr-4 flex items-center justify-center">
-            <span className="text-3xl font-bold text-gray-500">{companyId.charAt(0).toUpperCase()}</span>
-          </div>
-          <div>
-            <h2 className="text-2xl font-semibold">Company {companyId}</h2>
-            <p className="text-gray-600">Berlin, Germany</p>
-          </div>
-        </div>
-        
-        <div className="mt-6">
-          <h3 className="text-lg font-semibold">About the Company</h3>
-          <p className="mt-2">
-            This is a detailed description for the company with ID: {companyId}. In a real app, you would fetch this data
-            from your API or database based on the company ID.
-          </p>
-        </div>
-        
-        <div className="mt-6">
-          <h3 className="text-lg font-semibold">Open Positions</h3>
-          <div className="mt-2 space-y-3">
-            <div className="border p-3 rounded hover:bg-gray-50 cursor-pointer">
-              <h4 className="font-medium">Frontend Developer</h4>
-              <p className="text-sm text-gray-600">Berlin • Full-time</p>
+    <main className="container mx-auto px-4 py-12">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-4xl mx-auto"
+      >
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+          <div className="p-8">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-6">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">{company.name}</h1>
+                <div className="flex items-center mt-2 text-gray-600">
+                  <Building2 size={18} className="mr-1" />
+                  <span className="mr-4">{company.industry}</span>
+                  <MapPin size={18} className="mr-1" />
+                  <span>{company.location}</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center text-gray-600">
+                <Users size={18} className="mr-1" />
+                <span>{company.employees}</span>
+              </div>
             </div>
-            <div className="border p-3 rounded hover:bg-gray-50 cursor-pointer">
-              <h4 className="font-medium">Backend Developer</h4>
-              <p className="text-sm text-gray-600">Remote • Full-time</p>
+            
+            <div className="mb-6 flex flex-wrap gap-6 text-gray-600">
+              {company.website && (
+                <a href={company.website} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-blue-600">
+                  <Globe size={18} className="mr-2" />
+                  <span>{t('website')}</span>
+                </a>
+              )}
+              
+              {company.founded && (
+                <div className="flex items-center">
+                  <Calendar size={18} className="mr-2" />
+                  <span>{t('founded')}: {company.founded}</span>
+                </div>
+              )}
+            </div>
+            
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold mb-4">{t('about')}</h2>
+              <p className="text-gray-700">
+                {company.description}
+              </p>
             </div>
           </div>
         </div>
         
-        <div className="mt-6">
-          <h3 className="text-lg font-semibold">Company Benefits</h3>
-          <ul className="list-disc pl-5 mt-2">
-            <li>Flexible working hours</li>
-            <li>Remote work options</li>
-            <li>Competitive salary</li>
-            <li>Professional development budget</li>
-          </ul>
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="p-8">
+            <h2 className="text-xl font-semibold mb-6 flex items-center">
+              <Briefcase size={20} className="mr-2" />
+              {t('openPositions')}
+            </h2>
+            
+            <Link
+              href={`/${locale}/companies/${company.id}/jobs`}
+              className="block w-full text-center bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            >
+              {t('viewJobs')}
+            </Link>
+          </div>
         </div>
-      </div>
+      </motion.div>
     </main>
   );
 }
-
-
-/*
-"use client";
-import { useTranslations } from 'next-intl';
-
-interface CompanyDetailPageProps {
-  params: {
-    id: string;
-    locale: string;
-  };
-}
-
-export default function CompanyDetailPage({ params }: CompanyDetailPageProps) {
-  const t = useTranslations('companies');
-  const companyId = params.id;
-  
-  return (
-    <main className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-4">{t('title')} - ID: {companyId}</h1>
-      
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <div className="flex items-center mb-6">
-          <div className="bg-gray-200 w-20 h-20 rounded-lg mr-4 flex items-center justify-center">
-            <span className="text-3xl font-bold text-gray-500">{companyId.charAt(0).toUpperCase()}</span>
-          </div>
-          <div>
-            <h2 className="text-2xl font-semibold">Company {companyId}</h2>
-            <p className="text-gray-600">Berlin, Germany</p>
-          </div>
-        </div>
-        
-        <div className="mt-6">
-          <h3 className="text-lg font-semibold">About the Company</h3>
-          <p className="mt-2">
-            This is a detailed description for the company with ID: {companyId}. In a real app, you would fetch this data
-            from your API or database based on the company ID.
-          </p>
-        </div>
-        
-        <div className="mt-6">
-          <h3 className="text-lg font-semibold">Open Positions</h3>
-          <div className="mt-2 space-y-3">
-            <div className="border p-3 rounded hover:bg-gray-50 cursor-pointer">
-              <h4 className="font-medium">Frontend Developer</h4>
-              <p className="text-sm text-gray-600">Berlin • Full-time</p>
-            </div>
-            <div className="border p-3 rounded hover:bg-gray-50 cursor-pointer">
-              <h4 className="font-medium">Backend Developer</h4>
-              <p className="text-sm text-gray-600">Remote • Full-time</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="mt-6">
-          <h3 className="text-lg font-semibold">Company Benefits</h3>
-          <ul className="list-disc pl-5 mt-2">
-            <li>Flexible working hours</li>
-            <li>Remote work options</li>
-            <li>Competitive salary</li>
-            <li>Professional development budget</li>
-          </ul>
-        </div>
-      </div>
-    </main>
-  );
-}*/
