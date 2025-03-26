@@ -1,4 +1,3 @@
-// app/[locale]/jobs/page.tsx
 "use client";
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
@@ -6,12 +5,13 @@ import { useLocale } from 'next-intl';
 import { Search, Briefcase, Building2, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import JobFilters from '../../../components/JobFilters';
 
 interface Job {
   id: number;
   title: string;
-  company_name?: string;  // Made optional
-  company_id?: number;    // Made optional
+  company_name?: string;
+  company_id?: number;
   location: string;
   description?: string;
   requirements?: string;
@@ -20,89 +20,108 @@ interface Job {
   experience_level?: string;
   salary_min?: number;
   salary_max?: number;
+  branch?: string;
   tags?: string[];
-  posted?: string;        // Added this for post date
+  posted?: string;
   url?: string;
   company_logo?: string;
+  language: string
 }
+
+interface FilterState {
+  branch: string[];
+  job_type: string;
+  experience_level: string;
+  location: string;
+  salary_min: string;
+  language: string;
+}
+
 
 export default function JobsPage() {
   const locale = useLocale();
   const t = useTranslations('jobs');
+  const tBase = useTranslations();
   
   const [query, setQuery] = useState('');
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [requestId, setRequestId] = useState(0);
+  
+  // Update state for filters - branches is now an array
+  const [activeFilters, setActiveFilters] = useState({
+    branch: [] as string[],
+    job_type: '',
+    experience_level: '',
+    location: '',
+    salary_min: '',
+    language: 'all' // Add this line
+  });
+  
+  // Helper function to translate branch names
+  const translateBranchName = (branchName: string) => {
+    return tBase(`branch.${branchName}`, { fallback: branchName });
+  };
+  
+  // Combine fetchJobs function to handle both initial load and filtering
+    const fetchJobs = async (searchQuery = '', filters: Partial<FilterState> = {}) => {    try {
+      // Generate a new request ID for this fetch
+      const currentRequestId = requestId + 1;
+      setRequestId(currentRequestId);
+      
+      setLoading(true);
+      
+      // Build the query string
+      const params = new URLSearchParams();
 
-  useEffect(() => {
-    // Load all jobs on initial page load
-    async function loadJobs() {
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/jobs?locale=${locale}`);
-        
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log('API Response:', data);
-        
-        // Handle different possible data structures
-        let jobsData: Job[] = [];
-        
-        if (Array.isArray(data)) {
-          jobsData = data;
-        } else if (data && Array.isArray(data.jobs)) {
-          jobsData = data.jobs;
-        } else if (data && typeof data === 'object') {
-          // Log more details to help debug
-          console.log('Response keys:', Object.keys(data));
-          
-          // Try to find an array in the response
-          for (const key in data) {
-            if (Array.isArray(data[key])) {
-              console.log(`Found array in key: ${key}`);
-              jobsData = data[key];
-              break;
-            }
+      console.log(`[Request #${currentRequestId}] Building search params with filters:`, filters);
+      
+      // Ensure we're using the filters parameter that was passed in, not activeFilters
+      // This is important to avoid race conditions
+      const languageFilter = filters.language || 'all';
+      params.append('language', languageFilter);
+
+      console.log(`[Request #${currentRequestId}] language parameter added:`, languageFilter);
+      
+      if (searchQuery) {
+        params.append('q', searchQuery);
+      }
+      
+      // Add filter parameters
+      Object.entries(filters).forEach(([key, value]) => {
+        if (key !== 'language') { // Skip language - it's already added
+          if (Array.isArray(value)) {
+            // Handle array values (e.g., branches)
+            value.forEach(item => {
+              if (item) params.append(key, String(item));
+            });
+          } else if (value) {
+            // Handle scalar values
+            params.append(key, String(value));
           }
         }
-        
-        console.log('Jobs data:', jobsData);
-        
-        // Add this line - examine the first job object if available
-        if (jobsData.length > 0) {
-          console.log('Example job object:', jobsData[0]);
-        }
-        
-        setJobs(jobsData || []);
-        setError(null);
-      } catch (error) {
-        console.error('Error loading jobs:', error);
-        setError(error instanceof Error ? error.message : 'Unknown error');
-      } finally {
-        setLoading(false);
-      }
-    }
-    
-    loadJobs();
-  }, [locale]);
+      });
+      
+      console.log(`[Request #${currentRequestId}] Final search params:`, params.toString());
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/jobs?locale=${locale}${query ? `&query=${encodeURIComponent(query)}` : ''}`);
+      const response = await fetch(`/api/jobs/search?${params.toString()}`);
+      
+      // Check if this response is for the most recent request
+      if (currentRequestId !== requestId + 1) {
+        console.log(`[Request #${currentRequestId}] Ignoring stale response, current request is #${requestId + 1}`);
+        return; // Don't update state with a stale response
+      }
+      
+      // Update the request ID now that we're processing the response
+      setRequestId(currentRequestId);
       
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
       
       const data = await response.json();
-      console.log('Search Response:', data);
+      console.log(`[Request #${currentRequestId}] API Response:`, data);
       
       // Handle different possible data structures
       let jobsData: Job[] = [];
@@ -112,23 +131,193 @@ export default function JobsPage() {
       } else if (data && Array.isArray(data.jobs)) {
         jobsData = data.jobs;
       } else if (data && typeof data === 'object') {
+        // Log more details to help debug
+        console.log(`[Request #${currentRequestId}] Response keys:`, Object.keys(data));
+        
         // Try to find an array in the response
         for (const key in data) {
           if (Array.isArray(data[key])) {
+            console.log(`[Request #${currentRequestId}] Found array in key: ${key}`);
             jobsData = data[key];
             break;
           }
         }
       }
       
+      // After setting jobsData
+      console.log(`[Request #${currentRequestId}] API returned jobs with languages:`, jobsData.map(job => job.language));
+      
+      console.log(`[Request #${currentRequestId}] Jobs data:`, jobsData);
+      
+      // Add this line - examine the first job object if available
+      if (jobsData.length > 0) {
+        console.log(`[Request #${currentRequestId}] Example job object:`, jobsData[0]);
+      }
+      
       setJobs(jobsData || []);
       setError(null);
     } catch (error) {
-      console.error('Error searching jobs:', error);
+      console.error('Error loading jobs:', error);
       setError(error instanceof Error ? error.message : 'Unknown error');
     } finally {
       setLoading(false);
     }
+  };
+
+  // Initial load of jobs
+  useEffect(() => {
+    console.log('Component mounted or locale changed, loading jobs with filters:', activeFilters);
+    fetchJobs('', activeFilters);
+  }, [locale]);
+
+  // Handle search form submission
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchJobs(query, activeFilters);
+  };
+  
+  // Handle filter changes
+  const handleFilterChange = (newFilters: any) => {
+    console.log('Filter changed from:', activeFilters, 'to:', newFilters);
+    setActiveFilters(newFilters);
+    // Use the newFilters directly here, not activeFilters, because state update is asynchronous
+    fetchJobs(query, newFilters);
+  };
+  
+  // Function to render active filter badges
+  const renderActiveBadges = () => {
+    // Check if any filters are applied
+    const hasFilters = activeFilters.branch.length > 0 || 
+      activeFilters.job_type || 
+      activeFilters.experience_level || 
+      activeFilters.location || 
+      activeFilters.salary_min ||
+      (activeFilters.language && activeFilters.language !== 'all');
+    
+    if (!hasFilters) return null;
+    
+    return (
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+        <h3 className="font-medium text-gray-700 mb-2">{t('activeFilters')}:</h3>
+        <div className="flex flex-wrap gap-2">
+          {/* Branch filters as multiple badges */}
+          {activeFilters.branch.length > 0 && activeFilters.branch.map(branch => (
+            <span key={branch} className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-md flex items-center">
+              {t('industry')}: {translateBranchName(branch)}
+              <button 
+                className="ml-2 text-blue-500 hover:text-blue-700"
+                onClick={() => {
+                  const newBranches = activeFilters.branch.filter(b => b !== branch);
+                  const newFilters = {...activeFilters, branch: newBranches};
+                  setActiveFilters(newFilters);
+                  fetchJobs(query, newFilters);
+                }}
+              >
+                &times;
+              </button>
+            </span>
+          ))}
+          
+          {activeFilters.job_type && (
+            <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-md flex items-center">
+              {t('jobType')}: {activeFilters.job_type}
+              <button 
+                className="ml-2 text-blue-500 hover:text-blue-700"
+                onClick={() => {
+                  const newFilters = {...activeFilters, job_type: ''};
+                  setActiveFilters(newFilters);
+                  fetchJobs(query, newFilters);
+                }}
+              >
+                &times;
+              </button>
+            </span>
+          )}
+          {activeFilters.experience_level && (
+            <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-md flex items-center">
+              {t('experienceLevel')}: {activeFilters.experience_level}
+              <button 
+                className="ml-2 text-blue-500 hover:text-blue-700"
+                onClick={() => {
+                  const newFilters = {...activeFilters, experience_level: ''};
+                  setActiveFilters(newFilters);
+                  fetchJobs(query, newFilters);
+                }}
+              >
+                &times;
+              </button>
+            </span>
+          )}
+          {activeFilters.location && (
+            <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-md flex items-center">
+              {t('location')}: {activeFilters.location}
+              <button 
+                className="ml-2 text-blue-500 hover:text-blue-700"
+                onClick={() => {
+                  const newFilters = {...activeFilters, location: ''};
+                  setActiveFilters(newFilters);
+                  fetchJobs(query, newFilters);
+                }}
+              >
+                &times;
+              </button>
+            </span>
+          )}
+          {activeFilters.salary_min && (
+            <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-md flex items-center">
+              {t('minimumSalary')}: €{Number(activeFilters.salary_min).toLocaleString()}+
+              <button 
+                className="ml-2 text-blue-500 hover:text-blue-700"
+                onClick={() => {
+                  const newFilters = {...activeFilters, salary_min: ''};
+                  setActiveFilters(newFilters);
+                  fetchJobs(query, newFilters);
+                }}
+              >
+                &times;
+              </button>
+            </span>
+          )}
+
+          {activeFilters.language && activeFilters.language !== 'all' && (
+            <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-md flex items-center">
+              {t('language')}: {activeFilters.language === 'Englisch' ? t('english') : 
+                              activeFilters.language === 'German' ? t('german') : 
+                              activeFilters.language}
+              <button 
+                className="ml-2 text-blue-500 hover:text-blue-700"
+                onClick={() => {
+                  const newFilters = {...activeFilters, language: 'all'};
+                  setActiveFilters(newFilters);
+                  fetchJobs(query, newFilters);
+                }}
+              >
+                &times;
+              </button>
+            </span>
+          )}
+          
+          {/* Clear all button */}
+          <button
+            className="px-3 py-1 bg-gray-100 text-gray-800 text-sm rounded-md hover:bg-gray-200"
+            onClick={() => {
+              const clearedFilters = {
+                branch: [],
+                job_type: '',
+                experience_level: '',
+                location: '',
+                salary_min: '',
+                language: 'all'
+              };
+              setActiveFilters(clearedFilters);
+              fetchJobs(query, clearedFilters);
+            }}
+          >
+            {t('clearAll')}
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -168,141 +357,175 @@ export default function JobsPage() {
         </form>
       </div>
       
-      {/* Filters Section */}
-      <div className="max-w-4xl mx-auto mb-8">
-        <div className="flex flex-wrap gap-4 items-center justify-between">
-          <h2 className="text-xl font-semibold">{t('filter')}</h2>
-          <div className="flex gap-4 flex-wrap">
-            <select className="bg-white border border-gray-300 rounded-md px-4 py-2">
-              <option value="">{t('location')}</option>
-              <option value="berlin">Berlin</option>
-              <option value="munich">Munich</option>
-              <option value="hamburg">Hamburg</option>
-              <option value="remote">Remote</option>
-            </select>
+      {/* Main content with filters and job listings */}
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Filters Sidebar */}
+          <div className="w-full lg:w-1/4">
+            <JobFilters onFilterChange={handleFilterChange} initialFilters={activeFilters} />
+          </div>
+          
+          {/* Jobs List */}
+          <div className="w-full lg:w-3/4">
+            {/* Active Filters Summary */}
+            {renderActiveBadges()}
             
-            <select className="bg-white border border-gray-300 rounded-md px-4 py-2">
-              <option value="">{t('jobType')}</option>
-              <option value="fullTime">{t('fullTime')}</option>
-              <option value="partTime">{t('partTime')}</option>
-              <option value="contract">{t('contract')}</option>
-            </select>
+            {/* Loading State */}
+            {loading && (
+              <div className="text-center py-12">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                <p className="mt-4 text-gray-600">{t('loading')}</p>
+              </div>
+            )}
+            
+            {/* Error State */}
+            {error && (
+              <div className="text-center py-12 bg-red-50 rounded-lg">
+                <p className="text-red-600">{t('error')}: {error}</p>
+              </div>
+            )}
+            
+            {/* Empty State */}
+            {!loading && !error && jobs.length === 0 && (
+              <div className="text-center py-12 bg-gray-50 rounded-lg">
+                <p className="text-gray-600">{t('noResults')}</p>
+                <p className="mt-2 text-gray-500">{t('tryDifferentSearch')}</p>
+              </div>
+            )}
+            
+            {/* Jobs List */}
+            {!loading && !error && jobs.length > 0 && (
+              <div>
+                <h3 className="text-xl font-semibold mb-6">{jobs.length} {t('results')}</h3>
+                
+                <div className="space-y-6">
+                  {jobs.map((job) => (
+                    <motion.div
+                      key={job.id}
+                      className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                      whileHover={{ y: -5 }}
+                    >
+                      <div className="block p-6">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="text-xl font-semibold text-gray-900">
+                              <a 
+                                href={job.url || `/${locale}/jobs/${job.id}`}
+                                target={job.url ? "_blank" : "_self"}
+                                rel={job.url ? "noopener noreferrer" : ""}
+                                className="hover:text-blue-600"
+                              >
+                                {job.title}
+                              </a>
+                            </h4>
+                            <div className="flex items-center mt-2 text-gray-600">
+                              {job.company_name && (
+                                <>
+                                  <Building2 size={16} className="mr-1" />
+                                  <span className="mr-4 font-medium text-blue-600">
+                                    {job.company_id ? (
+                                      <Link href={`/${locale}/companies/${job.company_id}`} className="hover:underline">
+                                        {job.company_name}
+                                      </Link>
+                                    ) : (
+                                      job.company_name
+                                    )}
+                                  </span>
+                                </>
+                              )}
+                              
+                              {job.location && (
+                                <>
+                                  <MapPin size={16} className="mr-1" />
+                                  <span>{job.location}</span>
+                                </>
+                              )}
+                            </div>
+                            
+                            {/* Display branch and language if available */}
+                            {(job.branch || job.language) && (
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                {job.branch && (
+                                  <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs">
+                                    {translateBranchName(job.branch)}
+                                  </span>
+                                )}
+                                {job.language && (
+                                  <span className="bg-green-50 text-green-700 px-2 py-1 rounded text-xs">
+                                    {job.language === 'Englisch' ? t('english') : 
+                                    job.language === 'German' ? t('german') : job.language}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          
+                          {job.job_type && (
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              job.job_type.toLowerCase().includes('full') ? 'bg-blue-100 text-blue-800' : 
+                              job.job_type.toLowerCase().includes('part') ? 'bg-purple-100 text-purple-800' : 
+                              job.job_type.toLowerCase().includes('remote') ? 'bg-green-100 text-green-800' :
+                              job.job_type.toLowerCase().includes('contract') ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-gray-100 text-gray-600'
+                            }`}>
+                              {job.job_type}
+                            </span>
+                          )}
+                        </div>
+                        
+                        {job.tags && Array.isArray(job.tags) && job.tags.length > 0 && (
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            {job.tags.map((tag, index) => (
+                              <span key={index} className="bg-gray-100 text-gray-800 text-xs px-3 py-1 rounded-full">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        
+                        <div className="mt-4 flex justify-between items-center pt-4 border-t border-gray-100">
+                          {/* Only show date if available */}
+                          {job.posted && (
+                            <span className="text-gray-500 text-sm">{job.posted}</span>
+                          )}
+                          
+                          {/* Only show salary if available */}
+                          {(job.salary_min || job.salary_max) && (
+                            <span className="font-medium text-gray-900">
+                              {(job.salary_min && job.salary_max) 
+                                ? `€${job.salary_min.toLocaleString()} - €${job.salary_max.toLocaleString()}`
+                                : job.salary_min 
+                                  ? `€${job.salary_min.toLocaleString()}+` 
+                                  : job.salary_max 
+                                    ? `Up to €${job.salary_max.toLocaleString()}`
+                                    : ''
+                              }
+                            </span>
+                          )}
+                        </div>
+                        
+                        {job.url && (
+                          <div className="mt-4 text-right">
+                            <span className="inline-flex items-center text-blue-600 hover:text-blue-800">
+                              {t('applyNow')}
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                              </svg>
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
-      
-      {/* Loading State */}
-      {loading && (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-          <p className="mt-4 text-gray-600">{t('loading')}</p>
-        </div>
-      )}
-      
-      {/* Error State */}
-      {error && (
-        <div className="text-center py-12 bg-red-50 rounded-lg">
-          <p className="text-red-600">{t('error')}: {error}</p>
-        </div>
-      )}
-      
-      {/* Empty State */}
-      {!loading && !error && jobs.length === 0 && (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <p className="text-gray-600">{t('noResults')}</p>
-          <p className="mt-2 text-gray-500">{t('tryDifferentSearch')}</p>
-        </div>
-      )}
-      
-      {/* Jobs List */}
-      {!loading && !error && jobs.length > 0 && (
-        <div className="max-w-4xl mx-auto">
-          <h3 className="text-xl font-semibold mb-6">{jobs.length} {t('results')}</h3>
-          
-          <div className="space-y-6">
-            {jobs.map((job) => (
-              <motion.div
-                key={job.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                whileHover={{ y: -5 }}
-              >
-                <div className="block p-6">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="text-xl font-semibold text-gray-900">
-                        <a 
-                          href={job.url || `/${locale}/jobs/${job.id}`}
-                          target={job.url ? "_blank" : "_self"}
-                          rel={job.url ? "noopener noreferrer" : ""}
-                          className="hover:text-blue-600"
-                        >
-                          {job.title}
-                        </a>
-                      </h4>
-                      <div className="flex items-center mt-2 text-gray-600">
-                        <Building2 size={16} className="mr-1" />
-                        <span className="mr-4 font-medium text-blue-600">
-                          {job.company_id ? (
-                            <Link href={`/${locale}/companies/${job.company_id}`} className="hover:underline">
-                              {job.company_name || t('companyNotSpecified')}
-                            </Link>
-                          ) : (
-                            job.company_name || t('companyNotSpecified')
-                          )}
-                        </span>
-                        <MapPin size={16} className="mr-1" />
-                        <span>{job.location}</span>
-                      </div>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      job.job_type && typeof job.job_type === 'string' ? (
-                        job.job_type.toLowerCase().includes('full') ? 'bg-blue-100 text-blue-800' : 
-                        job.job_type.toLowerCase().includes('part') ? 'bg-purple-100 text-purple-800' : 
-                        'bg-green-100 text-green-800'
-                      ) : 'bg-gray-100 text-gray-600'
-                    }`}>
-                      {job.job_type || t('typeNotSpecified')}
-                    </span>
-                  </div>
-                  
-                  {job.tags && Array.isArray(job.tags) && job.tags.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {job.tags.map((tag, index) => (
-                        <span key={index} className="bg-gray-100 text-gray-800 text-xs px-3 py-1 rounded-full">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  
-                  <div className="mt-4 flex justify-between items-center pt-4 border-t border-gray-100">
-                    <span className="text-gray-500 text-sm">{job.posted || t('dateNotSpecified')}</span>
-                    <span className="font-medium text-gray-900">
-                      {(job.salary_min && job.salary_max) ? 
-                        `€${job.salary_min.toLocaleString()} - €${job.salary_max.toLocaleString()}` : 
-                        t('salaryNotSpecified')}
-                    </span>
-                  </div>
-                  
-                  {job.url && (
-                    <div className="mt-4 text-right">
-                      <span className="inline-flex items-center text-blue-600 hover:text-blue-800">
-                        {t('applyNow')}
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      )}
     </main>
   );
 }

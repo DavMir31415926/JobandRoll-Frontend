@@ -1,0 +1,748 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
+import { Filter, Briefcase, Building2, GraduationCap, DollarSign, ChevronDown, ChevronUp, ChevronRight, Search, X, Square, CheckSquare, MapPin, Globe } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+interface SubCategory {
+  id: string;
+  name: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  subcategories: SubCategory[];
+}
+
+interface FiltersProps {
+  onFilterChange: (filters: any) => void;
+  initialFilters?: any;
+}
+
+export default function JobFilters({ onFilterChange, initialFilters = {} }: FiltersProps) {
+  const t = useTranslations();
+  const tJobs = useTranslations('jobs');
+  const locale = useLocale();
+  
+  // States
+  const [branches, setBranches] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+  const [branchError, setBranchError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [expandedFilters, setExpandedFilters] = useState<string[]>([]);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  
+  const [filters, setFilters] = useState({
+    branch: Array.isArray(initialFilters.branch) ? initialFilters.branch : [],
+    job_type: initialFilters.job_type || '',
+    experience_level: initialFilters.experience_level || '',
+    location: initialFilters.location || '',
+    salary_min: initialFilters.salary_min || '',
+    language: initialFilters.language || 'all',
+  });
+  
+// Try to get translations for branch names, using the display name as fallback
+const getBranchTranslation = (branchName: string) => {
+    try {
+      // Try to get the translation using the exact branch name as the key
+      return t(`branch.${branchName}`, { fallback: branchName });
+    } catch (error) {
+      // If there was an error with translation, use the original name
+      return branchName;
+    }
+  };
+
+  // Functions for getting displayable names - use translations
+const getDisplayName = (category: Category) => {
+    // Use translated name instead of direct name
+    return getBranchTranslation(category.name);
+  };
+  
+  const getSubcategoryDisplayName = (subcategory: SubCategory) => {
+    // Use translated name instead of direct name
+    return getBranchTranslation(subcategory.name);
+  };
+  
+  // Search results with display names
+  const [searchResults, setSearchResults] = useState<{
+    id: string, 
+    name: string, 
+    displayName: string, 
+    type: 'category' | 'subcategory', 
+    parentId?: string
+  }[]>([]);
+
+  // Toggle a filter section expansion
+  const toggleFilterExpansion = (filterName: string) => {
+    setExpandedFilters(prev => 
+      prev.includes(filterName)
+        ? prev.filter(name => name !== filterName)
+        : [...prev, filterName]
+    );
+  };
+  
+  // Fetch branches
+  useEffect(() => {
+    async function fetchBranches() {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/jobs/branches');
+        const data = await response.json();
+        
+        if (data.success && Array.isArray(data.branches)) {
+          // Store the branches directly - they should already have properly formatted names
+          setBranches(data.branches);
+          
+          // Auto-expand categories that have selected values
+          if (filters.branch.length > 0) {
+            const categoriesToExpand = new Set<string>();
+            
+            for (const category of data.branches) {
+              // If the category name is selected, expand it
+              if (filters.branch.includes(category.name)) {
+                categoriesToExpand.add(category.id);
+              }
+              
+              // If any subcategory is selected, expand the parent
+              for (const subcategory of category.subcategories) {
+                if (filters.branch.includes(subcategory.name)) {
+                  categoriesToExpand.add(category.id);
+                  break;
+                }
+              }
+            }
+            
+            setExpandedCategories(Array.from(categoriesToExpand));
+          }
+        } else {
+          setBranchError('Failed to load branch categories');
+        }
+      } catch (error) {
+        setBranchError('Error loading branch categories');
+        console.error('Error fetching branches:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchBranches();
+  }, []);
+
+  // Branch search functionality
+  useEffect(() => {
+    if (searchTerm.length >= 2 && branches.length > 0) {
+      const results: {id: string, name: string, displayName: string, type: 'category' | 'subcategory', parentId?: string}[] = [];
+      const searchTermLower = searchTerm.toLowerCase();
+      
+      branches.forEach(category => {
+        // Use direct name from data for display and search
+        const categoryDisplayName = category.name;
+        // Search in main categories
+        if (categoryDisplayName.toLowerCase().includes(searchTermLower)) {
+          results.push({
+            id: category.id,
+            name: category.name,
+            displayName: categoryDisplayName,
+            type: 'category'
+          });
+        }
+        
+        // Search in subcategories
+        category.subcategories.forEach(subcategory => {
+          const subcategoryDisplayName = subcategory.name;
+          if (subcategoryDisplayName.toLowerCase().includes(searchTermLower)) {
+            results.push({
+              id: subcategory.id,
+              name: subcategory.name,
+              displayName: subcategoryDisplayName,
+              type: 'subcategory',
+              parentId: category.id
+            });
+          }
+        });
+      });
+      
+      setSearchResults(results);
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchTerm, branches]);
+
+  // Handle filter changes for non-branch filters
+  const handleFilterChange = (key: string, value: string) => {
+    const newFilters = {
+      ...filters,
+      [key]: value,
+    };
+    setFilters(newFilters);
+    onFilterChange(newFilters);
+  };
+  
+  // Branch-specific functions
+  const toggleCategory = (categoryId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedCategories(prev => 
+      prev.includes(categoryId)
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
+
+  const isSelected = (branchId: string) => filters.branch.includes(branchId);
+
+  const toggleBranchSelection = (branchName: string, branchId?: string) => {
+    // For filtering, we need to use the ID, not the display name
+    const valueToUse = branchId || branchName;
+    
+    let newBranches: string[];
+    
+    if (isSelected(valueToUse)) {
+      // Remove the branch
+      newBranches = filters.branch.filter((name: string) => name !== valueToUse);
+    } else {
+      // Add the branch
+      newBranches = [...filters.branch, valueToUse];
+    }
+    
+    const newFilters = {
+      ...filters,
+      branch: newBranches
+    };
+    setFilters(newFilters);
+    onFilterChange(newFilters);
+  };
+
+  const toggleCategoryWithSubcategories = (category: Category) => {
+    // For filtering, we need to use the ID, not the display name
+    const categoryId = category.id;
+    const subcategoryIds = category.subcategories.map(subcat => subcat.id);
+    const allIds = [categoryId, ...subcategoryIds];
+    
+    // Check if all subcategories are already selected
+    const allSelected = allIds.every(id => isSelected(id));
+    
+    let newBranches: string[];
+    if (allSelected) {
+      // If all are selected, remove all
+      newBranches = filters.branch.filter((name: string) => !allIds.includes(name));
+    } else {
+      // Otherwise, add all that aren't already selected
+      newBranches = [...filters.branch];
+      for (const id of allIds) {
+        if (!newBranches.includes(id)) {
+          newBranches.push(id);
+        }
+      }
+    }
+    
+    const newFilters = {
+      ...filters,
+      branch: newBranches
+    };
+    setFilters(newFilters);
+    onFilterChange(newFilters);
+  };
+
+  const handleSearchResultSelect = (result: {id: string, name: string, displayName: string, type: 'category' | 'subcategory', parentId?: string}) => {
+    // Toggle this branch in the selection using the ID
+    toggleBranchSelection(result.name, result.id);
+    
+    // If it's a subcategory, expand its parent category
+    if (result.type === 'subcategory' && result.parentId) {
+      setExpandedCategories(prev => 
+        prev.includes(result.parentId!) ? prev : [...prev, result.parentId!]
+      );
+    }
+    
+    setSearchTerm('');
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  };
+
+  // Function to check if all subcategories of a category are selected
+  const areAllSubcategoriesSelected = (category: Category) => {
+    return category.subcategories.every(subcat => isSelected(subcat.id));
+  };
+
+  // Function to check if some (but not all) subcategories are selected
+  const areSomeSubcategoriesSelected = (category: Category) => {
+    const selectedSubcats = category.subcategories.filter(subcat => isSelected(subcat.id));
+    return selectedSubcats.length > 0 && selectedSubcats.length < category.subcategories.length;
+  };
+
+  // Render the checkbox icon based on selection state
+  const renderCheckbox = (isChecked: boolean, isIndeterminate: boolean = false) => {
+    if (isIndeterminate) {
+      return (
+        <div className="w-5 h-5 border border-blue-500 rounded flex items-center justify-center bg-white">
+          <div className="w-3 h-3 bg-blue-500"></div>
+        </div>
+      );
+    }
+    
+    return isChecked ? (
+      <CheckSquare className="w-5 h-5 text-blue-600" />
+    ) : (
+      <Square className="w-5 h-5 text-gray-400" />
+    );
+  };
+
+  // Job Types
+  const jobTypes = [
+    { value: 'full-time', label: tJobs('fullTime') },
+    { value: 'part-time', label: tJobs('partTime') },
+    { value: 'contract', label: tJobs('contract') },
+    { value: 'remote', label: tJobs('remote') },
+    { value: 'internship', label: tJobs('internship') }
+  ];
+
+  // Experience Levels
+  const experienceLevels = [
+    { value: 'entry', label: tJobs('entryLevel') },
+    { value: 'mid', label: tJobs('midLevel') },
+    { value: 'senior', label: tJobs('seniorLevel') },
+    { value: 'executive', label: tJobs('executiveLevel') }
+  ];
+
+  // Salary Ranges
+  const salaryRanges = [
+    { value: '30000', label: '€30,000+' },
+    { value: '50000', label: '€50,000+' },
+    { value: '70000', label: '€70,000+' },
+    { value: '100000', label: '€100,000+' },
+    { value: '150000', label: '€150,000+' }
+  ];
+
+  const languages = [
+    { value: 'all', label: tJobs('allLanguages') },
+    { value: 'Englisch', label: tJobs('english') },
+    { value: 'German', label: tJobs('german') }
+  ];
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div className="flex items-center mb-4">
+        <Filter className="mr-2 text-blue-600" />
+        <h3 className="text-lg font-semibold">{tJobs('filterJobs')}</h3>
+      </div>
+
+      <div className="space-y-4">
+        {/* Branch/Industry Filter - Collapsible */}
+        <div className="filter-group">
+          <div 
+            className="flex items-center justify-between cursor-pointer" 
+            onClick={() => toggleFilterExpansion('branch')}
+          >
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              <Building2 className="inline-block w-4 h-4 mr-1" />
+              {tJobs('industry')}
+              {filters.branch.length > 0 && (
+                <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                  {filters.branch.length}
+                </span>
+              )}
+            </label>
+            {expandedFilters.includes('branch') ? (
+              <ChevronUp className="w-5 h-5 text-gray-500" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-gray-500" />
+            )}
+          </div>
+          
+          {expandedFilters.includes('branch') && (
+            <div className="mt-2 border border-gray-200 rounded p-3">
+              {/* Branch loading state */}
+              {loading ? (
+                <div className="flex justify-center py-3">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                </div>
+              ) : branchError ? (
+                <div className="text-red-500 text-sm py-2">{branchError}</div>
+              ) : (
+                <div>
+                  {/* Search input */}
+                  <div className="mb-3">
+                    <div className="relative flex items-center">
+                      <Search className="absolute left-2 h-4 w-4 text-gray-400" />
+                      <input
+                        ref={searchInputRef}
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder={tJobs('searchIndustries')}
+                        className="pl-8 pr-8 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      />
+                      {searchTerm && (
+                        <button 
+                          onClick={handleClearSearch}
+                          className="absolute right-2 text-gray-400 hover:text-gray-600"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Search results */}
+                  {searchResults.length > 0 && (
+                    <div className="mb-3">
+                      <div className="text-xs text-gray-500 mb-1">{tJobs('searchResults')}</div>
+                      <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-md divide-y divide-gray-100">
+                        {searchResults.map(result => (
+                          <button
+                            key={`${result.type}-${result.id}`}
+                            onClick={() => handleSearchResultSelect(result)}
+                            className="w-full text-left p-2 text-sm hover:bg-gray-50 transition-colors flex items-center"
+                          >
+                              <span className="mr-2">
+                                {renderCheckbox(isSelected(result.id))}
+                              </span>
+                              <span className="mr-2 text-xs px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-600">
+                                {result.type === 'category' ? tJobs('mainCategory') : tJobs('subCategory')}
+                              </span>
+                              <span className={isSelected(result.id) ? 'font-medium' : ''}>
+                                {result.displayName}
+                              </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* "All Industries" option */}
+                  {!searchTerm && (
+                    <div className="mb-4">
+                      <button
+                        onClick={() => {
+                          const newFilters = { ...filters, branch: [] };
+                          setFilters(newFilters);
+                          onFilterChange(newFilters);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded transition-colors flex items-center ${
+                          filters.branch.length === 0 ? 'bg-blue-100 text-blue-700 font-medium' : 'hover:bg-gray-100'
+                        }`}
+                      >
+                        <span className="mr-2">
+                          {renderCheckbox(filters.branch.length === 0)}
+                        </span>
+                        {tJobs('allIndustries')}
+                      </button>
+                    </div>
+                  )}
+                  
+                  {/* Categories list */}
+                  {!searchTerm && (
+                    <div className="space-y-1 max-h-72 overflow-y-auto pr-1">
+                      {branches.map((category) => {
+                        const isCategorySelected = isSelected(category.id);
+                        const allSubsSelected = areAllSubcategoriesSelected(category);
+                        const someSubsSelected = areSomeSubcategoriesSelected(category);
+                        const isIndeterminate = isCategorySelected ? false : someSubsSelected;
+                        const isChecked = isCategorySelected || allSubsSelected;
+                        
+                        return (
+                          <div key={category.id} className="category">
+                            <div 
+                              className={`flex items-center justify-between px-3 py-2 cursor-pointer rounded transition-colors hover:bg-gray-100 ${
+                                (isCategorySelected || allSubsSelected) ? 'bg-blue-50' : ''
+                              }`}
+                            >
+                              <div 
+                                className="flex-grow text-left flex items-center"
+                                onClick={() => toggleCategoryWithSubcategories(category)}
+                              >
+                                <span className="mr-2">
+                                  {renderCheckbox(isChecked, isIndeterminate)}
+                                </span>
+                                <span className={isChecked ? 'font-medium' : ''}>
+                                  {getDisplayName(category)}
+                                </span>
+                              </div>
+                              <button 
+                                onClick={(e) => toggleCategory(category.id, e)}
+                                className="ml-2 focus:outline-none"
+                                aria-label={expandedCategories.includes(category.id) ? "Collapse" : "Expand"}
+                              >
+                                {expandedCategories.includes(category.id) ? (
+                                  <ChevronDown className="h-4 w-4" />
+                                ) : (
+                                  <ChevronRight className="h-4 w-4" />
+                                )}
+                              </button>
+                            </div>
+                            
+                            {expandedCategories.includes(category.id) && (
+                              <div className="ml-4 pl-2 border-l border-gray-200 mt-1 space-y-1">
+                                {category.subcategories.map((subcategory) => (
+                                  <button
+                                    key={subcategory.id}
+                                    onClick={() => toggleBranchSelection(subcategory.name, subcategory.id)}
+                                    className={`w-full text-left px-3 py-2 text-sm rounded transition-colors hover:bg-gray-100 flex items-center ${
+                                      isSelected(subcategory.id) ? 'bg-blue-50' : ''
+                                    }`}
+                                  >
+                                    <span className="mr-2">
+                                      {renderCheckbox(isSelected(subcategory.id))}
+                                    </span>
+                                    <span className={isSelected(subcategory.id) ? 'font-medium' : ''}>
+                                      {getSubcategoryDisplayName(subcategory)}
+                                    </span>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Language Filter */}
+        <div className="filter-group">
+          <div 
+            className="flex items-center justify-between cursor-pointer" 
+            onClick={() => toggleFilterExpansion('language')}
+          >
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              <Globe className="inline-block w-4 h-4 mr-1" />
+              {tJobs('language')}
+              {filters.language && filters.language !== 'all' && (
+                <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                  1
+                </span>
+              )}
+            </label>
+            {expandedFilters.includes('language') ? (
+              <ChevronUp className="w-5 h-5 text-gray-500" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-gray-500" />
+            )}
+          </div>
+          
+          {expandedFilters.includes('language') && (
+            <div className="mt-2">
+              <select
+                id="language-filter"
+                value={filters.language}
+                onChange={(e) => handleFilterChange('language', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {languages.map((lang) => (
+                  <option key={lang.value} value={lang.value}>
+                    {lang.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+
+        {/* Job Type Filter */}
+        <div className="filter-group">
+          <div 
+            className="flex items-center justify-between cursor-pointer" 
+            onClick={() => toggleFilterExpansion('job_type')}
+          >
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              <Briefcase className="inline-block w-4 h-4 mr-1" />
+              {tJobs('jobType')}
+              {filters.job_type && (
+                <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                  1
+                </span>
+              )}
+            </label>
+            {expandedFilters.includes('job_type') ? (
+              <ChevronUp className="w-5 h-5 text-gray-500" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-gray-500" />
+            )}
+          </div>
+          
+          {expandedFilters.includes('job_type') && (
+            <div className="mt-2">
+              <select
+                id="job-type-filter"
+                value={filters.job_type}
+                onChange={(e) => handleFilterChange('job_type', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">{tJobs('allTypes')}</option>
+                {jobTypes.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+
+        {/* Experience Level Filter */}
+        <div className="filter-group">
+          <div 
+            className="flex items-center justify-between cursor-pointer" 
+            onClick={() => toggleFilterExpansion('experience_level')}
+          >
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              <GraduationCap className="inline-block w-4 h-4 mr-1" />
+              {tJobs('experienceLevel')}
+              {filters.experience_level && (
+                <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                  1
+                </span>
+              )}
+            </label>
+            {expandedFilters.includes('experience_level') ? (
+              <ChevronUp className="w-5 h-5 text-gray-500" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-gray-500" />
+            )}
+          </div>
+          
+          {expandedFilters.includes('experience_level') && (
+            <div className="mt-2">
+              <select
+                id="experience-filter"
+                value={filters.experience_level}
+                onChange={(e) => handleFilterChange('experience_level', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">{tJobs('allExperience')}</option>
+                {experienceLevels.map((level) => (
+                  <option key={level.value} value={level.value}>
+                    {level.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+
+        {/* Location Filter */}
+        <div className="filter-group">
+          <div 
+            className="flex items-center justify-between cursor-pointer" 
+            onClick={() => toggleFilterExpansion('location')}
+          >
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              <MapPin className="inline-block w-4 h-4 mr-1" />
+              {tJobs('location')}
+              {filters.location && (
+                <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                  1
+                </span>
+              )}
+            </label>
+            {expandedFilters.includes('location') ? (
+              <ChevronUp className="w-5 h-5 text-gray-500" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-gray-500" />
+            )}
+          </div>
+          
+          {expandedFilters.includes('location') && (
+            <div className="mt-2">
+              <input
+                type="text"
+                id="location-filter"
+                placeholder={tJobs('locationPlaceholder')}
+                value={filters.location}
+                onChange={(e) => handleFilterChange('location', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Salary Filter */}
+        <div className="filter-group">
+          <div 
+            className="flex items-center justify-between cursor-pointer" 
+            onClick={() => toggleFilterExpansion('salary_min')}
+          >
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              <DollarSign className="inline-block w-4 h-4 mr-1" />
+              {tJobs('minimumSalary')}
+              {filters.salary_min && (
+                <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                  1
+                </span>
+              )}
+            </label>
+            {expandedFilters.includes('salary_min') ? (
+              <ChevronUp className="w-5 h-5 text-gray-500" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-gray-500" />
+            )}
+          </div>
+          
+          {expandedFilters.includes('salary_min') && (
+            <div className="mt-2">
+              <select
+                id="salary-filter"
+                value={filters.salary_min}
+                onChange={(e) => handleFilterChange('salary_min', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">{tJobs('anySalary')}</option>
+                {salaryRanges.map((range) => (
+                  <option key={range.value} value={range.value}>
+                    {range.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+
+        {/* Filter Actions */}
+        <div className="flex justify-between pt-4">
+          <motion.button
+            type="button"
+            onClick={() => {
+              const clearedFilters = {
+                branch: [],
+                job_type: '',
+                experience_level: '',
+                location: '',
+                salary_min: '',
+                language: 'all',
+              };
+              setFilters(clearedFilters);
+              onFilterChange(clearedFilters);
+            }}
+            className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {tJobs('clearFilters')}
+          </motion.button>
+          
+          <motion.button
+            type="button"
+            onClick={() => onFilterChange(filters)}
+            className="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {tJobs('applyFilters')}
+          </motion.button>
+        </div>
+      </div>
+    </div>
+  );
+}
