@@ -193,10 +193,36 @@ if (language !== 'all') {
     }
     
     // Filter by job type
+    // Get job type range parameters
+    const job_type_min = searchParams.get('job_type_min');
+    const job_type_max = searchParams.get('job_type_max');
+
+    // Filter by job type (exact match or range)
     if (job_type) {
+      // Exact job type match
       filteredJobs = filteredJobs.filter((job) => 
         job.job_type && job.job_type.toLowerCase() === job_type.toLowerCase()
       );
+    } else if (job_type_min || job_type_max) {
+      // Job type range filtering
+      console.log(`Filtering jobs by percentage range: ${job_type_min || '10'}% - ${job_type_max || '100'}%`);
+      
+      filteredJobs = filteredJobs.filter((job) => {
+        // If job doesn't have job_type, include it in results 
+        // (per your requirement to show jobs without job_type specified)
+        if (!job.job_type) return true;
+        
+        // Extract the percentage from job_type (remove the % sign and convert to number)
+        const jobPercentage = parseInt(job.job_type.replace('%', ''));
+        if (isNaN(jobPercentage)) return true; // If not a valid percentage, include it
+        
+        // Check if job percentage is within the specified range
+        const minPercentage = job_type_min ? parseInt(job_type_min) : 10;
+        const maxPercentage = job_type_max ? parseInt(job_type_max) : 100;
+        
+        // Return true if job percentage is within range
+        return jobPercentage >= minPercentage && jobPercentage <= maxPercentage;
+      });
     }
     
     // Filter by experience level
@@ -221,6 +247,34 @@ if (language !== 'all') {
         (job.salary_max && job.salary_max >= minSalary)
       );
     }
+
+    // Sort jobs so that jobs matching the filter criteria exactly come first,
+    // followed by jobs with no job_type specification
+    if (job_type_min || job_type_max || job_type) {
+      console.log('Sorting jobs: prioritizing exact matches before unspecified job types');
+      
+      // Create a custom sorting function
+      filteredJobs.sort((a, b) => {
+        // Case 1: If job A has job_type and job B doesn't, A comes first
+        if (a.job_type && !b.job_type) return -1;
+        
+        // Case 2: If job B has job_type and job A doesn't, B comes first
+        if (!a.job_type && b.job_type) return 1;
+        
+        // Case 3: Both have job_type or both don't have job_type
+        // In this case, sort by creation date (newest first)
+        const dateA = a.created_at ? new Date(a.created_at) : new Date(0);
+        const dateB = b.created_at ? new Date(b.created_at) : new Date(0);
+        return dateB.getTime() - dateA.getTime();
+      });
+    }
+
+    // Return the filtered and sorted jobs
+    return NextResponse.json({
+      success: true,
+      count: filteredJobs.length,
+      jobs: filteredJobs
+    });
 
     // Return the filtered jobs
     return NextResponse.json({

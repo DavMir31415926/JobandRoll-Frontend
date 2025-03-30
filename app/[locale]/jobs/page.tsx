@@ -31,6 +31,8 @@ interface Job {
 interface FilterState {
   branch: string[];
   job_type: string;
+  job_type_min: string; // Add this line
+  job_type_max: string; // Add this line
   experience_level: string;
   location: string;
   salary_min: string;
@@ -53,6 +55,8 @@ export default function JobsPage() {
   const [activeFilters, setActiveFilters] = useState({
     branch: [] as string[],
     job_type: '',
+    job_type_min: '10',  // Add this line
+    job_type_max: '100', // Add this line
     experience_level: '',
     location: '',
     salary_min: '',
@@ -90,7 +94,9 @@ export default function JobsPage() {
       
       // Add filter parameters
       Object.entries(filters).forEach(([key, value]) => {
-        if (key !== 'language') { // Skip language - it's already added
+        // Skip language - it's already added
+        // Also skip job_type_min and job_type_max as we'll handle them specially
+        if (key !== 'language' && key !== 'job_type_min' && key !== 'job_type_max') {
           if (Array.isArray(value)) {
             // Handle array values (e.g., branches)
             value.forEach(item => {
@@ -102,6 +108,14 @@ export default function JobsPage() {
           }
         }
       });
+
+      // Handle job type range parameters separately
+      if (filters.job_type_min && filters.job_type_min !== '10') {
+        params.append('job_type_min', String(filters.job_type_min));
+      }
+      if (filters.job_type_max && filters.job_type_max !== '100') {
+        params.append('job_type_max', String(filters.job_type_max));
+      }
       
       console.log(`[Request #${currentRequestId}] Final search params:`, params.toString());
 
@@ -218,13 +232,18 @@ export default function JobsPage() {
             </span>
           ))}
           
-          {activeFilters.job_type && (
+          
+          {(activeFilters.job_type_min !== '10' || activeFilters.job_type_max !== '100') && (
             <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-md flex items-center">
-              {t('jobType')}: {activeFilters.job_type}
+              {t('jobType')}: {activeFilters.job_type_min}% - {activeFilters.job_type_max}%
               <button 
                 className="ml-2 text-blue-500 hover:text-blue-700"
                 onClick={() => {
-                  const newFilters = {...activeFilters, job_type: ''};
+                  const newFilters = {
+                    ...activeFilters, 
+                    job_type_min: '10',
+                    job_type_max: '100'
+                  };
                   setActiveFilters(newFilters);
                   fetchJobs(query, newFilters);
                 }}
@@ -304,6 +323,8 @@ export default function JobsPage() {
               const clearedFilters = {
                 branch: [],
                 job_type: '',
+                job_type_min: '10',  // Add this line
+                job_type_max: '100', // Add this line
                 experience_level: '',
                 location: '',
                 salary_min: '',
@@ -465,11 +486,15 @@ export default function JobsPage() {
                           
                           {job.job_type && (
                             <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                              job.job_type.toLowerCase().includes('full') ? 'bg-blue-100 text-blue-800' : 
-                              job.job_type.toLowerCase().includes('part') ? 'bg-purple-100 text-purple-800' : 
-                              job.job_type.toLowerCase().includes('remote') ? 'bg-green-100 text-green-800' :
-                              job.job_type.toLowerCase().includes('contract') ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-gray-100 text-gray-600'
+                              job.job_type.includes('%') ? 
+                                parseInt(job.job_type) >= 80 ? 'bg-blue-100 text-blue-800' : 
+                                parseInt(job.job_type) >= 50 ? 'bg-purple-100 text-purple-800' : 
+                                'bg-yellow-100 text-yellow-800'
+                              : job.job_type.toLowerCase().includes('full') ? 'bg-blue-100 text-blue-800' : 
+                                job.job_type.toLowerCase().includes('part') ? 'bg-purple-100 text-purple-800' : 
+                                job.job_type.toLowerCase().includes('remote') ? 'bg-green-100 text-green-800' :
+                                job.job_type.toLowerCase().includes('contract') ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-gray-100 text-gray-600'
                             }`}>
                               {job.job_type}
                             </span>

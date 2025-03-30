@@ -38,6 +38,8 @@ export default function JobFilters({ onFilterChange, initialFilters = {} }: Filt
   const [filters, setFilters] = useState({
     branch: Array.isArray(initialFilters.branch) ? initialFilters.branch : [],
     job_type: initialFilters.job_type || '',
+    job_type_min: initialFilters.job_type_min || '10', // Add this line
+    job_type_max: initialFilters.job_type_max || '100', // Add this line
     experience_level: initialFilters.experience_level || '',
     location: initialFilters.location || '',
     salary_min: initialFilters.salary_min || '',
@@ -297,11 +299,16 @@ const getDisplayName = (category: Category) => {
 
   // Job Types
   const jobTypes = [
-    { value: 'full-time', label: tJobs('fullTime') },
-    { value: 'part-time', label: tJobs('partTime') },
-    { value: 'contract', label: tJobs('contract') },
-    { value: 'remote', label: tJobs('remote') },
-    { value: 'internship', label: tJobs('internship') }
+    { value: '100%', label: tJobs('100%') },
+    { value: '90%', label: tJobs('90%') },
+    { value: '80%', label: tJobs('80%') },
+    { value: '70%', label: tJobs('70%') },
+    { value: '60%', label: tJobs('60%') },
+    { value: '50%', label: tJobs('50%') },
+    { value: '40%', label: tJobs('40%') },
+    { value: '30%', label: tJobs('30%') },
+    { value: '20%', label: tJobs('20%') },
+    { value: '10%', label: tJobs('10%') }
   ];
 
   // Experience Levels
@@ -550,7 +557,7 @@ const getDisplayName = (category: Category) => {
           )}
         </div>
 
-        {/* Job Type Filter */}
+        {/* Job Type Filter - Improved Range Slider */}
         <div className="filter-group">
           <div 
             className="flex items-center justify-between cursor-pointer" 
@@ -559,7 +566,7 @@ const getDisplayName = (category: Category) => {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               <Briefcase className="inline-block w-4 h-4 mr-1" />
               {tJobs('jobType')}
-              {filters.job_type && (
+              {(filters.job_type_min !== '10' || filters.job_type_max !== '100') && (
                 <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
                   1
                 </span>
@@ -573,24 +580,136 @@ const getDisplayName = (category: Category) => {
           </div>
           
           {expandedFilters.includes('job_type') && (
-            <div className="mt-2">
-              <select
-                id="job-type-filter"
-                value={filters.job_type}
-                onChange={(e) => handleFilterChange('job_type', e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">{tJobs('allTypes')}</option>
-                {jobTypes.map((type) => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
+            <div className="mt-4 px-2">
+              <div className="flex justify-between mb-2">
+                <span className="text-sm text-gray-600">{filters.job_type_min}%</span>
+                <span className="text-sm text-gray-600">{filters.job_type_max}%</span>
+              </div>
+              
+              <div className="mt-4 mb-6">
+                <div className="relative h-7" id="slider-track">
+                  {/* Track Background */}
+                  <div className="absolute top-1/2 left-0 right-0 h-1 -mt-0.5 bg-gray-200 rounded"></div>
+                  
+                  {/* Colored Track */}
+                  <div 
+                    className="absolute top-1/2 h-1 -mt-0.5 bg-blue-500 rounded"
+                    style={{
+                      left: `${((parseInt(filters.job_type_min) - 10) / 90) * 100}%`,
+                      right: `${(100 - parseInt(filters.job_type_max)) / 90 * 100}%`
+                    }}
+                  ></div>
+                  
+                  {/* Minimum Thumb - Make this handle much larger for easier clicking */}
+                  <div
+                    className="absolute w-5 h-5 top-1/2 -mt-2.5 bg-white border-2 border-blue-500 rounded-full cursor-pointer" 
+                    style={{
+                      left: `${((parseInt(filters.job_type_min) - 10) / 90) * 100}%`,
+                      marginLeft: "-10px", // Half of the width to center it
+                      zIndex: 10
+                    }}
+                    onMouseDown={(e: React.MouseEvent<HTMLDivElement>) => {
+                      e.preventDefault();
+                      
+                      // Store the track element reference
+                      const track = document.getElementById('slider-track');
+                      
+                      const handleMouseMove = (moveEvent: MouseEvent) => {
+                        if (!track) return;
+                        
+                        const rect = track.getBoundingClientRect();
+                        const percentage = Math.max(0, Math.min(1, (moveEvent.clientX - rect.left) / rect.width));
+                        const value = Math.round((percentage * 90 + 10) / 10) * 10; // Round to nearest 10
+                        
+                        if (value <= parseInt(filters.job_type_max)) {
+                          handleFilterChange('job_type_min', value.toString());
+                        }
+                      };
+                      
+                      const handleMouseUp = () => {
+                        document.removeEventListener('mousemove', handleMouseMove);
+                        document.removeEventListener('mouseup', handleMouseUp);
+                      };
+                      
+                      document.addEventListener('mousemove', handleMouseMove);
+                      document.addEventListener('mouseup', handleMouseUp);
+                    }}
+                  >
+                    <div className="absolute inset-0 m-auto w-1 h-1 bg-blue-500 rounded-full"></div>
+                  </div>
+                  
+                  {/* Maximum Thumb */}
+                  <div
+                    className="absolute w-5 h-5 top-1/2 -mt-2.5 bg-white border-2 border-blue-500 rounded-full cursor-pointer" 
+                    style={{
+                      left: `${((parseInt(filters.job_type_max) - 10) / 90) * 100}%`,
+                      marginLeft: "-10px", // Half of the width to center it
+                      zIndex: 10
+                    }}
+                    onMouseDown={(e: React.MouseEvent<HTMLDivElement>) => {
+                      e.preventDefault();
+                      
+                      // Store the track element reference
+                      const track = document.getElementById('slider-track');
+                      
+                      const handleMouseMove = (moveEvent: MouseEvent) => {
+                        if (!track) return;
+                        
+                        const rect = track.getBoundingClientRect();
+                        const percentage = Math.max(0, Math.min(1, (moveEvent.clientX - rect.left) / rect.width));
+                        const value = Math.round((percentage * 90 + 10) / 10) * 10; // Round to nearest 10
+                        
+                        if (value >= parseInt(filters.job_type_min)) {
+                          handleFilterChange('job_type_max', value.toString());
+                        }
+                      };
+                      
+                      const handleMouseUp = () => {
+                        document.removeEventListener('mousemove', handleMouseMove);
+                        document.removeEventListener('mouseup', handleMouseUp);
+                      };
+                      
+                      document.addEventListener('mousemove', handleMouseMove);
+                      document.addEventListener('mouseup', handleMouseUp);
+                    }}
+                  >
+                    <div className="absolute inset-0 m-auto w-1 h-1 bg-blue-500 rounded-full"></div>
+                  </div>
+                </div>
+                
+                {/* Value markers */}
+                <div className="flex justify-between mt-1 px-2.5">
+                  {[10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((value) => (
+                    <div 
+                      key={value} 
+                      className="flex flex-col items-center cursor-pointer"
+                      onClick={() => {
+                        // When clicking directly on a marker, set the nearest handle
+                        const distToMin = Math.abs(value - parseInt(filters.job_type_min));
+                        const distToMax = Math.abs(value - parseInt(filters.job_type_max));
+                        
+                        if (distToMin <= distToMax) {
+                          // Set minimum if it's not greater than max
+                          if (value <= parseInt(filters.job_type_max)) {
+                            handleFilterChange('job_type_min', value.toString());
+                          }
+                        } else {
+                          // Set maximum if it's not less than min
+                          if (value >= parseInt(filters.job_type_min)) {
+                            handleFilterChange('job_type_max', value.toString());
+                          }
+                        }
+                      }}
+                    >
+                      <div className="h-2 w-0.5 bg-gray-300"></div>
+                      <span className="text-xs text-gray-500 mt-1">{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
         </div>
-
         {/* Experience Level Filter */}
         <div className="filter-group">
           <div 
@@ -717,6 +836,8 @@ const getDisplayName = (category: Category) => {
               const clearedFilters = {
                 branch: [],
                 job_type: '',
+                job_type_min: '10',  // Add this line
+                job_type_max: '100', // Add this line
                 experience_level: '',
                 location: '',
                 salary_min: '',
