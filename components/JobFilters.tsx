@@ -45,6 +45,82 @@ export default function JobFilters({ onFilterChange, initialFilters = {} }: Filt
     salary_min: initialFilters.salary_min || '',
     language: initialFilters.language || 'all',
   });
+
+  // Helper functions for dragging
+const handleMinThumbDrag = (initialClientX: number) => {
+  const track = document.getElementById('slider-track');
+  if (!track) return;
+  
+  const handleMove = (clientX: number) => {
+    const rect = track.getBoundingClientRect();
+    const percentage = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const value = Math.round((percentage * 90 + 10) / 10) * 10; // Round to nearest 10
+    
+    if (value <= parseInt(filters.job_type_max)) {
+      handleFilterChange('job_type_min', value.toString());
+    }
+  };
+  
+  const handleMouseMove = (e: MouseEvent) => {
+    handleMove(e.clientX);
+  };
+  
+  const handleTouchMove = (e: TouchEvent) => {
+    if (e.touches.length > 0) {
+      handleMove(e.touches[0].clientX);
+    }
+  };
+  
+  const handleEnd = () => {
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('touchmove', handleTouchMove);
+    document.removeEventListener('mouseup', handleEnd);
+    document.removeEventListener('touchend', handleEnd);
+  };
+  
+  document.addEventListener('mousemove', handleMouseMove);
+  document.addEventListener('touchmove', handleTouchMove, { passive: false });
+  document.addEventListener('mouseup', handleEnd);
+  document.addEventListener('touchend', handleEnd);
+};
+
+const handleMaxThumbDrag = (initialClientX: number) => {
+  const track = document.getElementById('slider-track');
+  if (!track) return;
+  
+  const handleMove = (clientX: number) => {
+    const rect = track.getBoundingClientRect();
+    const percentage = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const value = Math.round((percentage * 90 + 10) / 10) * 10; // Round to nearest 10
+    
+    if (value >= parseInt(filters.job_type_min)) {
+      handleFilterChange('job_type_max', value.toString());
+    }
+  };
+  
+  const handleMouseMove = (e: MouseEvent) => {
+    handleMove(e.clientX);
+  };
+  
+  const handleTouchMove = (e: TouchEvent) => {
+    if (e.touches.length > 0) {
+      e.preventDefault(); // Prevent scrolling while dragging
+      handleMove(e.touches[0].clientX);
+    }
+  };
+  
+  const handleEnd = () => {
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('touchmove', handleTouchMove);
+    document.removeEventListener('mouseup', handleEnd);
+    document.removeEventListener('touchend', handleEnd);
+  };
+  
+  document.addEventListener('mousemove', handleMouseMove);
+  document.addEventListener('touchmove', handleTouchMove, { passive: false });
+  document.addEventListener('mouseup', handleEnd);
+  document.addEventListener('touchend', handleEnd);
+};
   
 // Try to get translations for branch names, using the display name as fallback
 const getBranchTranslation = (branchName: string) => {
@@ -612,29 +688,13 @@ const getDisplayName = (category: Category) => {
                     }}
                     onMouseDown={(e: React.MouseEvent<HTMLDivElement>) => {
                       e.preventDefault();
-                      
-                      // Store the track element reference
-                      const track = document.getElementById('slider-track');
-                      
-                      const handleMouseMove = (moveEvent: MouseEvent) => {
-                        if (!track) return;
-                        
-                        const rect = track.getBoundingClientRect();
-                        const percentage = Math.max(0, Math.min(1, (moveEvent.clientX - rect.left) / rect.width));
-                        const value = Math.round((percentage * 90 + 10) / 10) * 10; // Round to nearest 10
-                        
-                        if (value <= parseInt(filters.job_type_max)) {
-                          handleFilterChange('job_type_min', value.toString());
-                        }
-                      };
-                      
-                      const handleMouseUp = () => {
-                        document.removeEventListener('mousemove', handleMouseMove);
-                        document.removeEventListener('mouseup', handleMouseUp);
-                      };
-                      
-                      document.addEventListener('mousemove', handleMouseMove);
-                      document.addEventListener('mouseup', handleMouseUp);
+                      handleMinThumbDrag(e.clientX);
+                    }}
+                    onTouchStart={(e: React.TouchEvent<HTMLDivElement>) => {
+                      if (e.touches.length > 0) {
+                        e.preventDefault();
+                        handleMinThumbDrag(e.touches[0].clientX);
+                      }
                     }}
                   >
                     <div className="absolute inset-0 m-auto w-1 h-1 bg-blue-500 rounded-full"></div>
@@ -652,29 +712,13 @@ const getDisplayName = (category: Category) => {
                     }}
                     onMouseDown={(e: React.MouseEvent<HTMLDivElement>) => {
                       e.preventDefault();
-                      
-                      // Store the track element reference
-                      const track = document.getElementById('slider-track');
-                      
-                      const handleMouseMove = (moveEvent: MouseEvent) => {
-                        if (!track) return;
-                        
-                        const rect = track.getBoundingClientRect();
-                        const percentage = Math.max(0, Math.min(1, (moveEvent.clientX - rect.left) / rect.width));
-                        const value = Math.round((percentage * 90 + 10) / 10) * 10; // Round to nearest 10
-                        
-                        if (value >= parseInt(filters.job_type_min)) {
-                          handleFilterChange('job_type_max', value.toString());
-                        }
-                      };
-                      
-                      const handleMouseUp = () => {
-                        document.removeEventListener('mousemove', handleMouseMove);
-                        document.removeEventListener('mouseup', handleMouseUp);
-                      };
-                      
-                      document.addEventListener('mousemove', handleMouseMove);
-                      document.addEventListener('mouseup', handleMouseUp);
+                      handleMaxThumbDrag(e.clientX);
+                    }}
+                    onTouchStart={(e: React.TouchEvent<HTMLDivElement>) => {
+                      if (e.touches.length > 0) {
+                        e.preventDefault();
+                        handleMaxThumbDrag(e.touches[0].clientX);
+                      }
                     }}
                   >
                     <div className="absolute inset-0 m-auto w-1 h-1 bg-blue-500 rounded-full"></div>
