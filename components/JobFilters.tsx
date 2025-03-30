@@ -600,12 +600,14 @@ const getDisplayName = (category: Category) => {
                     }}
                   ></div>
                   
-                  {/* Minimum Thumb - Make this handle much larger for easier clicking */}
+                  {/* Minimum Thumb */}
                   <div
                     className="absolute w-5 h-5 top-1/2 -mt-2.5 bg-white border-2 border-blue-500 rounded-full cursor-pointer" 
                     style={{
                       left: `${((parseInt(filters.job_type_min) - 10) / 90) * 100}%`,
                       marginLeft: "-10px", // Half of the width to center it
+                      // Shift slightly left when values are the same
+                      transform: filters.job_type_min === filters.job_type_max ? 'translateX(-4px)' : 'translateX(0)',
                       zIndex: 10
                     }}
                     onMouseDown={(e: React.MouseEvent<HTMLDivElement>) => {
@@ -637,13 +639,15 @@ const getDisplayName = (category: Category) => {
                   >
                     <div className="absolute inset-0 m-auto w-1 h-1 bg-blue-500 rounded-full"></div>
                   </div>
-                  
+
                   {/* Maximum Thumb */}
                   <div
                     className="absolute w-5 h-5 top-1/2 -mt-2.5 bg-white border-2 border-blue-500 rounded-full cursor-pointer" 
                     style={{
                       left: `${((parseInt(filters.job_type_max) - 10) / 90) * 100}%`,
                       marginLeft: "-10px", // Half of the width to center it
+                      // Shift slightly right when values are the same
+                      transform: filters.job_type_min === filters.job_type_max ? 'translateX(4px)' : 'translateX(0)',
                       zIndex: 10
                     }}
                     onMouseDown={(e: React.MouseEvent<HTMLDivElement>) => {
