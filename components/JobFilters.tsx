@@ -617,15 +617,14 @@ const getDisplayName = (category: Category) => {
           {expandedFilters.includes('language') && (
             <div className="mt-2">
               <select
-                id="experience-filter"
-                value={filters.experience_level}
-                onChange={(e) => handleFilterChange('experience_level', e.target.value)}
+                id="language-filter"
+                value={filters.language}
+                onChange={(e) => handleFilterChange('language', e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
               >
-                <option value="" className="text-gray-800">{tJobs('allExperience')}</option>
-                {experienceLevels.map((level) => (
-                  <option key={level.value} value={level.value} className="text-gray-800">
-                    {level.label}
+                {languages.map((lang) => (
+                  <option key={lang.value} value={lang.value} className="text-gray-800">
+                    {lang.label}
                   </option>
                 ))}
               </select>
