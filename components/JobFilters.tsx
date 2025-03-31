@@ -414,8 +414,7 @@ const getDisplayName = (category: Category) => {
     <div className="bg-white rounded-lg shadow-md p-6 mb-8">
       <div className="flex items-center mb-4">
         <Filter className="mr-2 text-blue-600" />
-        <h3 className="text-lg font-semibold">{tJobs('filterJobs')}</h3>
-      </div>
+        <h3 className="text-lg font-semibold text-gray-800">{tJobs('filterJobs')}</h3>      </div>
 
       <div className="space-y-4">
         {/* Branch/Industry Filter - Collapsible */}
@@ -424,7 +423,7 @@ const getDisplayName = (category: Category) => {
             className="flex items-center justify-between cursor-pointer" 
             onClick={() => toggleFilterExpansion('branch')}
           >
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-800 mb-1">
               <Building2 className="inline-block w-4 h-4 mr-1" />
               {tJobs('industry')}
               {filters.branch.length > 0 && (
@@ -545,7 +544,7 @@ const getDisplayName = (category: Category) => {
                                 <span className="mr-2">
                                   {renderCheckbox(isChecked, isIndeterminate)}
                                 </span>
-                                <span className={isChecked ? 'font-medium' : ''}>
+                                <span className={isChecked ? 'font-medium text-gray-800' : 'text-gray-700'}>
                                   {getDisplayName(category)}
                                 </span>
                               </div>
@@ -575,7 +574,7 @@ const getDisplayName = (category: Category) => {
                                     <span className="mr-2">
                                       {renderCheckbox(isSelected(subcategory.id))}
                                     </span>
-                                    <span className={isSelected(subcategory.id) ? 'font-medium' : ''}>
+                                    <span className={isSelected(subcategory.id) ? 'font-medium text-gray-800' : 'text-gray-700'}>
                                       {getSubcategoryDisplayName(subcategory)}
                                     </span>
                                   </button>
@@ -599,7 +598,7 @@ const getDisplayName = (category: Category) => {
             className="flex items-center justify-between cursor-pointer" 
             onClick={() => toggleFilterExpansion('language')}
           >
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-800 mb-1">
               <Globe className="inline-block w-4 h-4 mr-1" />
               {tJobs('language')}
               {filters.language && filters.language !== 'all' && (
@@ -618,14 +617,15 @@ const getDisplayName = (category: Category) => {
           {expandedFilters.includes('language') && (
             <div className="mt-2">
               <select
-                id="language-filter"
-                value={filters.language}
-                onChange={(e) => handleFilterChange('language', e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                id="experience-filter"
+                value={filters.experience_level}
+                onChange={(e) => handleFilterChange('experience_level', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
               >
-                {languages.map((lang) => (
-                  <option key={lang.value} value={lang.value}>
-                    {lang.label}
+                <option value="" className="text-gray-800">{tJobs('allExperience')}</option>
+                {experienceLevels.map((level) => (
+                  <option key={level.value} value={level.value} className="text-gray-800">
+                    {level.label}
                   </option>
                 ))}
               </select>
@@ -639,7 +639,7 @@ const getDisplayName = (category: Category) => {
             className="flex items-center justify-between cursor-pointer" 
             onClick={() => toggleFilterExpansion('job_type')}
           >
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-800 mb-1">
               <Briefcase className="inline-block w-4 h-4 mr-1" />
               {tJobs('jobType')}
               {(filters.job_type_min !== '10' || filters.job_type_max !== '100') && (
@@ -764,7 +764,7 @@ const getDisplayName = (category: Category) => {
             className="flex items-center justify-between cursor-pointer" 
             onClick={() => toggleFilterExpansion('experience_level')}
           >
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-800 mb-1">
               <GraduationCap className="inline-block w-4 h-4 mr-1" />
               {tJobs('experienceLevel')}
               {filters.experience_level && (
@@ -786,11 +786,11 @@ const getDisplayName = (category: Category) => {
                 id="experience-filter"
                 value={filters.experience_level}
                 onChange={(e) => handleFilterChange('experience_level', e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
               >
-                <option value="">{tJobs('allExperience')}</option>
+                <option value="" className="text-gray-800">{tJobs('allExperience')}</option>
                 {experienceLevels.map((level) => (
-                  <option key={level.value} value={level.value}>
+                  <option key={level.value} value={level.value} className="text-gray-800">
                     {level.label}
                   </option>
                 ))}
@@ -805,7 +805,7 @@ const getDisplayName = (category: Category) => {
             className="flex items-center justify-between cursor-pointer" 
             onClick={() => toggleFilterExpansion('location')}
           >
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-800 mb-1">
               <MapPin className="inline-block w-4 h-4 mr-1" />
               {tJobs('location')}
               {filters.location && (
@@ -841,7 +841,7 @@ const getDisplayName = (category: Category) => {
             className="flex items-center justify-between cursor-pointer" 
             onClick={() => toggleFilterExpansion('salary_min')}
           >
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-800 mb-1">
               <DollarSign className="inline-block w-4 h-4 mr-1" />
               {tJobs('minimumSalary')}
               {filters.salary_min && (
@@ -863,11 +863,11 @@ const getDisplayName = (category: Category) => {
                 id="salary-filter"
                 value={filters.salary_min}
                 onChange={(e) => handleFilterChange('salary_min', e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
               >
-                <option value="">{tJobs('anySalary')}</option>
+                <option value="" className="text-gray-800">{tJobs('anySalary')}</option>
                 {salaryRanges.map((range) => (
-                  <option key={range.value} value={range.value}>
+                  <option key={range.value} value={range.value} className="text-gray-800">
                     {range.label}
                   </option>
                 ))}
