@@ -39,8 +39,8 @@ const translateBranchName = (branchName: string) => {
     return t(`branch.${branchName}`, { fallback: branchName });
   };
 
-  // Create translated version of the branches
-  const createTranslatedBranches = (originalBranches: Category[]) => {
+  // This function should be properly translating the branch names
+  const createTranslatedBranches = (originalBranches: Category[]): Category[] => {
     return originalBranches.map(category => ({
       id: category.id,
       name: translateBranchName(category.id),
@@ -100,27 +100,45 @@ const translateBranchName = (branchName: string) => {
     fetchBranches();
   }, []);
 
+  // First, find where searchResults is being generated
   useEffect(() => {
-    if (searchTerm.length >= 2 && translatedBranches.length > 0) {
-      const results: {id: string, name: string, type: 'category' | 'subcategory', parentId?: string}[] = [];
+    if (searchTerm.length >= 2 && branches.length > 0) {
+      const results: {
+        id: string;
+        name: string;
+        type: 'category' | 'subcategory';
+        parentId?: string;
+      }[] = [];
+      
       const searchTermLower = searchTerm.toLowerCase();
       
-      translatedBranches.forEach(category => {
-        // Search in main categories
-        if (category.name.toLowerCase().includes(searchTermLower)) {
+      // Search through the original branches and their translations
+      branches.forEach(category => {
+        // Get both original and translated names
+        const originalName = category.id;
+        const translatedName = translateBranchName(category.id);
+        
+        // Check if either name contains the search term
+        if (originalName.toLowerCase().includes(searchTermLower) || 
+            translatedName.toLowerCase().includes(searchTermLower)) {
           results.push({
             id: category.id,
-            name: category.name,
+            name: translatedName, // Use the translated name for display
             type: 'category'
           });
         }
         
-        // Search in subcategories
+        // Search through subcategories
         category.subcategories.forEach(subcategory => {
-          if (subcategory.name.toLowerCase().includes(searchTermLower)) {
+          const originalSubName = subcategory.id;
+          const translatedSubName = translateBranchName(subcategory.id);
+          
+          // Check if either name contains the search term
+          if (originalSubName.toLowerCase().includes(searchTermLower) || 
+              translatedSubName.toLowerCase().includes(searchTermLower)) {
             results.push({
               id: subcategory.id,
-              name: subcategory.name,
+              name: translatedSubName, // Use the translated name for display
               type: 'subcategory',
               parentId: category.id
             });
@@ -128,11 +146,14 @@ const translateBranchName = (branchName: string) => {
         });
       });
       
+      console.log('Search term:', searchTermLower);
+      console.log('Search results:', results.map(r => r.name));
+      
       setSearchResults(results);
     } else {
       setSearchResults([]);
     }
-  }, [searchTerm, translatedBranches]);
+  }, [searchTerm, branches, translateBranchName]);
 
   // Toggle the filter visibility
   const toggleExpand = () => {

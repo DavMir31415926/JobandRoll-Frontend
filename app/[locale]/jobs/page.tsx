@@ -35,6 +35,8 @@ interface FilterState {
   job_type_max: string; // Add this line
   experience_level: string;
   location: string;
+  locationId?: number;
+  radius: string;
   salary_min: string;
   language: string;
 }
@@ -59,6 +61,8 @@ export default function JobsPage() {
     job_type_max: '100', // Add this line
     experience_level: '',
     location: '',
+    locationId: undefined,
+    radius: '0',
     salary_min: '',
     language: 'all' // Add this line
   });
@@ -267,13 +271,16 @@ export default function JobsPage() {
               </button>
             </span>
           )}
-          {activeFilters.location && (
+          {(activeFilters.location || activeFilters.locationId) && (
             <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-md flex items-center">
               {t('location')}: {activeFilters.location}
+              {activeFilters.radius && parseInt(activeFilters.radius) > 0 && (
+                <span className="ml-1 text-xs bg-blue-50 px-1 rounded">±{activeFilters.radius}km</span>
+              )}
               <button 
                 className="ml-2 text-blue-500 hover:text-blue-700"
                 onClick={() => {
-                  const newFilters = {...activeFilters, location: ''};
+                  const newFilters = {...activeFilters, location: '', locationId: undefined, radius: '0'};
                   setActiveFilters(newFilters);
                   fetchJobs(query, newFilters);
                 }}
@@ -327,6 +334,8 @@ export default function JobsPage() {
                 job_type_max: '100', // Add this line
                 experience_level: '',
                 location: '',
+                locationId: undefined,
+                radius: '0',
                 salary_min: '',
                 language: 'all'
               };

@@ -158,7 +158,9 @@
     "language": "Sprache",
     "allLanguages": "Alle Sprachen",
     "english": "Englisch",
-    "german": "Deutsch"
+    "german": "Deutsch",
+    "radius": "Umkreis (km)",
+    "exactLocation": "Nur exakte Position"
   },
   "branch": {
   "Technology & IT": "Technologie & IT",
