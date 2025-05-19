@@ -13,7 +13,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">{t('jobAndRoll')}</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('Jopoly')}</h3>
             <p className="text-gray-400 mb-4">
               {t('footerTagline')}
             </p>
@@ -109,12 +109,12 @@ const Footer = () => {
         
         <div className="border-t border-gray-700 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 text-sm">
-            &copy; {new Date().getFullYear()} JobAndRoll. {t('allRightsReserved')}
+            &copy; {new Date().getFullYear()} Jopoly. {t('allRightsReserved')}
           </p>
           <div className="flex items-center mt-4 md:mt-0">
             <Link href="/contact" className="text-gray-400 hover:text-white flex items-center">
               <Mail size={16} className="mr-2" />
-              contact@jobandroll.com
+              contact@jopoly.com
             </Link>
           </div>
         </div>

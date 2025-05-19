@@ -29,7 +29,7 @@ export default function TermsPage() {
           
           <h2 className="text-xl font-semibold mt-8 mb-4">{t('contactTitle')}</h2>
           <p className="mb-4">{t('contactContent')}</p>
-          <p>Email: support@jobandroll.com</p>
+          <p>Email: support@jopoly.com</p>
         </div>
       </div>
     </main>
