@@ -159,7 +159,10 @@
     "english": "English",
     "german": "German",
     "radius": "Radius (km)",
-    "exactLocation": "Exact location only"
+    "exactLocation": "Exact location only",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page"
   },
   "branch": {
   "Technology & IT": "Technology & IT",

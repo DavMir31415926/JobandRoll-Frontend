@@ -59,6 +59,8 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const language = searchParams.get('language') || 'Englisch';
     const query = searchParams.get('q') || '';
+    const page = searchParams.get('page') || '1';
+    const limit = searchParams.get('limit') || '10';
     const branches = searchParams.getAll('branch');
     const job_type = searchParams.get('job_type') || '';
     const job_type_min = searchParams.get('job_type_min');
@@ -71,6 +73,9 @@ export async function GET(request: NextRequest) {
     // Create a copy of all parameters to send to backend
     const params = new URLSearchParams(searchParams.toString());
     
+    params.set('page', page);
+    params.set('limit', limit);
+
     // Make sure radius is properly included if present
     const radiusParam = searchParams.get('radius');
     if (radiusParam && parseInt(radiusParam) > 0) {
@@ -114,6 +119,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       count: jobs.length,
+      page: parseInt(page),
+      total: apiResponse.total || undefined,
       jobs: jobs
     });
   } catch (error) {

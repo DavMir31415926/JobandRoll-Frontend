@@ -52,6 +52,9 @@ export default function JobsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [requestId, setRequestId] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const jobsPerPage = 50; // Match the default in your backend
   
   // Update state for filters - branches is now an array
   const [activeFilters, setActiveFilters] = useState({
@@ -73,7 +76,8 @@ export default function JobsPage() {
   };
   
   // Combine fetchJobs function to handle both initial load and filtering
-    const fetchJobs = async (searchQuery = '', filters: Partial<FilterState> = {}) => {    try {
+  const fetchJobs = async (searchQuery = '', filters: Partial<FilterState> = {}, page = 1) => {
+    try {
       // Generate a new request ID for this fetch
       const currentRequestId = requestId + 1;
       setRequestId(currentRequestId);
@@ -82,14 +86,17 @@ export default function JobsPage() {
       
       // Build the query string
       const params = new URLSearchParams();
-
+  
       console.log(`[Request #${currentRequestId}] Building search params with filters:`, filters);
       
+      // Add pagination parameters
+      params.append('page', page.toString());
+      params.append('limit', jobsPerPage.toString());
+      
       // Ensure we're using the filters parameter that was passed in, not activeFilters
-      // This is important to avoid race conditions
       const languageFilter = filters.language || 'all';
       params.append('language', languageFilter);
-
+  
       console.log(`[Request #${currentRequestId}] language parameter added:`, languageFilter);
       
       if (searchQuery) {
@@ -112,7 +119,7 @@ export default function JobsPage() {
           }
         }
       });
-
+  
       // Handle job type range parameters separately
       if (filters.job_type_min && filters.job_type_min !== '10') {
         params.append('job_type_min', String(filters.job_type_min));
@@ -122,7 +129,7 @@ export default function JobsPage() {
       }
       
       console.log(`[Request #${currentRequestId}] Final search params:`, params.toString());
-
+  
       const response = await fetch(`/api/jobs/search?${params.toString()}`);
       
       // Check if this response is for the most recent request
@@ -148,6 +155,20 @@ export default function JobsPage() {
         jobsData = data;
       } else if (data && Array.isArray(data.jobs)) {
         jobsData = data.jobs;
+        
+        // If the API returns a total count or total pages, use it
+        if (data.total) {
+          setTotalPages(Math.ceil(data.total / jobsPerPage));
+        } else if (data.count) {
+          // If we don't have a total but we have count, and count is less than jobsPerPage
+          // then we know we're on the last page
+          if (data.count < jobsPerPage) {
+            setTotalPages(page);
+          } else {
+            // If we have a full page, there might be more
+            setTotalPages(page + 1);
+          }
+        }
       } else if (data && typeof data === 'object') {
         // Log more details to help debug
         console.log(`[Request #${currentRequestId}] Response keys:`, Object.keys(data));
@@ -162,7 +183,6 @@ export default function JobsPage() {
         }
       }
       
-      // After setting jobsData
       console.log(`[Request #${currentRequestId}] API returned jobs with languages:`, jobsData.map(job => job.language));
       
       console.log(`[Request #${currentRequestId}] Jobs data:`, jobsData);
@@ -184,22 +204,24 @@ export default function JobsPage() {
 
   // Initial load of jobs
   useEffect(() => {
-    console.log('Component mounted or locale changed, loading jobs with filters:', activeFilters);
-    fetchJobs('', activeFilters);
-  }, [locale]);
+    console.log('Component mounted or locale/page changed, loading jobs with filters:', activeFilters);
+    fetchJobs('', activeFilters, currentPage);
+  }, [locale, currentPage]); 
 
   // Handle search form submission
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    fetchJobs(query, activeFilters);
+    setCurrentPage(1); // Reset to first page on new search
+    fetchJobs(query, activeFilters, 1);
   };
   
   // Handle filter changes
   const handleFilterChange = (newFilters: any) => {
     console.log('Filter changed from:', activeFilters, 'to:', newFilters);
     setActiveFilters(newFilters);
+    setCurrentPage(1); // Reset to first page when filters change
     // Use the newFilters directly here, not activeFilters, because state update is asynchronous
-    fetchJobs(query, newFilters);
+    fetchJobs(query, newFilters, 1);
   };
   
   // Function to render active filter badges
@@ -555,6 +577,42 @@ export default function JobsPage() {
                     </motion.div>
                   ))}
                 </div>
+              </div>
+            )}
+            {/* Add this after your jobs list, just before the closing </div> in the Jobs List section */}
+            {!loading && !error && jobs.length > 0 && (
+              <div className="mt-8 flex justify-center">
+                <nav className="inline-flex rounded-md shadow">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className={`relative inline-flex items-center px-3 py-2 rounded-l-md border ${
+                      currentPage === 1 
+                        ? 'border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed' 
+                        : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span className="sr-only">{t('previous')}</span>
+                    &larr; {t('previous')}
+                  </button>
+                  
+                  <span className="relative inline-flex items-center px-4 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-gray-700">
+                    {t('page')} {currentPage} {totalPages > 0 && `/ ${totalPages}`}
+                  </span>
+                  
+                  <button
+                    onClick={() => setCurrentPage(prev => prev + 1)}
+                    disabled={jobs.length < jobsPerPage || (totalPages > 0 && currentPage >= totalPages)}
+                    className={`relative inline-flex items-center px-3 py-2 rounded-r-md border ${
+                      jobs.length < jobsPerPage || (totalPages > 0 && currentPage >= totalPages)
+                        ? 'border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed' 
+                        : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span className="sr-only">{t('next')}</span>
+                    {t('next')} &rarr;
+                  </button>
+                </nav>
               </div>
             )}
           </div>
