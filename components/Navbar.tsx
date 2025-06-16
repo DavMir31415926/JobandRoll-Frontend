@@ -2,18 +2,28 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, User, LogOut } from "lucide-react";
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
+import { useUser } from '@/app/context/UserContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isResourcesOpen, setIsResourcesOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const t = useTranslations('common');
   const pathname = usePathname();
+  const { user, isAuthenticated, logout } = useUser();
   
   const isActive = (path: string) => {
     return pathname.startsWith(`/${path}`);
+  };
+
+  const handleLogout = () => {
+    logout();
+    // Close menus after logout
+    setIsUserMenuOpen(false);
+    setIsOpen(false);
   };
 
   return (
@@ -22,7 +32,7 @@ const Navbar = () => {
         {/* Logo */}
         <Link href="/" className="text-2xl font-bold flex items-center">
           <span className="mr-2">🌐</span>
-          {t('jobAndRoll')}
+          {t('Jopoly')}
         </Link>
 
         {/* Desktop Menu */}
@@ -87,26 +97,105 @@ const Navbar = () => {
             </div>
           </div>
           
-          <Link 
-            href="/dashboard" 
-            className="hover:underline"
-          >
-            {t('dashboard')}
-          </Link>
+          {/* Conditional links based on authentication state */}
+          {isAuthenticated && (
+            <>
+              {user?.role === 'employer' && (
+                <Link 
+                  href="/dashboard" 
+                  className={`hover:underline ${isActive('/dashboard') ? 'font-semibold' : ''}`}
+                >
+                  {t('dashboard')}
+                </Link>
+              )}
+            </>
+          )}
           
-          <Link 
-            href="/login" 
-            className="hover:underline px-3 py-1 border border-white rounded-md"
-          >
-            {t('login')}
-          </Link>
+          {/* Auth Buttons */}
+          {isAuthenticated ? (
+            <div className="relative">
+              <button 
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="flex items-center hover:underline px-3 py-1 border border-white rounded-md"
+              >
+                <User size={16} className="mr-2" />
+                {user?.name?.split(' ')[0] || user?.email?.split('@')[0] || t('account')}
+                <ChevronDown size={16} className="ml-1" />
+              </button>
+              
+              {/* User dropdown menu */}
+              <div className={`absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-md shadow-lg py-2 z-10 ${isUserMenuOpen ? 'block' : 'hidden'}`}>
+                {user?.role === 'employer' && (
+                  <>
+                    <Link 
+                      href="/dashboard" 
+                      className="block px-4 py-2 hover:bg-blue-100"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      {t('dashboard')}
+                    </Link>
+                    <Link 
+                      href="/companies/create" 
+                      className="block px-4 py-2 hover:bg-blue-100"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      {t('createCompany')}
+                    </Link>
+                    <Link 
+                      href="/post-job" 
+                      className="block px-4 py-2 hover:bg-blue-100"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      {t('postJob')}
+                    </Link>
+                  </>
+                )}
+                {user?.role === 'jobseeker' && (
+                  <>
+                    <Link 
+                      href="/saved-jobs" 
+                      className="block px-4 py-2 hover:bg-blue-100"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      {t('savedJobs')}
+                    </Link>
+                    <Link 
+                      href="/profile" 
+                      className="block px-4 py-2 hover:bg-blue-100"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      {t('profile')}
+                    </Link>
+                  </>
+                )}
+                <div className="border-t border-gray-200 my-1"></div>
+                <button 
+                  onClick={handleLogout}
+                  className="flex items-center w-full text-left px-4 py-2 hover:bg-blue-100 text-red-600"
+                >
+                  <LogOut size={16} className="mr-2" />
+                  {t('logout')}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <Link 
+              href="/login" 
+              className="hover:underline px-3 py-1 border border-white rounded-md"
+            >
+              {t('login')}
+            </Link>
+          )}
           
-          <Link 
-            href="/post-job" 
-            className="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
-          >
-            {t('postJob')}
-          </Link>
+          {/* Post Job button - only visible for non-authenticated or employers */}
+          {(!isAuthenticated || (isAuthenticated && user?.role === 'employer')) && (
+            <Link 
+              href={isAuthenticated ? "/post-job" : "/login?redirect=/post-job"}
+              className="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              {t('postJob')}
+            </Link>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -128,9 +217,13 @@ const Navbar = () => {
             <Link href="/companies" className="hover:underline" onClick={() => setIsOpen(false)}>
               {t('companies')}
             </Link>
-            <Link href="/dashboard" className="hover:underline" onClick={() => setIsOpen(false)}>
-              {t('dashboard')}
-            </Link>
+            
+            {/* Conditional Dashboard link */}
+            {isAuthenticated && user?.role === 'employer' && (
+              <Link href="/dashboard" className="hover:underline" onClick={() => setIsOpen(false)}>
+                {t('dashboard')}
+              </Link>
+            )}
             
             {/* Mobile Resources Dropdown */}
             <div>
@@ -159,13 +252,57 @@ const Navbar = () => {
               )}
             </div>
             
+            {/* Authentication links */}
             <div className="pt-2 border-t border-blue-600">
-              <Link href="/login" className="block w-full text-center hover:underline py-2" onClick={() => setIsOpen(false)}>
-                {t('login')}
-              </Link>
-              <Link href="/post-job" className="block w-full text-center bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-gray-200 mt-2" onClick={() => setIsOpen(false)}>
-                {t('postJob')}
-              </Link>
+              {isAuthenticated ? (
+                <>
+                  {/* User-specific links */}
+                  {user?.role === 'employer' && (
+                    <>
+                      <Link href="/companies/create" className="block hover:underline py-1" onClick={() => setIsOpen(false)}>
+                        {t('createCompany')}
+                      </Link>
+                      <Link href="/post-job" className="block hover:underline py-1" onClick={() => setIsOpen(false)}>
+                        {t('postJob')}
+                      </Link>
+                    </>
+                  )}
+                  {user?.role === 'jobseeker' && (
+                    <>
+                      <Link href="/saved-jobs" className="block hover:underline py-1" onClick={() => setIsOpen(false)}>
+                        {t('savedJobs')}
+                      </Link>
+                      <Link href="/profile" className="block hover:underline py-1" onClick={() => setIsOpen(false)}>
+                        {t('profile')}
+                      </Link>
+                    </>
+                  )}
+                  
+                  {/* Logout button */}
+                  <button 
+                    onClick={handleLogout}
+                    className="flex items-center w-full text-left hover:underline py-1 text-red-300 mt-2"
+                  >
+                    <LogOut size={16} className="mr-2" />
+                    {t('logout')}
+                  </button>
+                </>
+              ) : (
+                <Link href="/login" className="block w-full text-center hover:underline py-2" onClick={() => setIsOpen(false)}>
+                  {t('login')}
+                </Link>
+              )}
+              
+              {/* Post Job button - only visible for non-authenticated or employers */}
+              {(!isAuthenticated || (isAuthenticated && user?.role === 'employer')) && (
+                <Link 
+                  href={isAuthenticated ? "/post-job" : "/login?redirect=/post-job"}
+                  className="block w-full text-center bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-gray-200 mt-2" 
+                  onClick={() => setIsOpen(false)}
+                >
+                  {t('postJob')}
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -175,59 +312,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-
-/*"use client";
-import Link from "next/link";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
-import { useTranslations } from 'next-intl';
-
-const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const t = useTranslations('common');
-
-  console.log("Navbar has translations access:", typeof t === 'function' ? "yes" : "no");
-
-  return (
-    <nav className="bg-blue-600 text-white p-4 shadow-lg">
-      <div className="container mx-auto flex justify-between items-center">
-        {/* Logo *//*}
-        <Link href="/" className="text-2xl font-bold">
-          {t('jobAndRoll')}
-        </Link>
-
-        {/* Desktop Menu *//*}
-        <div className="hidden md:flex space-x-6">
-          <Link href="/" className="hover:underline">{t('home')}</Link>
-          <Link href="/jobs" className="hover:underline">{t('jobs')}</Link>
-          <Link href="/companies" className="hover:underline">{t('companies')}</Link>
-          <Link href="/contact" className="hover:underline">{t('contact')}</Link>
-          <Link href="/post-job" className="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-gray-200">
-            {t('postJob')}
-          </Link>
-        </div>
-
-        {/* Mobile Menu Button *//*}
-        <button onClick={() => setIsOpen(!isOpen)} className="md:hidden">
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      {/* Mobile Menu *//*}
-      {isOpen && (
-        <div className="md:hidden mt-2 bg-blue-700 p-4 flex flex-col space-y-4">
-          <Link href="/" className="hover:underline" onClick={() => setIsOpen(false)}>{t('home')}</Link>
-          <Link href="/jobs" className="hover:underline" onClick={() => setIsOpen(false)}>{t('jobs')}</Link>
-          <Link href="/companies" className="hover:underline" onClick={() => setIsOpen(false)}>{t('companies')}</Link>
-          <Link href="/contact" className="hover:underline" onClick={() => setIsOpen(false)}>{t('contact')}</Link>
-          <Link href="/post-job" className="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-gray-200" onClick={() => setIsOpen(false)}>
-            {t('postJob')}
-          </Link>
-        </div>
-      )}
-    </nav>
-  );
-};
-
-export default Navbar;*/

@@ -30,7 +30,13 @@
     "locale": "Locale",
     "message": "Message",
     "serverTime": "Server Time",
-    "translationSample": "Translation Sample"
+    "translationSample": "Translation Sample",
+    "profile": "Profile",
+    "account": "Account",
+    "myCompanies": "My Companies",
+    "myJobs": "My Jobs",
+    "savedJobs": "Saved Jobs",
+    "createCompany": "Create Company"
   },
   "about": {
     "title": "About Us",
@@ -522,7 +528,7 @@
     "filter": "Filter Companies",
     "companyNotFound": "Company not found",
     "backToCompanies": "Back to companies",
-    "loading": "Loading company..."
+    "loading": "Loading companies..."
   },
   "contact": {
     "title": "Contact Us",
@@ -551,7 +557,27 @@
     "contactEmail": "Contact Email",
     "submit": "Post Job",
     "preview": "Preview Job",
-    "success": "Your job has been posted successfully!"
+    "success": "Your job has been posted successfully!",
+    "industry": "Industry/Branch",
+    "employmentType": "Employment Type",
+    "experienceLevel": "Experience Level",
+    "selectExperience": "Select Experience Level",
+    "entryLevel": "Entry Level",
+    "midLevel": "Mid Level",
+    "senior": "Senior",
+    "executive": "Executive",
+    "minSalary": "Minimum Salary (€)",
+    "maxSalary": "Maximum Salary (€)",
+    "language": "Language",
+    "english": "English",
+    "german": "German",
+    "posting": "Posting...",
+    "postJob": "Post Job",
+    "selectCompany": "Select Company",
+    "loading": "Loading...",
+    "noCompanies": "You don't have any companies yet. Please create a company first.",
+    "createCompany": "Create Company",
+    "loadingCompanies": "Loading companies..."
   },
   "login": {
     "title": "Log In",
@@ -562,8 +588,10 @@
     "signIn": "Sign In",
     "noAccount": "Don't have an account?",
     "signUp": "Sign up",
+    "signingIn": "Signing in...",
     "error": "Invalid email or password",
-    "success": "Logged in successfully"
+    "success": "Logged in successfully",
+    "createAccount": "Create an account"
   },
   "register": {
     "title": "Create Account",
@@ -575,10 +603,16 @@
     "agreeToTerms": "I agree to the",
     "termsLink": "Terms of Service",
     "createAccount": "Create Account",
+    "creating": "Wird erstellt...",
     "alreadyHaveAccount": "Already have an account?",
     "signIn": "Sign in",
     "error": "There was an error creating your account",
-    "success": "Account created successfully"
+    "success": "Account created successfully",
+    "role": "I am a",
+    "jobseeker": "Job Seeker",
+    "employer": "Employer",
+    "passwordsDontMatch": "Passwords do not match",
+    "agreeToTermsRequired": "You must agree to the terms"
   },
   "settings": {
     "title": "Settings",
@@ -620,7 +654,31 @@
     "appliedOn": "Applied on",
     "recommendedJobsTitle": "Recommended Jobs",
     "browseMoreLink": "Browse more",
-    "postedOn": "Posted on"
+    "postedOn": "Posted on",
+    "welcome": "Welcome back",
+    "employerSubtitle": "Manage your companies and job postings",
+    "jobseekerSubtitle": "Track your job applications and saved positions",
+    "overview": "Overview",
+    "companies": "Companies",
+    "jobs": "Jobs",
+    "totalCompanies": "Total Companies",
+    "activeJobs": "Active Jobs",
+    "quickActions": "Quick Actions",
+    "createCompany": "Create Company",
+    "postJob": "Post New Job",
+    "savedJobs": "Saved Jobs",
+    "applications": "Applications Sent",
+    "searchJobs": "Search Jobs",
+    "updateProfile": "Update Profile",
+    "myCompanies": "My Companies",
+    "addCompany": "Add Company",
+    "noCompanies": "No companies found",
+    "createFirstCompany": "Create Your First Company",
+    "created": "Created",
+    "myJobs": "My Jobs",
+    "noJobs": "No jobs posted yet",
+    "postFirstJob": "Post Your First Job",
+    "loadingDashboard": "Loading dashboard..."
   },
   "terms": {
     "title": "Terms of Service",

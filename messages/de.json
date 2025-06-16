@@ -30,7 +30,14 @@
     "locale": "Sprache",
     "message": "Nachricht",
     "serverTime": "Serverzeit",
-    "translationSample": "Übersetzungsbeispiel"
+    "translationSample": "Übersetzungsbeispiel",
+    "profile": "Profil",
+    "account": "Konto",
+    "myCompanies": "Meine Unternehmen",
+    "myJobs": "Meine Jobs",
+    "savedJobs": "Gespeicherte Jobs",
+    "createCompany": "Unternehmen erstellen"
+
   },
   "about": {
     "title": "Über uns",
@@ -523,7 +530,12 @@
     "filter": "Unternehmen filtern",
     "companyNotFound": "Unternehmen nicht gefunden",
     "backToCompanies": "Zurück zu Unternehmen",
-    "loading": "Unternehmen wird geladen..."
+    "createCompany": "Unternehmen erstellen",
+    "companyName": "Unternehmensname",
+    "companySize": "Unternehmensgröße",
+    "creating": "Wird erstellt...",
+    "noCompanies": "Sie haben noch keine Unternehmen. Bitte erstellen Sie zuerst ein Unternehmen.",
+    "loading": "Unternehmen werden geladen..."
   },
   "contact": {
     "title": "Kontakt",
@@ -552,7 +564,27 @@
     "contactEmail": "Kontakt-E-Mail",
     "submit": "Stelle veröffentlichen",
     "preview": "Vorschau anzeigen",
-    "success": "Deine Stelle wurde erfolgreich veröffentlicht!"
+    "success": "Deine Stelle wurde erfolgreich veröffentlicht!",
+    "industry": "Branche",
+    "employmentType": "Beschäftigungsart",
+    "experienceLevel": "Erfahrungsstufe",
+    "selectExperience": "Erfahrungsstufe auswählen",
+    "entryLevel": "Einstiegslevel",
+    "midLevel": "Mittleres Level",
+    "senior": "Senior",
+    "executive": "Führungskraft",
+    "minSalary": "Mindestgehalt (€)",
+    "maxSalary": "Höchstgehalt (€)",
+    "language": "Sprache",
+    "english": "Englisch",
+    "german": "Deutsch",
+    "posting": "Wird veröffentlicht...",
+    "postJob": "Job veröffentlichen",
+    "selectCompany": "Unternehmen auswählen",
+    "loading": "Wird geladen...",
+    "noCompanies": "Sie haben noch keine Unternehmen. Bitte erstellen Sie zuerst ein Unternehmen.",
+    "createCompany": "Unternehmen erstellen",
+    "loadingCompanies": "Unternehmen werden geladen..."
   },
   "login": {
     "title": "Anmelden",
@@ -564,7 +596,9 @@
     "noAccount": "Noch kein Konto?",
     "signUp": "Registrieren",
     "error": "Ungültige E-Mail oder Passwort",
-    "success": "Erfolgreich angemeldet"
+    "success": "Erfolgreich angemeldet",
+    "signingIn": "Wird angemeldet...",
+    "createAccount": "Konto erstellen"
   },
   "register": {
     "title": "Konto erstellen",
@@ -579,7 +613,13 @@
     "alreadyHaveAccount": "Bereits ein Konto?",
     "signIn": "Anmelden",
     "error": "Bei der Erstellung deines Kontos ist ein Fehler aufgetreten",
-    "success": "Konto erfolgreich erstellt"
+    "success": "Konto erfolgreich erstellt",
+    "role": "Ich bin ein",
+    "jobseeker": "Arbeitssuchender",
+    "employer": "Arbeitgeber",
+    "creating": "Wird erstellt...",
+    "passwordsDontMatch": "Passwörter stimmen nicht überein",
+    "agreeToTermsRequired": "Sie müssen den AGB zustimmen"
   },
   "settings": {
     "title": "Einstellungen",
@@ -621,7 +661,31 @@
     "appliedOn": "Beworben am",
     "recommendedJobsTitle": "Empfohlene Jobs",
     "browseMoreLink": "Mehr entdecken",
-    "postedOn": "Veröffentlicht am"
+    "postedOn": "Veröffentlicht am",
+    "welcome": "Willkommen zurück",
+    "employerSubtitle": "Verwalten Sie Ihre Unternehmen und Stellenausschreibungen",
+    "jobseekerSubtitle": "Verfolgen Sie Ihre Bewerbungen und gespeicherten Stellen",
+    "overview": "Übersicht",
+    "companies": "Unternehmen",
+    "jobs": "Jobs",
+    "totalCompanies": "Unternehmen gesamt",
+    "activeJobs": "Aktive Jobs",
+    "quickActions": "Schnellaktionen",
+    "createCompany": "Unternehmen erstellen",
+    "postJob": "Neuen Job veröffentlichen",
+    "savedJobs": "Gespeicherte Jobs",
+    "applications": "Bewerbungen gesendet",
+    "searchJobs": "Jobs suchen",
+    "updateProfile": "Profil aktualisieren",
+    "myCompanies": "Meine Unternehmen",
+    "addCompany": "Unternehmen hinzufügen",
+    "noCompanies": "Keine Unternehmen gefunden",
+    "createFirstCompany": "Erstes Unternehmen erstellen",
+    "created": "Erstellt",
+    "myJobs": "Meine Jobs",
+    "noJobs": "Noch keine Jobs veröffentlicht",
+    "postFirstJob": "Ersten Job veröffentlichen",
+    "loadingDashboard": "Dashboard wird geladen..."
   },
   "terms": {
     "title": "Nutzungsbedingungen",
