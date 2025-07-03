@@ -197,7 +197,11 @@
     "exactLocation": "Nur exakte Position",
     "previous": "Zurück",
     "next": "Weiter",
-    "page": "Seite"
+    "page": "Seite",
+    "pinJob": "Job anheften",
+    "pinned": "Angeheftet",
+    "pinning": "Anheften...",
+    "removeSaved": "Von angehefteten entfernen"
   },
   "branch": {
   "Technology & IT": "Technologie & IT",
@@ -716,5 +720,52 @@
     "section4Content": "Du hast bestimmte Rechte in Bezug auf die personenbezogenen Daten, die wir über dich speichern, einschließlich des Rechts auf Zugriff, Korrektur, Aktualisierung und Löschung deiner Informationen.",
     "contactTitle": "Kontaktinformationen",
     "contactContent": "Wenn du Fragen zu unserer Datenschutzrichtlinie hast, kontaktiere uns bitte unter:"
-  }
+  },
+  "profile": {
+    "title": "Profil",
+    "personalInfo": "Persönliche Informationen",
+    "edit": "Bearbeiten",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "saving": "Speichern...",
+    "name": "Name",
+    "email": "E-Mail",
+    "role": "Rolle",
+    "changePassword": "Passwort ändern",
+    "change": "Ändern",
+    "currentPassword": "Aktuelles Passwort",
+    "newPassword": "Neues Passwort",
+    "confirmPassword": "Neues Passwort bestätigen",
+    "updatePassword": "Passwort aktualisieren",
+    "updating": "Aktualisieren...",
+    "passwordDescription": "Klicken Sie auf 'Ändern', um Ihr Passwort zu aktualisieren",
+    "profileUpdated": "Profil erfolgreich aktualisiert",
+    "passwordUpdated": "Passwort erfolgreich aktualisiert",
+    "passwordMismatch": "Passwörter stimmen nicht überein",
+    "passwordTooShort": "Passwort muss mindestens 6 Zeichen lang sein",
+    "loading": "Laden...",
+    "roles": {
+      "jobseeker": "Arbeitssuchender",
+      "employer": "Arbeitgeber",
+      "admin": "Administrator"
+    }
+  },
+  "savedJobs": {
+    "title": "Gespeicherte Jobs",
+    "loading": "Laden...",
+    "loadingJobs": "Gespeicherte Jobs werden geladen...",
+    "browseJobs": "Jobs durchsuchen",
+    "noSavedJobs": "Noch keine gespeicherten Jobs",
+    "noSavedJobsDescription": "Durchsuchen Sie Jobs und speichern Sie die, die Sie interessieren!",
+    "exploreJobs": "Jobs erkunden",
+    "jobCountSinglePrefix": "Sie haben",
+    "jobCountSingleSuffix": "gespeicherten Job",
+    "jobCountPluralPrefix": "Sie haben",
+    "jobCountPluralSuffix": "gespeicherte Jobs",
+    "posted": "Veröffentlicht",
+    "viewJob": "Anzeigen",
+    "remove": "Entfernen",
+    "removing": "Entfernen...",
+    "salaryNotSpecified": "Gehalt nicht angegeben"
+    }
 }

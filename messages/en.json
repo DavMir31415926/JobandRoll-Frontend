@@ -195,7 +195,11 @@
     "exactLocation": "Exact location only",
     "previous": "Previous",
     "next": "Next",
-    "page": "Page"
+    "page": "Page",
+    "pinJob": "Pin Job",
+    "pinned": "Pinned",
+    "pinning": "Pinning...",
+    "removeSaved": "Remove from pinned"
   },
   "branch": {
   "Technology & IT": "Technology & IT",
@@ -709,5 +713,52 @@
     "section4Content": "You have certain rights regarding the personal information we hold about you, including the right to access, correct, update, and delete your information.",
     "contactTitle": "Contact Information",
     "contactContent": "If you have any questions about our Privacy Policy, please contact us at:"
+  },
+  "profile": {
+    "title": "Profile",
+    "personalInfo": "Personal Information",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "changePassword": "Change Password",
+    "change": "Change",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "updatePassword": "Update Password",
+    "updating": "Updating...",
+    "passwordDescription": "Click 'Change' to update your password",
+    "profileUpdated": "Profile updated successfully",
+    "passwordUpdated": "Password updated successfully",
+    "passwordMismatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "loading": "Loading...",
+    "roles": {
+      "jobseeker": "Job Seeker",
+      "employer": "Employer",
+      "admin": "Administrator"
+    }
+  },
+  "savedJobs": {
+    "title": "Saved Jobs",
+    "loading": "Loading...",
+    "loadingJobs": "Loading saved jobs...",
+    "browseJobs": "Browse Jobs",
+    "noSavedJobs": "No saved jobs yet",
+    "noSavedJobsDescription": "Start browsing jobs and save the ones you're interested in!",
+    "exploreJobs": "Explore Jobs",
+    "jobCountSinglePrefix": "You have",
+    "jobCountSingleSuffix": "saved job",
+    "jobCountPluralPrefix": "You have",
+    "jobCountPluralSuffix": "saved jobs",
+    "posted": "Posted",
+    "viewJob": "View",
+    "remove": "Remove",
+    "removing": "Removing...",
+    "salaryNotSpecified": "Salary not specified"
   }
 }

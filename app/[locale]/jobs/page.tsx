@@ -6,6 +6,7 @@ import { Search, Briefcase, Building2, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import JobFilters from '../../../components/JobFilters';
+import SaveJobButton from '../../../components/SaveJobButton';
 
 interface Job {
   id: number;
@@ -515,6 +516,14 @@ export default function JobsPage() {
                             )}
                           </div>
                           
+                          <div className="flex items-center gap-3 ml-4">
+                            {/* Save Job Button - for ALL jobs */}
+                            <SaveJobButton 
+                              jobId={job.id} 
+                              className="shrink-0"
+                              showText={false} // Only show heart icon to save space
+                            />
+
                           {job.job_type && (
                             <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                               job.job_type.includes('%') ? 
@@ -531,6 +540,7 @@ export default function JobsPage() {
                             </span>
                           )}
                         </div>
+                      </div>
                         
                         {job.tags && Array.isArray(job.tags) && job.tags.length > 0 && (
                           <div className="mt-4 flex flex-wrap gap-2">
