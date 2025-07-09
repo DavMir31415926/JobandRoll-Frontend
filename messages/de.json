@@ -515,7 +515,7 @@
 },
   "companies": {
     "title": "Partnerunternehmen",
-    "description": "Finde großartige Unternehmen, die jetzt einstellen",
+    "description": "Beschreibung des Unternehmens",
     "location": "Standort",
     "website": "Webseite",
     "size": "Unternehmensgröße",

@@ -1,18 +1,20 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/app/context/UserContext';
+import LocationFilter from '../../../../components/LocationFilter';
 
 export default function CreateCompanyPage() {
   const t = useTranslations('companies');
+  const tBranch = useTranslations('branch');
   const router = useRouter();
   const { user, token, isAuthenticated, isLoading } = useUser();
   
   const [formData, setFormData] = useState({
     name: '',
-    industry: '',
-    location: '',
+    industries: [] as string[], // Array of industries
+    locations: [] as string[],  // Array of locations  
     description: '',
     website: '',
     size: '1-10',
@@ -20,6 +22,8 @@ export default function CreateCompanyPage() {
   
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [branchOptions, setBranchOptions] = useState<Array<{id: string, name: string, isSubcategory: boolean}>>([]);
+  const [branchLoading, setBranchLoading] = useState(true);
   
   // Redirect if not authenticated or not an employer
   useEffect(() => {
@@ -29,14 +33,146 @@ export default function CreateCompanyPage() {
       router.push('/');
     }
   }, [isLoading, isAuthenticated, user, router]);
+
+  // Add this translation hook for branches
+
+// Update the useEffect to use translations
+useEffect(() => {
+  const fetchBranches = async () => {
+    try {
+      setBranchLoading(true);
+      const response = await fetch('/api/jobs/branches');
+      const data = await response.json();
+      
+      if (data.success && Array.isArray(data.branches)) {
+        const options: Array<{id: string, name: string, isSubcategory: boolean}> = [];
+        data.branches.forEach((category: any) => {
+          // Add main category with translation
+          options.push({ 
+            id: category.id, 
+            name: tBranch(category.id) || category.name, // Use translation
+            isSubcategory: false 
+          });
+          // Add subcategories with translation
+          category.subcategories.forEach((sub: any) => {
+            options.push({ 
+              id: sub.id, 
+              name: tBranch(sub.id) || sub.name, // Use translation
+              isSubcategory: true 
+            });
+          });
+        });
+        setBranchOptions(options);
+      }
+    } catch (error) {
+      console.error('Error fetching branches:', error);
+    } finally {
+      setBranchLoading(false);
+    }
+  };
+  
+  fetchBranches();
+}, [tBranch]); // Add tBranch as dependency
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
-    setFormData({ ...formData, [id]: value });
+    setFormData(prev => ({ ...prev, [id]: value }));
   };
+
+  // Add this mapping object after your imports
+  const geoNamesAdmin1ToDERegions: Record<string, string> = {
+    '01': 'Baden-Württemberg', '1': 'Baden-Württemberg',
+    '02': 'Bayern', '2': 'Bayern',
+    '16': 'Berlin',
+    '11': 'Brandenburg',
+    '03': 'Bremen', '3': 'Bremen',
+    '04': 'Hamburg', '4': 'Hamburg',
+    '05': 'Hessen', '5': 'Hessen',
+    '12': 'Mecklenburg-Vorpommern',
+    '06': 'Niedersachsen', '6': 'Niedersachsen',
+    '07': 'Nordrhein-Westfalen', '7': 'Nordrhein-Westfalen',
+    '08': 'Rheinland-Pfalz', '8': 'Rheinland-Pfalz',
+    '09': 'Saarland', '9': 'Saarland',
+    '13': 'Sachsen',
+    '14': 'Sachsen-Anhalt',
+    '10': 'Schleswig-Holstein',
+    '15': 'Thüringen'
+  };
+
+  const geoNamesAdmin1ToATRegions: Record<string, string> = {
+    '1': 'Burgenland', '01': 'Burgenland',
+    '2': 'Kärnten', '02': 'Kärnten',
+    '3': 'Niederösterreich', '03': 'Niederösterreich',
+    '4': 'Oberösterreich', '04': 'Oberösterreich',
+    '5': 'Salzburg', '05': 'Salzburg',
+    '6': 'Steiermark', '06': 'Steiermark',
+    '7': 'Tirol', '07': 'Tirol',
+    '8': 'Vorarlberg', '08': 'Vorarlberg',
+    '9': 'Wien', '09': 'Wien'
+  };
+
+  const geoNamesAdmin1ToCHRegions: Record<string, string> = {
+    // Add Swiss regions if needed
+  };
+
+  // Helper function to format location name
+  const formatLocationForDisplay = (locationName: string): string => {
+    // Parse the location string like "Hallwang, 05 (AT)"
+    const parts = locationName.split(', ');
+    if (parts.length >= 2) {
+      const cityName = parts[0];
+      const regionAndCountry = parts[1]; // "05 (AT)"
+      
+      // Extract region code and country
+      const match = regionAndCountry.match(/^(\d+)\s*\((\w+)\)$/);
+      if (match) {
+        const regionCode = match[1];
+        const country = match[2];
+        
+        let regionName = regionCode;
+        
+        // Map region code to region name based on country
+        if (country === 'DE' && geoNamesAdmin1ToDERegions[regionCode]) {
+          regionName = geoNamesAdmin1ToDERegions[regionCode];
+        } else if (country === 'AT' && geoNamesAdmin1ToATRegions[regionCode]) {
+          regionName = geoNamesAdmin1ToATRegions[regionCode];
+        } else if (country === 'CH' && geoNamesAdmin1ToCHRegions[regionCode]) {
+          regionName = geoNamesAdmin1ToCHRegions[regionCode];
+        }
+        
+        return `${cityName}, ${regionName} (${country})`;
+      }
+    }
+    
+    // Return original if parsing fails
+    return locationName;
+  };
+
+  const handleLocationSelect = useCallback((location: any) => {
+    if (location) {      
+      setFormData(prev => {
+        const locationName = location.name;
+        const newLocations = prev.locations.includes(locationName) 
+          ? prev.locations.filter(loc => loc !== locationName) // Remove if already exists (toggle)
+          : [...prev.locations, locationName]; // Add new location
+        return {...prev, locations: newLocations};
+      });
+    }
+  }, []);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (formData.industries.length === 0) {
+      setError('Please select at least one industry');
+      return;
+    }
+    
+    if (formData.locations.length === 0) {
+      setError('Please select at least one location');
+      return;
+    }
+
     setLoading(true);
     setError('');
     
@@ -104,32 +240,100 @@ export default function CreateCompanyPage() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Industry Selection */}
             <div className="mb-4">
-              <label className="block text-gray-700 mb-2" htmlFor="industry">
-                {t('industry') || "Industry"}
+              <label className="block text-gray-700 mb-2">
+                {t('industry') || "Industry"} *
               </label>
-              <input
-                type="text"
-                id="industry"
-                value={formData.industry}
-                onChange={handleChange}
-                className="w-full p-2 border rounded"
-                required
-              />
+              {branchLoading ? (
+                <div className="w-full p-2 border rounded bg-gray-50">Loading industries...</div>
+              ) : (
+                <div className="w-full border rounded max-h-32 overflow-y-auto bg-white">
+                  {branchOptions.map((option) => {
+                    const isSelected = formData.industries.includes(option.id);
+                    return (
+                      <div
+                        key={option.id}
+                        onClick={() => {
+                          setFormData(prev => {
+                            const newIndustries = prev.industries.includes(option.id)
+                              ? prev.industries.filter(id => id !== option.id) // Remove if already selected
+                              : [...prev.industries, option.id]; // Add if not selected
+                            return {...prev, industries: newIndustries};
+                          });
+                        }}
+                        className={`
+                          px-3 py-2 cursor-pointer border-b border-gray-100 last:border-b-0
+                          ${isSelected 
+                            ? 'bg-blue-100 text-blue-800' 
+                            : 'hover:bg-gray-50'
+                          }
+                          ${option.isSubcategory ? 'pl-8' : 'font-semibold'}
+                        `}
+                        style={{
+                          paddingLeft: option.isSubcategory ? '2rem' : '0.75rem',
+                        }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span>
+                            {option.isSubcategory ? `└── ${option.name}` : option.name}
+                          </span>
+                          {isSelected && (
+                            <span className="text-blue-600 font-bold">✓</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              <p className="text-sm text-gray-500 mt-1">
+                Click to select/deselect industries. Selected: {formData.industries.length}
+              </p>
             </div>
             
+            {/* Location Selection */}
             <div className="mb-4">
-              <label className="block text-gray-700 mb-2" htmlFor="location">
-                {t('location') || "Location"}
-              </label>
-              <input
-                type="text"
-                id="location"
-                value={formData.location}
-                onChange={handleChange}
-                className="w-full p-2 border rounded"
-                required
+              <LocationFilter
+                onLocationSelect={handleLocationSelect}
+                // selectedLocation={selectedLocation} // REMOVE THIS LINE
+                placeholder={t('location') || "Enter company location..."}
+                regionMappings={{
+                  DE: geoNamesAdmin1ToDERegions,
+                  AT: geoNamesAdmin1ToATRegions,
+                  CH: geoNamesAdmin1ToCHRegions
+                }}
+                clearAfterSelect={true}
               />
+              
+              {/* Show selected locations */}
+              {formData.locations.length > 0 && (
+                <div className="mt-2">
+                  <p className="text-sm text-gray-600 mb-1">Selected locations:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.locations.map((location, index) => (
+                      <span 
+                        key={index}
+                        className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm flex items-center"
+                      >
+                        {formatLocationForDisplay(location)}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({
+                              ...prev, 
+                              locations: prev.locations.filter(loc => loc !== location)
+                            }));
+                          }}
+                          className="ml-1 text-blue-600 hover:text-blue-800"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           

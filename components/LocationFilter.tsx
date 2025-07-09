@@ -19,13 +19,21 @@ interface LocationFilterProps {
   selectedLocation?: Location | null;
   className?: string;
   placeholder?: string;
+  regionMappings?: {
+    DE: Record<string, string>;
+    AT: Record<string, string>;
+    CH: Record<string, string>;
+  };
+  clearAfterSelect?: boolean; // ADD THIS NEW PROP
 }
 
 const LocationFilter: React.FC<LocationFilterProps> = ({ 
   onLocationSelect, 
   selectedLocation = null,
   className = '',
-  placeholder = 'Enter location...'
+  placeholder = 'Enter location...',
+  regionMappings,
+  clearAfterSelect = false  // DEFAULT TO FALSE (current behavior)
 }) => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<Location[]>([]);
@@ -77,11 +85,26 @@ const LocationFilter: React.FC<LocationFilterProps> = ({
   const formatLocationName = (location: Location): string => {
     return `${location.name}${location.admin_level1 ? `, ${location.admin_level1}` : ''} (${location.country})`;
   };
+
+  const formatRegionForDisplay = (adminLevel1: string | null, country: string): string => {
+  if (!adminLevel1 || !regionMappings) return adminLevel1 || '';
+  
+  const countryMappings = regionMappings[country as keyof typeof regionMappings];
+  if (countryMappings && countryMappings[adminLevel1]) {
+    return countryMappings[adminLevel1];
+  }
+  
+  return adminLevel1;
+};
   
   // Handle location selection
   const handleSelect = (location: Location) => {
     onLocationSelect(location);
-    setQuery(formatLocationName(location));
+    if (clearAfterSelect) {
+      setQuery(''); // CLEAR only if clearAfterSelect is true
+    } else {
+      setQuery(formatLocationName(location)); // KEEP current behavior
+    }
     setSuggestions([]);
   };
   
@@ -136,8 +159,7 @@ const LocationFilter: React.FC<LocationFilterProps> = ({
             <X className="h-5 w-5" />
           </button>
         )}
-      </div>
-      
+      </div>     
       {suggestions.length > 0 && isFocused && (
         <ul 
           ref={suggestionsRef}
@@ -145,20 +167,24 @@ const LocationFilter: React.FC<LocationFilterProps> = ({
         >
           {suggestions.map((location) => (
             <li
-            key={location.id}
-            onClick={() => onLocationSelect(location)}
-            className="p-2 hover:bg-blue-50 cursor-pointer border-b last:border-b-0"
+              key={location.id}
+              onClick={() => handleSelect(location)}  
+              className="p-2 hover:bg-blue-50 cursor-pointer border-b last:border-b-0"
             >
-            <div className="font-medium">
+              <div className="font-medium">
                 {location.name.split(' ')[0]} {/* Show only the city name without codes */}
-            </div>
-            <div className="text-sm text-gray-600">
-                {location.admin_level1 && <span className="mr-1">{location.admin_level1},</span>}
+              </div>
+              <div className="text-sm text-gray-600">
+                {location.admin_level1 && (
+                  <span className="mr-1">
+                    {formatRegionForDisplay(location.admin_level1, location.country)},
+                  </span>
+                )}
                 <span>{location.country}</span>
                 <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">
-                {!location.admin_level2 && location.admin_level1 ? "State/Bundesland" : "City"}
+                  {!location.admin_level2 && location.admin_level1 ? "State/Bundesland" : "City"}
                 </span>
-            </div>
+              </div>
             </li>
           ))}
         </ul>

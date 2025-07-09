@@ -513,7 +513,6 @@
   },
   "companies": {
     "title": "Partner Companies",
-    "description": "Find great companies hiring now",
     "location": "Location",
     "website": "Website",
     "size": "Company Size",
@@ -532,6 +531,12 @@
     "filter": "Filter Companies",
     "companyNotFound": "Company not found",
     "backToCompanies": "Back to companies",
+    "createCompany": "Create Company",
+    "companyName": "Company Name", 
+    "companySize": "Company Size",
+    "creating": "Creating...",
+    "description": "Company Description",
+    "noCompanies": "You don't have any companies yet. Please create a company first.",
     "loading": "Loading companies..."
   },
   "contact": {
