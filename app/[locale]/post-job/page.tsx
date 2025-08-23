@@ -1,21 +1,24 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/app/context/UserContext';
+import LocationFilter from '../../../components/LocationFilter';
 
 export default function PostJobPage() {
   const t = useTranslations('postJob');
+  const tBranch = useTranslations('branch');
   const router = useRouter();
   const { user, token, isAuthenticated, isLoading } = useUser();
   
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    companyDescription: '', // NEW: Company description field
     requirements: '',
     benefits: '',
-    location: '',
-    branch: '',
+    location: '', // Will store single location
+    branch: '', // Will store single industry
     job_type: '100%',
     experience_level: '',
     salary_min: '',
@@ -27,7 +30,51 @@ export default function PostJobPage() {
   const [selectedCompany, setSelectedCompany] = useState<number | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [companiesLoading, setCompaniesLoading] = useState(true); // ADD THIS LINE
+  const [companiesLoading, setCompaniesLoading] = useState(true);
+  
+  // Industry/Branch selection state
+  const [branchOptions, setBranchOptions] = useState<Array<{id: string, name: string, isSubcategory: boolean}>>([]);
+  const [branchLoading, setBranchLoading] = useState(true);
+  const [showBranchDropdown, setShowBranchDropdown] = useState(false);
+  
+  // Location selection state
+  const [selectedLocation, setSelectedLocation] = useState<any>(null);
+  
+  // Mapping for location display (same as in CreateCompanyPage)
+  const geoNamesAdmin1ToDERegions: Record<string, string> = {
+    '01': 'Baden-Württemberg', '1': 'Baden-Württemberg',
+    '02': 'Bayern', '2': 'Bayern',
+    '16': 'Berlin',
+    '11': 'Brandenburg',
+    '03': 'Bremen', '3': 'Bremen',
+    '04': 'Hamburg', '4': 'Hamburg',
+    '05': 'Hessen', '5': 'Hessen',
+    '12': 'Mecklenburg-Vorpommern',
+    '06': 'Niedersachsen', '6': 'Niedersachsen',
+    '07': 'Nordrhein-Westfalen', '7': 'Nordrhein-Westfalen',
+    '08': 'Rheinland-Pfalz', '8': 'Rheinland-Pfalz',
+    '09': 'Saarland', '9': 'Saarland',
+    '13': 'Sachsen',
+    '14': 'Sachsen-Anhalt',
+    '10': 'Schleswig-Holstein',
+    '15': 'Thüringen'
+  };
+
+  const geoNamesAdmin1ToATRegions: Record<string, string> = {
+    '1': 'Burgenland', '01': 'Burgenland',
+    '2': 'Kärnten', '02': 'Kärnten',
+    '3': 'Niederösterreich', '03': 'Niederösterreich',
+    '4': 'Oberösterreich', '04': 'Oberösterreich',
+    '5': 'Salzburg', '05': 'Salzburg',
+    '6': 'Steiermark', '06': 'Steiermark',
+    '7': 'Tirol', '07': 'Tirol',
+    '8': 'Vorarlberg', '08': 'Vorarlberg',
+    '9': 'Wien', '09': 'Wien'
+  };
+
+  const geoNamesAdmin1ToCHRegions: Record<string, string> = {
+    // Add Swiss regions if needed
+  };
   
   // Redirect if not authenticated or not an employer
   useEffect(() => {
@@ -44,10 +91,48 @@ export default function PostJobPage() {
       fetchUserCompanies();
     }
   }, [isAuthenticated, user]);
+
+  // Load branch options
+  useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        setBranchLoading(true);
+        const response = await fetch('/api/jobs/branches');
+        const data = await response.json();
+        
+        if (data.success && Array.isArray(data.branches)) {
+          const options: Array<{id: string, name: string, isSubcategory: boolean}> = [];
+          data.branches.forEach((category: any) => {
+            // Add main category with translation
+            options.push({ 
+              id: category.id, 
+              name: tBranch(category.id) || category.name,
+              isSubcategory: false 
+            });
+            // Add subcategories with translation
+            category.subcategories.forEach((sub: any) => {
+              options.push({ 
+                id: sub.id, 
+                name: tBranch(sub.id) || sub.name,
+                isSubcategory: true 
+              });
+            });
+          });
+          setBranchOptions(options);
+        }
+      } catch (error) {
+        console.error('Error fetching branches:', error);
+      } finally {
+        setBranchLoading(false);
+      }
+    };
+    
+    fetchBranches();
+  }, [tBranch]);
   
   const fetchUserCompanies = async () => {
     try {
-      setCompaniesLoading(true); // ADD THIS LINE
+      setCompaniesLoading(true);
       const response = await fetch('/api/user/companies', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -68,7 +153,7 @@ export default function PostJobPage() {
     } catch (error) {
       console.error('Error fetching companies:', error);
     } finally {
-      setCompaniesLoading(false); // ADD THIS LINE
+      setCompaniesLoading(false);
     }
   };
   
@@ -76,12 +161,39 @@ export default function PostJobPage() {
     const { id, value } = e.target;
     setFormData({ ...formData, [id]: value });
   };
+
+  // Handle location selection (single location for jobs)
+  const handleLocationSelect = useCallback((location: any) => {
+    if (location) {
+      setSelectedLocation(location);
+      setFormData(prev => ({...prev, location: location.name}));
+    }
+  }, []);
+
+  // Handle branch selection (single industry for jobs)
+  const handleBranchSelect = (branchId: string) => {
+    const selected = branchOptions.find(option => option.id === branchId);
+    if (selected) {
+      setFormData(prev => ({...prev, branch: branchId}));
+      setShowBranchDropdown(false);
+    }
+  };
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!selectedCompany) {
       setError(t('selectCompany') || 'Please select a company');
+      return;
+    }
+    
+    if (!formData.branch) {
+      setError('Please select an industry');
+      return;
+    }
+    
+    if (!formData.location) {
+      setError('Please select a location');
       return;
     }
     
@@ -131,7 +243,7 @@ export default function PostJobPage() {
     );
   }
   
-  // ADD THIS: Show loading while companies are being fetched
+  // Show loading while companies are being fetched
   if (companiesLoading) {
     return (
       <main className="container mx-auto p-8">
@@ -139,12 +251,18 @@ export default function PostJobPage() {
         <div className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto">
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-            <p className="mt-4 text-gray-600">{t('loadingCompanies') || "Loading companies..."}</p>
+            <p className="mt-4 text-gray-600">{t('loading') || "Loading..."}</p>
           </div>
         </div>
       </main>
     );
   }
+  
+  // Get selected branch display name
+  const getSelectedBranchName = () => {
+    const selected = branchOptions.find(option => option.id === formData.branch);
+    return selected ? selected.name : 'Select Industry';
+  };
   
   return (
     <main className="container mx-auto p-8">
@@ -200,34 +318,85 @@ export default function PostJobPage() {
                 required
               />
             </div>
+
+            {/* NEW: Company Description Field */}
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2" htmlFor="companyDescription">
+                {t('companyDescription') || "Company Description"}
+              </label>
+              <textarea
+                id="companyDescription"
+                value={formData.companyDescription}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+                rows={3}
+                placeholder={t('companyDescriptionPlaceholder') || "Describe your company to potential candidates..."}
+              ></textarea>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Location Selection */}
               <div className="mb-4">
-                <label className="block text-gray-700 mb-2" htmlFor="location">
-                  {t('location')}
+                <label className="block text-gray-700 mb-2">
+                  {t('location')} *
                 </label>
-                <input
-                  type="text"
-                  id="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded"
-                  required
+                <LocationFilter
+                  onLocationSelect={handleLocationSelect}
+                  selectedLocation={selectedLocation}
+                  placeholder={t('location') || "Enter job location..."}
+                  regionMappings={{
+                    DE: geoNamesAdmin1ToDERegions,
+                    AT: geoNamesAdmin1ToATRegions,
+                    CH: geoNamesAdmin1ToCHRegions
+                  }}
+                  clearAfterSelect={false} // For jobs, keep the location displayed
                 />
               </div>
               
+              {/* Industry Selection */}
               <div className="mb-4">
-                <label className="block text-gray-700 mb-2" htmlFor="branch">
-                  {t('industry') || "Industry/Branch"}
+                <label className="block text-gray-700 mb-2">
+                  {t('industry') || "Industry"} *
                 </label>
-                <input
-                  type="text"
-                  id="branch"
-                  value={formData.branch}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded"
-                  required
-                />
+                {branchLoading ? (
+                  <div className="w-full p-2 border rounded bg-gray-50">Loading industries...</div>
+                ) : (
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setShowBranchDropdown(!showBranchDropdown)}
+                      className="w-full p-2 border rounded text-left bg-white flex items-center justify-between"
+                    >
+                      <span className={formData.branch ? 'text-black' : 'text-gray-500'}>
+                        {formData.branch ? getSelectedBranchName() : (t('selectIndustry') || 'Select Industry')}
+                      </span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    
+                    {showBranchDropdown && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border rounded shadow-lg max-h-60 overflow-y-auto">
+                        {branchOptions.map((option) => (
+                          <div
+                            key={option.id}
+                            onClick={() => handleBranchSelect(option.id)}
+                            className={`
+                              px-3 py-2 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50
+                              ${option.isSubcategory ? 'pl-8' : 'font-semibold'}
+                              ${formData.branch === option.id ? 'bg-blue-100 text-blue-800' : ''}
+                            `}
+                            style={{
+                              paddingLeft: option.isSubcategory ? '2rem' : '0.75rem',
+                            }}
+                          >
+                            {option.isSubcategory ? `└── ${option.name}` : option.name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
             
@@ -321,7 +490,7 @@ export default function PostJobPage() {
             
             <div className="mb-4">
               <label className="block text-gray-700 mb-2" htmlFor="description">
-                {t('description')}
+                {t('description') || "Job Description"}
               </label>
               <textarea
                 id="description"

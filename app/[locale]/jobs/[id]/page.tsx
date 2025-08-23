@@ -1,171 +1,567 @@
-// app/[locale]/jobs/[id]/page.tsx
 "use client";
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { useLocale } from 'next-intl';
-import { useState, useEffect } from 'react';
-import { Briefcase, Building2, MapPin, Calendar, ExternalLink } from 'lucide-react';
-import { motion } from 'framer-motion';
-import Link from 'next/link';
+import { useRouter, useParams } from 'next/navigation';
+import { useUser } from '@/app/context/UserContext';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import LocationFilter from '../../../../components/LocationFilter';
 
-interface Job {
-  id: number;
-  title: string;
-  company: string;
-  location: string;
-  salary: string;
-  type: string;
-  tags: string[];
-  posted: string;
-  url: string;
-}
+export default function EditJobPage() {
+  const t = useTranslations('postJob');
+  const tBranch = useTranslations('branch');
+  const router = useRouter();
+  const params = useParams();
+  const { user, token } = useUser();
+  
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    companyDescription: '',
+    requirements: '',
+    benefits: '',
+    location: '',
+    branch: '',
+    job_type: '100%',
+    experience_level: '',
+    salary_min: '',
+    salary_max: '',
+    language: 'Englisch',
+  });
+  
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState<number | null>(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [companiesLoading, setCompaniesLoading] = useState(true);
+  
+  // Industry/Branch selection state
+  const [branchOptions, setBranchOptions] = useState<Array<{id: string, name: string, isSubcategory: boolean}>>([]);
+  const [branchLoading, setBranchLoading] = useState(true);
+  const [showBranchDropdown, setShowBranchDropdown] = useState(false);
+  
+  // Location selection state
+  const [selectedLocation, setSelectedLocation] = useState<any>(null);
+  
+  // Mapping for location display (same as in CreateCompanyPage)
+  const geoNamesAdmin1ToDERegions: Record<string, string> = {
+    '01': 'Baden-Württemberg', '1': 'Baden-Württemberg',
+    '02': 'Bayern', '2': 'Bayern',
+    '16': 'Berlin',
+    '11': 'Brandenburg',
+    '03': 'Bremen', '3': 'Bremen',
+    '04': 'Hamburg', '4': 'Hamburg',
+    '05': 'Hessen', '5': 'Hessen',
+    '12': 'Mecklenburg-Vorpommern',
+    '06': 'Niedersachsen', '6': 'Niedersachsen',
+    '07': 'Nordrhein-Westfalen', '7': 'Nordrhein-Westfalen',
+    '08': 'Rheinland-Pfalz', '8': 'Rheinland-Pfalz',
+    '09': 'Saarland', '9': 'Saarland',
+    '13': 'Sachsen',
+    '14': 'Sachsen-Anhalt',
+    '10': 'Schleswig-Holstein',
+    '15': 'Thüringen'
+  };
 
-export default function JobDetailPage({ params }: { params: { id: string } }) {
-  const locale = useLocale();
-  const t = useTranslations('jobs');
-  const [job, setJob] = useState<Job | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const geoNamesAdmin1ToATRegions: Record<string, string> = {
+    '1': 'Burgenland', '01': 'Burgenland',
+    '2': 'Kärnten', '02': 'Kärnten',
+    '3': 'Niederösterreich', '03': 'Niederösterreich',
+    '4': 'Oberösterreich', '04': 'Oberösterreich',
+    '5': 'Salzburg', '05': 'Salzburg',
+    '6': 'Steiermark', '06': 'Steiermark',
+    '7': 'Tirol', '07': 'Tirol',
+    '8': 'Vorarlberg', '08': 'Vorarlberg',
+    '9': 'Wien', '09': 'Wien'
+  };
 
-// In your app/[locale]/jobs/[id]/page.tsx, update the useEffect with proper typing:
-useEffect(() => {
-  async function loadJob() {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/jobs?locale=${locale}`);
-      
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
+  const geoNamesAdmin1ToCHRegions: Record<string, string> = {
+    // Add Swiss regions if needed
+  };
+
+  // Load job data
+  useEffect(() => {
+    const fetchJob = async () => {
+      try {
+        setDataLoading(true);
+        const response = await fetch(`/api/jobs/${params.id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch job');
+        }
+        
+        const data = await response.json();
+        const job = data.job;
+        
+        setFormData({
+          title: job.title || '',
+          description: job.description || '',
+          companyDescription: job.company_description || '',
+          requirements: job.requirements || '',
+          benefits: job.benefits || '',
+          location: job.location || '',
+          branch: job.branch || '',
+          job_type: job.job_type || '100%',
+          experience_level: job.experience_level || '',
+          salary_min: job.salary_min?.toString() || '',
+          salary_max: job.salary_max?.toString() || '',
+          language: job.language || 'Englisch'
+        });
+        
+        setSelectedCompany(job.company_id);
+      } catch (error) {
+        console.error('Error fetching job:', error);
+        setError('Failed to load job data');
+      } finally {
+        setDataLoading(false);
       }
+    };
+
+    if (params.id && token) {
+      fetchJob();
+    }
+  }, [params.id, token]);
+
+  // Load user's companies
+  useEffect(() => {
+    const fetchUserCompanies = async () => {
+      try {
+        setCompaniesLoading(true);
+        const response = await fetch('/api/user/companies', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch companies');
+        }
+        
+        const data = await response.json();
+        setCompanies(data.companies);
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+      } finally {
+        setCompaniesLoading(false);
+      }
+    };
+    
+    if (token) {
+      fetchUserCompanies();
+    }
+  }, [token]);
+
+  // Load branch options
+  useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        setBranchLoading(true);
+        const response = await fetch('/api/jobs/branches');
+        const data = await response.json();
+        
+        if (data.success && Array.isArray(data.branches)) {
+          const options: Array<{id: string, name: string, isSubcategory: boolean}> = [];
+          data.branches.forEach((category: any) => {
+            // Add main category with translation
+            options.push({ 
+              id: category.id, 
+              name: tBranch(category.id) || category.name,
+              isSubcategory: false 
+            });
+            // Add subcategories with translation
+            category.subcategories.forEach((sub: any) => {
+              options.push({ 
+                id: sub.id, 
+                name: tBranch(sub.id) || sub.name,
+                isSubcategory: true 
+              });
+            });
+          });
+          setBranchOptions(options);
+        }
+      } catch (error) {
+        console.error('Error fetching branches:', error);
+      } finally {
+        setBranchLoading(false);
+      }
+    };
+    
+    fetchBranches();
+  }, [tBranch]);
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { id, value } = e.target;
+    setFormData({ ...formData, [id]: value });
+  };
+
+  // Handle location selection (single location for jobs)
+  const handleLocationSelect = useCallback((location: any) => {
+    if (location) {
+      setSelectedLocation(location);
+      setFormData(prev => ({...prev, location: location.name}));
+    }
+  }, []);
+
+  // Handle branch selection (single industry for jobs)
+  const handleBranchSelect = (branchId: string) => {
+    const selected = branchOptions.find(option => option.id === branchId);
+    if (selected) {
+      setFormData(prev => ({...prev, branch: branchId}));
+      setShowBranchDropdown(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!selectedCompany) {
+      setError(t('selectCompany') || 'Please select a company');
+      return;
+    }
+    
+    if (!formData.branch) {
+      setError('Please select an industry');
+      return;
+    }
+    
+    if (!formData.location) {
+      setError('Please select a location');
+      return;
+    }
+    
+    setLoading(true);
+    setError('');
+    
+    try {
+      const response = await fetch(`/api/jobs/${params.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ...formData,
+          company_id: selectedCompany,
+          // Convert salary strings to numbers if provided
+          salary_min: formData.salary_min ? parseInt(formData.salary_min) : undefined,
+          salary_max: formData.salary_max ? parseInt(formData.salary_max) : undefined,
+        }),
+      });
       
       const data = await response.json();
-      const jobId = parseInt(params.id);
-      const foundJob = data.jobs.find((j: Job) => j.id === jobId);
       
-      if (foundJob) {
-        setJob(foundJob);
-        setError(null);
-      } else {
-        setError(t('jobNotFound') || 'Job not found');
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update job');
       }
-    } catch (error) {
-      console.error('Error loading job:', error);
-      setError(error instanceof Error ? error.message : 'Unknown error');
+      
+      // Redirect to the job page
+      router.push(`/jobs/${params.id}`);
+    } catch (err: any) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
-  }
+  };
   
-  loadJob();
-}, [locale, params.id, t]);
-
-  if (loading) {
+  if (dataLoading) {
     return (
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto p-8">
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-          <p className="mt-4 text-gray-600">{t('loading') || "Loading job..."}</p>
+          <p className="mt-4 text-gray-600">{t('loading') || "Loading..."}</p>
         </div>
       </main>
     );
   }
-
-  if (error || !job) {
-    return (
-      <main className="container mx-auto px-4 py-12">
-        <div className="text-center py-12 bg-red-50 rounded-lg">
-          <p className="text-red-600">{error || t('jobNotFound') || "Job not found"}</p>
-          <Link href={`/${locale}/jobs`} className="mt-4 inline-block text-blue-600 hover:underline">
-            {t('backToJobs') || "Back to jobs"}
-          </Link>
-        </div>
-      </main>
-    );
-  }
-
+  
+  // Get selected branch display name
+  const getSelectedBranchName = () => {
+    const selected = branchOptions.find(option => option.id === formData.branch);
+    return selected ? selected.name : 'Select Industry';
+  };
+  
   return (
-    <main className="container mx-auto px-4 py-12">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden"
-      >
-        <div className="p-8">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">{job.title}</h1>
-              <div className="flex items-center mt-2 text-gray-600">
-                <Building2 size={18} className="mr-1" />
-                <span className="mr-4">{job.company}</span>
-                <MapPin size={18} className="mr-1" />
-                <span>{job.location}</span>
+    <ProtectedRoute>
+      <main className="container mx-auto p-8">
+        <h1 className="text-3xl font-bold mb-4">{t('editJob') || 'Edit Job'}</h1>
+        
+        <div className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto">
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md">
+              {error}
+            </div>
+          )}
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2" htmlFor="company">
+                {t('selectCompany') || "Select Company"}
+              </label>
+              {companiesLoading ? (
+                <div className="w-full p-2 border rounded bg-gray-50">Loading companies...</div>
+              ) : (
+                <select
+                  id="company"
+                  value={selectedCompany || ''}
+                  onChange={(e) => setSelectedCompany(Number(e.target.value))}
+                  className="w-full p-2 border rounded"
+                  required
+                >
+                  <option value="">{t('selectCompany') || "Select a company"}</option>
+                  {companies.map(company => (
+                    <option key={company.id} value={company.id}>{company.name}</option>
+                  ))}
+                </select>
+              )}
+            </div>
+            
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2" htmlFor="title">
+                {t('jobTitle')}
+              </label>
+              <input
+                type="text"
+                id="title"
+                value={formData.title}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+
+            {/* Company Description Field */}
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2" htmlFor="companyDescription">
+                {t('companyDescription') || "Company Description"}
+              </label>
+              <textarea
+                id="companyDescription"
+                value={formData.companyDescription}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+                rows={3}
+                placeholder={t('companyDescriptionPlaceholder') || "Describe your company to potential candidates..."}
+              ></textarea>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Location Selection */}
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">
+                  {t('location')} *
+                </label>
+                <LocationFilter
+                  onLocationSelect={handleLocationSelect}
+                  selectedLocation={selectedLocation}
+                  placeholder={t('location') || "Enter job location..."}
+                  regionMappings={{
+                    DE: geoNamesAdmin1ToDERegions,
+                    AT: geoNamesAdmin1ToATRegions,
+                    CH: geoNamesAdmin1ToCHRegions
+                  }}
+                  clearAfterSelect={false} // For jobs, keep the location displayed
+                />
+              </div>
+              
+              {/* Industry Selection */}
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">
+                  {t('industry') || "Industry"} *
+                </label>
+                {branchLoading ? (
+                  <div className="w-full p-2 border rounded bg-gray-50">Loading industries...</div>
+                ) : (
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setShowBranchDropdown(!showBranchDropdown)}
+                      className="w-full p-2 border rounded text-left bg-white flex items-center justify-between"
+                    >
+                      <span className={formData.branch ? 'text-black' : 'text-gray-500'}>
+                        {formData.branch ? getSelectedBranchName() : (t('selectIndustry') || 'Select Industry')}
+                      </span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    
+                    {showBranchDropdown && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border rounded shadow-lg max-h-60 overflow-y-auto">
+                        {branchOptions.map((option) => (
+                          <div
+                            key={option.id}
+                            onClick={() => handleBranchSelect(option.id)}
+                            className={`
+                              px-3 py-2 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50
+                              ${option.isSubcategory ? 'pl-8' : 'font-semibold'}
+                              ${formData.branch === option.id ? 'bg-blue-100 text-blue-800' : ''}
+                            `}
+                            style={{
+                              paddingLeft: option.isSubcategory ? '2rem' : '0.75rem',
+                            }}
+                          >
+                            {option.isSubcategory ? `└── ${option.name}` : option.name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
             
-            <div className="flex flex-col items-start md:items-end">
-              <span className={`px-4 py-1 rounded-full text-sm font-medium ${
-                job.type.includes('Full') ? 'bg-blue-100 text-blue-800' : 
-                job.type.includes('Part') ? 'bg-purple-100 text-purple-800' : 
-                'bg-green-100 text-green-800'
-              }`}>
-                {job.type}
-              </span>
-              <div className="mt-2 text-gray-600 flex items-center">
-                <Calendar size={16} className="mr-1" />
-                <span>{job.posted}</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2" htmlFor="job_type">
+                  {t('employmentType') || "Employment Type"}
+                </label>
+                <select
+                  id="job_type"
+                  value={formData.job_type}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                  required
+                >
+                  <option value="100%">{t('jobTypes.100%') || "100%"}</option>
+                  <option value="90%">{t('jobTypes.90%') || "90%"}</option>
+                  <option value="80%">{t('jobTypes.80%') || "80%"}</option>
+                  <option value="70%">{t('jobTypes.70%') || "70%"}</option>
+                  <option value="60%">{t('jobTypes.60%') || "60%"}</option>
+                  <option value="50%">{t('jobTypes.50%') || "50%"}</option>
+                  <option value="40%">{t('jobTypes.40%') || "40%"}</option>
+                  <option value="30%">{t('jobTypes.30%') || "30%"}</option>
+                  <option value="20%">{t('jobTypes.20%') || "20%"}</option>
+                  <option value="10%">{t('jobTypes.10%') || "10%"}</option>
+                </select>
+              </div>
+              
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2" htmlFor="experience_level">
+                  {t('experienceLevel') || "Experience Level"}
+                </label>
+                <select
+                  id="experience_level"
+                  value={formData.experience_level}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                >
+                  <option value="">{t('selectExperience') || "Select Experience Level"}</option>
+                  <option value="Entry Level">{t('experienceLevels.Entry Level') || "Entry Level"}</option>
+                  <option value="Mid Level">{t('experienceLevels.Mid Level') || "Mid Level"}</option>
+                  <option value="Senior">{t('experienceLevels.Senior') || "Senior"}</option>
+                  <option value="Executive">{t('experienceLevels.Executive') || "Executive"}</option>
+                </select>
               </div>
             </div>
-          </div>
-          
-          <div className="flex flex-wrap gap-2 mb-8">
-            {job.tags.map((tag, index) => (
-              <span key={index} className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
-                {tag}
-              </span>
-            ))}
-          </div>
-          
-          <div className="mb-8 p-4 bg-gray-50 rounded-lg">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">{t('salary')}</h2>
-              <span className="text-2xl font-bold text-gray-900">{job.salary}</span>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2" htmlFor="salary_min">
+                  {t('minSalary') || "Minimum Salary (€)"}
+                </label>
+                <input
+                  type="number"
+                  id="salary_min"
+                  value={formData.salary_min}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2" htmlFor="salary_max">
+                  {t('maxSalary') || "Maximum Salary (€)"}
+                </label>
+                <input
+                  type="number"
+                  id="salary_max"
+                  value={formData.salary_max}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
             </div>
-          </div>
-          
-          <div className="bg-blue-50 p-6 rounded-lg mb-8 border border-blue-100">
-            <p className="text-gray-700 mb-4">
-              {t('redirectInfo') || "This job listing is hosted on the company's website. Click the button below to view the full job description and apply."}
-            </p>
             
-            <a 
-              href={job.url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center"
-            >
-              {t('viewOriginal') || "View Original Job Posting"}
-              <ExternalLink size={16} className="ml-2" />
-            </a>
-          </div>
-          
-          <div className="mt-8 flex justify-between">
-            <Link 
-              href={`/${locale}/jobs`}
-              className="text-blue-600 hover:underline flex items-center"
-            >
-              <span className="mr-1">←</span>
-              {t('backToJobs') || "Back to jobs"}
-            </Link>
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2" htmlFor="language">
+                {t('language') || "Language"}
+              </label>
+              <select
+                id="language"
+                value={formData.language}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+                required
+              >
+                <option value="Englisch">{t('languages.English') || "English"}</option>
+                <option value="German">{t('languages.German') || "German"}</option>
+              </select>
+            </div>
             
-            <Link 
-              href={`/${locale}/companies/${job.company.toLowerCase().replace(/\s+/g, '-')}`}
-              className="text-blue-600 hover:underline"
-            >
-              {t('viewCompany') || "View Company"}
-            </Link>
-          </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2" htmlFor="description">
+                {t('description') || "Job Description"}
+              </label>
+              <textarea
+                id="description"
+                value={formData.description}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+                rows={6}
+                required
+              ></textarea>
+            </div>
+            
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2" htmlFor="requirements">
+                {t('requirements') || "Requirements"}
+              </label>
+              <textarea
+                id="requirements"
+                value={formData.requirements}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+                rows={4}
+              ></textarea>
+            </div>
+            
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2" htmlFor="benefits">
+                {t('benefits') || "Benefits"}
+              </label>
+              <textarea
+                id="benefits"
+                value={formData.benefits}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+                rows={4}
+              ></textarea>
+            </div>
+            
+            <div className="flex gap-4">
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50"
+              >
+                {loading ? (t('updating') || "Updating...") : (t('updateJob') || "Update Job")}
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => router.push(`/jobs/${params.id}`)}
+                className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
+              >
+                {t('cancel') || "Cancel"}
+              </button>
+            </div>
+          </form>
         </div>
-      </motion.div>
-    </main>
+      </main>
+    </ProtectedRoute>
   );
 }

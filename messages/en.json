@@ -199,7 +199,26 @@
     "pinJob": "Pin Job",
     "pinned": "Pinned",
     "pinning": "Pinning...",
-    "removeSaved": "Remove from pinned"
+    "removeSaved": "Remove from pinned",
+    "jobDescription": "Job Description",
+    "aboutCompany": "About the Company",
+    "jobDetails": "Job Details",
+    "experience": "Experience",
+    "employmentType": "Employment Type",
+    "readyToApply": "Ready to Apply?",
+    "takeNextStep": "Take the next step in your career journey.",
+    "experienceLevels": {
+      "Entry Level": "Entry Level",
+      "Mid Level": "Mid Level", 
+      "Senior": "Senior",
+      "Executive": "Executive"
+    },
+    "languages": {
+      "English": "English",
+      "German": "German",
+      "Englisch": "English"
+    },
+    "employees": "employees"
   },
   "branch": {
   "Technology & IT": "Technology & IT",
@@ -537,7 +556,14 @@
     "creating": "Creating...",
     "description": "Company Description",
     "noCompanies": "You don't have any companies yet. Please create a company first.",
-    "loading": "Loading companies..."
+    "loading": "Loading companies...",
+    "editCompany": "Edit Company",
+    "name": "Company Name",
+    "updateCompany": "Update Company",
+    "updating": "Updating...",
+    "cancel": "Cancel",
+    "selectIndustry": "Please select at least one industry",
+    "selectLocation": "Please select at least one location"
   },
   "contact": {
     "title": "Contact Us",
@@ -567,10 +593,9 @@
     "submit": "Post Job",
     "preview": "Preview Job",
     "success": "Your job has been posted successfully!",
-    "industry": "Industry/Branch",
+    "industry": "Industry",
     "employmentType": "Employment Type",
     "experienceLevel": "Experience Level",
-    "selectExperience": "Select Experience Level",
     "entryLevel": "Entry Level",
     "midLevel": "Mid Level",
     "senior": "Senior",
@@ -582,11 +607,46 @@
     "german": "German",
     "posting": "Posting...",
     "postJob": "Post Job",
-    "selectCompany": "Select Company",
     "loading": "Loading...",
     "noCompanies": "You don't have any companies yet. Please create a company first.",
     "createCompany": "Create Company",
-    "loadingCompanies": "Loading companies..."
+    "loadingCompanies": "Loading companies...",
+    "companyDescription": "Company Description",
+    "selectIndustry": "Select Industry",
+    "companyDescriptionPlaceholder": "Describe your company to potential candidates...",
+    "editJob": "Edit Job",
+    "updateJob": "Update Job",
+    "updating": "Updating...",
+    "cancel": "Cancel",
+    "fillAllFields": "Please fill in all required fields",
+    "selectCompany": "Select a company...",
+    "selectExperience": "Select experience level...",
+    "locationPlaceholder": "Enter job location...",
+    "applicationUrl": "Application URL",
+    "salaryMin": "Minimum Salary",
+    "salaryMax": "Maximum Salary",
+    "jobTypes": {
+      "100%": "100%",
+      "90%": "90%", 
+      "80%": "80%",
+      "70%": "70%",
+      "60%": "60%",
+      "50%": "50%",
+      "40%": "40%",
+      "30%": "30%",
+      "20%": "20%",
+      "10%": "10%"
+    },
+    "experienceLevels": {
+      "Entry Level": "Entry Level",
+      "Mid Level": "Mid Level",
+      "Senior": "Senior",
+      "Executive": "Executive"
+    },
+    "languages": {
+      "English": "English",
+      "German": "German"
+    }
   },
   "login": {
     "title": "Log In",
@@ -687,7 +747,11 @@
     "myJobs": "My Jobs",
     "noJobs": "No jobs posted yet",
     "postFirstJob": "Post Your First Job",
-    "loadingDashboard": "Loading dashboard..."
+    "loadingDashboard": "Loading dashboard...",
+    "confirmDelete": "Confirm Delete", 
+    "deleteConfirmMessage": "Are you sure you want to delete? This action cannot be undone.", 
+    "cancel": "Cancel", 
+    "delete": "Delete" 
   },
   "terms": {
     "title": "Terms of Service",

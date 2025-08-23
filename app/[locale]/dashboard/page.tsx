@@ -49,6 +49,19 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'companies' | 'jobs'>('overview');
 
+  // Delete confirmation state
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    isOpen: boolean;
+    itemId: number | null;
+    itemName: string;
+    type: 'job' | 'company';
+  }>({
+    isOpen: false,
+    itemId: null,
+    itemName: '',
+    type: 'job'
+  });
+
   useEffect(() => {
     console.log('Dashboard useEffect triggered');
     console.log('userLoading:', userLoading);
@@ -136,6 +149,80 @@ export default function DashboardPage() {
     }
   };
 
+  // Delete handlers
+  const handleDeleteClick = (id: number, name: string, type: 'job' | 'company') => {
+    setDeleteConfirm({
+      isOpen: true,
+      itemId: id,
+      itemName: name,
+      type: type
+    });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteConfirm.itemId) return;
+    
+    try {
+      const endpoint = deleteConfirm.type === 'job' 
+        ? `/api/jobs/${deleteConfirm.itemId}`
+        : `/api/companies/${deleteConfirm.itemId}`;
+        
+      const response = await fetch(endpoint, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to delete ${deleteConfirm.type}`);
+      }
+      
+      // Refresh the appropriate list
+      if (deleteConfirm.type === 'job') {
+        const jobsResponse = await fetch('/api/user/jobs', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (jobsResponse.ok) {
+          const jobsData = await jobsResponse.json();
+          setJobs(jobsData.jobs || []);
+        }
+      } else {
+        const companiesResponse = await fetch('/api/user/companies', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (companiesResponse.ok) {
+          const companiesData = await companiesResponse.json();
+          setCompanies(companiesData.companies || []);
+        }
+      }
+      
+      // Close confirmation dialog
+      setDeleteConfirm({
+        isOpen: false,
+        itemId: null,
+        itemName: '',
+        type: 'job'
+      });
+      
+    } catch (error) {
+      console.error('Delete error:', error);
+      // You could add error toast notification here
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteConfirm({
+      isOpen: false,
+      itemId: null,
+      itemName: '',
+      type: 'job'
+    });
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
@@ -372,19 +459,27 @@ export default function DashboardPage() {
                       <span className="text-xs text-gray-500">
                         {t('created') || 'Created'}: {formatDate(company.created_at)}
                       </span>
-                      <div className="flex space-x-2">
-                        <Link 
-                          href={`/companies/${company.id}`}
-                          className="text-blue-600 hover:text-blue-800"
+                      <div className="flex flex-col space-y-1">
+                        <div className="flex space-x-2">
+                          <Link 
+                            href={`/companies/${company.id}`}
+                            className="text-blue-600 hover:text-blue-800 p-1"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Link>
+                          <Link 
+                            href={`/companies/${company.id}/edit`}
+                            className="text-gray-600 hover:text-gray-800 p-1"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Link>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteClick(company.id, company.name, 'company')}
+                          className="text-red-600 hover:text-red-800 p-1 flex justify-center"
                         >
-                          <Eye className="h-4 w-4" />
-                        </Link>
-                        <Link 
-                          href={`/companies/${company.id}/edit`}
-                          className="text-gray-600 hover:text-gray-800"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Link>
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
                     </div>
                   </motion.div>
@@ -447,25 +542,61 @@ export default function DashboardPage() {
                         </div>
                       </div>
                       
-                      <div className="flex space-x-2 ml-4">
-                        <Link 
-                          href={`/jobs/${job.id}`}
-                          className="text-blue-600 hover:text-blue-800"
+                      <div className="flex flex-col space-y-1 ml-4">
+                        <div className="flex space-x-2">
+                          <Link 
+                            href={`/jobs/${job.id}`}
+                            className="text-blue-600 hover:text-blue-800 p-1"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Link>
+                          <Link 
+                            href={`/jobs/${job.id}/edit`}
+                            className="text-gray-600 hover:text-gray-800 p-1"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Link>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteClick(job.id, job.title, 'job')}
+                          className="text-red-600 hover:text-red-800 p-1 flex justify-center"
                         >
-                          <Eye className="h-4 w-4" />
-                        </Link>
-                        <Link 
-                          href={`/jobs/${job.id}/edit`}
-                          className="text-gray-600 hover:text-gray-800"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Link>
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
                     </div>
                   </motion.div>
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {deleteConfirm.isOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md mx-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                {t('confirmDelete') || 'Confirm Delete'}
+              </h3>
+              <p className="text-gray-600 mb-4">
+                {t('deleteConfirmMessage') || `Are you sure you want to delete "${deleteConfirm.itemName}"? This action cannot be undone.`}
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={handleCancelDelete}
+                  className="px-4 py-2 text-gray-600 bg-gray-200 rounded hover:bg-gray-300"
+                >
+                  {t('cancel') || 'Cancel'}
+                </button>
+                <button
+                  onClick={handleConfirmDelete}
+                  className="px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700"
+                >
+                  {t('delete') || 'Delete'}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </main>
