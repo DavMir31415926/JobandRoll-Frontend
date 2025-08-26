@@ -98,13 +98,7 @@ export default function JobDetailPage() {
   // Create localized email template using translations
   const createEmailTemplate = (jobTitle: string, companyName: string) => {
     const greeting = t('emailTemplate.greeting') || 'Dear Hiring Manager,';
-    const bodyTemplate = t('emailTemplate.body') || 'I am interested in applying for the {jobTitle} position at {companyName}.\n\nPlease find my application details attached.';
-    
-    // Replace placeholders in the body text
-    const body = bodyTemplate
-      .replace('{jobTitle}', jobTitle)
-      .replace('{companyName}', companyName);
-    
+    const body = t('emailTemplate.body', { jobTitle, companyName }) || 'I am interested in applying for this position.';
     const closing = t('emailTemplate.closing') || 'Best regards';
     
     // Convert to URL-encoded format for mailto
@@ -299,7 +293,7 @@ export default function JobDetailPage() {
               
               {/* Apply Button */}
               <a
-                href={`mailto:${job.contact_email}?subject=${t('emailTemplate.subject') || 'Application for'} ${job.title}&body=${createEmailTemplate(job.title, company?.name || 'your company')}`}
+                href={`mailto:${job.contact_email}?subject=${t('emailTemplate.subject')} ${job.title}&body=${createEmailTemplate(job.title, company?.name || 'your company')}`}
                 className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold"
               >
                 <Mail className="w-4 h-4 mr-2" />
