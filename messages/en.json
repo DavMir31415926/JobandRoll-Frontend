@@ -660,7 +660,7 @@
     "emailTemplate": {
       "subject": "Application for",
       "greeting": "Dear Hiring Manager,",
-      "body": "I am interested in applying for the {jobTitle} position at {companyName}.\n\nPlease find my application details attached.",
+      "body": "I am interested in applying for the {jobTitle} position at your company.\n\nPlease find my application details attached.",
       "closing": "Best regards"
     }
   },

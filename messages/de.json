@@ -662,7 +662,7 @@
     "emailTemplate": {
       "subject": "Bewerbung für",
       "greeting": "Sehr geehrte Damen und Herren,",
-      "body": "hiermit bewerbe ich mich um die Stelle \"{jobTitle}\" bei {companyName}.\n\nIm Anhang finden Sie meine vollständigen Bewerbungsunterlagen.",
+      "body": "hiermit bewerbe ich mich um die Stelle \"{jobTitle}\" bei Ihrem Unternehmen.\n\nIm Anhang finden Sie meine vollständigen Bewerbungsunterlagen.",
       "closing": "Mit freundlichen Grüßen"
     }
   },
