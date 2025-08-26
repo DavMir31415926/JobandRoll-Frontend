@@ -655,7 +655,14 @@
     "applyNow": "Apply Now",
     "contactCompanyDirectly": "Contact the company directly to apply for this position.",
     "backToJobs": "← Back to All Jobs",
-    "applyViaEmail": "Apply via Email"
+    "applyViaEmail": "Apply via Email",
+    "contactInformation": "Contact Information",
+    "emailTemplate": {
+      "subject": "Application for",
+      "greeting": "Dear Hiring Manager,",
+      "body": "I am interested in applying for the {jobTitle} position at {companyName}.\n\nPlease find my application details attached.",
+      "closing": "Best regards"
+    }
   },
   "login": {
     "title": "Log In",

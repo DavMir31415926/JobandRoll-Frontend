@@ -95,8 +95,20 @@ export default function JobDetailPage() {
     );
   }
 
+  // Create localized email template using translations
+  const createEmailTemplate = (jobTitle: string, companyName: string) => {
+    const greeting = t('emailTemplate.greeting') || 'Dear Hiring Manager,';
+    const body = (t('emailTemplate.body') || 'I am interested in applying for the {jobTitle} position at {companyName}.\n\nPlease find my application details attached.')
+      .replace('{jobTitle}', jobTitle)
+      .replace('{companyName}', companyName);
+    const closing = t('emailTemplate.closing') || 'Best regards';
+    
+    // Convert to URL-encoded format for mailto
+    return `${greeting}%0D%0A%0D%0A${body}%0D%0A%0D%0A${closing}`.replace(/\n/g, '%0D%0A');
+  };
+
   // Check if current user owns this job (for showing edit button)
-  const isOwner = user && job.user_id && user.id === job.user_id;
+  const isOwner = user && job && job.user_id && user.id === job.user_id;
 
   // Translate experience levels
   const translateExperienceLevel = (level: string) => {
@@ -262,16 +274,33 @@ export default function JobDetailPage() {
           </div>
         )}
 
-        {/* Apply Button */}
+        {/* Apply Section */}
         <div className="bg-white rounded-lg shadow-md p-6 text-center">
           {job.contact_email ? (
-            <a
-              href={`mailto:${job.contact_email}?subject=Application for ${job.title}&body=Dear Hiring Manager,%0D%0A%0D%0AI am interested in applying for the ${job.title} position at ${company?.name || 'your company'}.%0D%0A%0D%0APlease find my application details below.%0D%0A%0D%0ABest regards`}
-              className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold"
-            >
-              <Mail className="w-4 h-4 mr-2" />
-              {t('applyViaEmail') || 'Apply via Email'}
-            </a>
+            <div className="space-y-4">
+              {/* Contact Email Display */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold mb-2">{t('contactInformation') || 'Contact Information'}</h3>
+                <div className="flex items-center justify-center text-gray-700">
+                  <Mail className="w-4 h-4 mr-2" />
+                  <a 
+                    href={`mailto:${job.contact_email}`}
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  >
+                    {job.contact_email}
+                  </a>
+                </div>
+              </div>
+              
+              {/* Apply Button */}
+              <a
+                href={`mailto:${job.contact_email}?subject=${t('emailTemplate.subject') || 'Application for'} ${job.title}&body=${createEmailTemplate(job.title, company?.name || 'your company')}`}
+                className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold"
+              >
+                <Mail className="w-4 h-4 mr-2" />
+                {t('applyViaEmail') || 'Apply via Email'}
+              </a>
+            </div>
           ) : job.url ? (
             <a
               href={job.url}

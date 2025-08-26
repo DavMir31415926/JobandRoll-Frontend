@@ -657,7 +657,14 @@
     "applyNow": "Jetzt bewerben",
     "contactCompanyDirectly": "Wenden Sie sich direkt an das Unternehmen, um sich für diese Position zu bewerben.",
     "backToJobs": "← Zurück zu allen Stellen",
-    "applyViaEmail": "Per E-Mail bewerben"
+    "applyViaEmail": "Per E-Mail bewerben",
+    "contactInformation": "Kontaktinformationen", 
+    "emailTemplate": {
+      "subject": "Bewerbung für",
+      "greeting": "Sehr geehrte Damen und Herren,",
+      "body": "hiermit bewerbe ich mich um die Stelle \"{jobTitle}\" bei {companyName}.\n\nIm Anhang finden Sie meine vollständigen Bewerbungsunterlagen.",
+      "closing": "Mit freundlichen Grüßen"
+    }
   },
   "login": {
     "title": "Anmelden",
