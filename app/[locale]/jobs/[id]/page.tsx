@@ -98,13 +98,18 @@ export default function JobDetailPage() {
   // Create localized email template using translations
   const createEmailTemplate = (jobTitle: string, companyName: string) => {
     const greeting = t('emailTemplate.greeting') || 'Dear Hiring Manager,';
-    const body = (t('emailTemplate.body') || 'I am interested in applying for the {jobTitle} position at {companyName}.\n\nPlease find my application details attached.')
+    const bodyTemplate = t('emailTemplate.body') || 'I am interested in applying for the {jobTitle} position at {companyName}.\n\nPlease find my application details attached.';
+    
+    // Replace placeholders in the body text
+    const body = bodyTemplate
       .replace('{jobTitle}', jobTitle)
       .replace('{companyName}', companyName);
+    
     const closing = t('emailTemplate.closing') || 'Best regards';
     
     // Convert to URL-encoded format for mailto
-    return `${greeting}%0D%0A%0D%0A${body}%0D%0A%0D%0A${closing}`.replace(/\n/g, '%0D%0A');
+    const fullMessage = `${greeting}\n\n${body}\n\n${closing}`;
+    return fullMessage.replace(/\n/g, '%0D%0A');
   };
 
   // Check if current user owns this job (for showing edit button)
