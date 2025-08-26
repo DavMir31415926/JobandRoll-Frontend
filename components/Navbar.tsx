@@ -64,7 +64,9 @@ const Navbar = () => {
             >
               {t('resources')} <ChevronDown size={16} className="ml-1" />
             </button>
-            <div className={`absolute left-0 mt-2 w-48 bg-white text-gray-800 rounded-md shadow-lg py-2 z-10 ${isResourcesOpen ? 'block' : 'hidden'} md:hidden group-hover:block`}>
+            <div className={`absolute left-0 top-full w-48 bg-white text-gray-800 rounded-md shadow-lg py-2 z-10 ${isResourcesOpen ? 'block' : 'hidden'} md:hidden group-hover:block`}>
+              {/* Add invisible bridge to maintain hover */}
+              <div className="absolute -top-1 left-0 right-0 h-1 bg-transparent"></div>
               <Link 
                 href="/about" 
                 className="block px-4 py-2 hover:bg-blue-100"

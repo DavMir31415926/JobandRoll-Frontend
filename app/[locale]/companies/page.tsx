@@ -19,6 +19,7 @@ interface Company {
 export default function CompaniesPage() {
   const locale = useLocale();
   const t = useTranslations('companies');
+  const tBranch = useTranslations('branch');
   
   const [query, setQuery] = useState('');
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -180,7 +181,7 @@ export default function CompaniesPage() {
                       <h4 className="text-xl font-semibold text-gray-900">{company.name}</h4>
                       <div className="flex items-center mt-2 text-gray-600">
                         <Building2 size={16} className="mr-1" />
-                        <span className="mr-4">{company.industry}</span>
+                        <span className="mr-4">{tBranch(company.industry) || company.industry}</span>
                         <MapPin size={16} className="mr-1" />
                         <span>{company.location}</span>
                       </div>

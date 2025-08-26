@@ -1,567 +1,302 @@
 "use client";
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useUser } from '@/app/context/UserContext';
-import ProtectedRoute from '@/components/ProtectedRoute';
-import LocationFilter from '../../../../components/LocationFilter';
+import { 
+  MapPin, 
+  Building2, 
+  Clock, 
+  DollarSign, 
+  Briefcase, 
+  Globe,
+  Calendar,
+  Edit,
+  ExternalLink,
+  Mail
+} from 'lucide-react';
+import Link from 'next/link';
 
-export default function EditJobPage() {
+export default function JobDetailPage() {
   const t = useTranslations('postJob');
   const tBranch = useTranslations('branch');
-  const router = useRouter();
+  const tCommon = useTranslations('common');
   const params = useParams();
-  const { user, token } = useUser();
+  const router = useRouter();
+  const { user } = useUser();
   
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    companyDescription: '',
-    requirements: '',
-    benefits: '',
-    location: '',
-    branch: '',
-    job_type: '100%',
-    experience_level: '',
-    salary_min: '',
-    salary_max: '',
-    language: 'Englisch',
-  });
-  
-  const [companies, setCompanies] = useState<any[]>([]);
-  const [selectedCompany, setSelectedCompany] = useState<number | null>(null);
+  const [job, setJob] = useState<any>(null);
+  const [company, setCompany] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [dataLoading, setDataLoading] = useState(true);
-  const [companiesLoading, setCompaniesLoading] = useState(true);
-  
-  // Industry/Branch selection state
-  const [branchOptions, setBranchOptions] = useState<Array<{id: string, name: string, isSubcategory: boolean}>>([]);
-  const [branchLoading, setBranchLoading] = useState(true);
-  const [showBranchDropdown, setShowBranchDropdown] = useState(false);
-  
-  // Location selection state
-  const [selectedLocation, setSelectedLocation] = useState<any>(null);
-  
-  // Mapping for location display (same as in CreateCompanyPage)
-  const geoNamesAdmin1ToDERegions: Record<string, string> = {
-    '01': 'Baden-Württemberg', '1': 'Baden-Württemberg',
-    '02': 'Bayern', '2': 'Bayern',
-    '16': 'Berlin',
-    '11': 'Brandenburg',
-    '03': 'Bremen', '3': 'Bremen',
-    '04': 'Hamburg', '4': 'Hamburg',
-    '05': 'Hessen', '5': 'Hessen',
-    '12': 'Mecklenburg-Vorpommern',
-    '06': 'Niedersachsen', '6': 'Niedersachsen',
-    '07': 'Nordrhein-Westfalen', '7': 'Nordrhein-Westfalen',
-    '08': 'Rheinland-Pfalz', '8': 'Rheinland-Pfalz',
-    '09': 'Saarland', '9': 'Saarland',
-    '13': 'Sachsen',
-    '14': 'Sachsen-Anhalt',
-    '10': 'Schleswig-Holstein',
-    '15': 'Thüringen'
-  };
 
-  const geoNamesAdmin1ToATRegions: Record<string, string> = {
-    '1': 'Burgenland', '01': 'Burgenland',
-    '2': 'Kärnten', '02': 'Kärnten',
-    '3': 'Niederösterreich', '03': 'Niederösterreich',
-    '4': 'Oberösterreich', '04': 'Oberösterreich',
-    '5': 'Salzburg', '05': 'Salzburg',
-    '6': 'Steiermark', '06': 'Steiermark',
-    '7': 'Tirol', '07': 'Tirol',
-    '8': 'Vorarlberg', '08': 'Vorarlberg',
-    '9': 'Wien', '09': 'Wien'
-  };
-
-  const geoNamesAdmin1ToCHRegions: Record<string, string> = {
-    // Add Swiss regions if needed
-  };
-
-  // Load job data
   useEffect(() => {
     const fetchJob = async () => {
       try {
-        setDataLoading(true);
-        const response = await fetch(`/api/jobs/${params.id}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        setLoading(true);
+        const response = await fetch(`/api/jobs/${params.id}`);
         
         if (!response.ok) {
+          if (response.status === 404) {
+            setError('Job not found');
+            return;
+          }
           throw new Error('Failed to fetch job');
         }
         
         const data = await response.json();
-        const job = data.job;
+        setJob(data.job);
         
-        setFormData({
-          title: job.title || '',
-          description: job.description || '',
-          companyDescription: job.company_description || '',
-          requirements: job.requirements || '',
-          benefits: job.benefits || '',
-          location: job.location || '',
-          branch: job.branch || '',
-          job_type: job.job_type || '100%',
-          experience_level: job.experience_level || '',
-          salary_min: job.salary_min?.toString() || '',
-          salary_max: job.salary_max?.toString() || '',
-          language: job.language || 'Englisch'
-        });
-        
-        setSelectedCompany(job.company_id);
+        // Fetch company details if company_id exists
+        if (data.job.company_id) {
+          const companyResponse = await fetch(`/api/companies/${data.job.company_id}`);
+          if (companyResponse.ok) {
+            const companyData = await companyResponse.json();
+            setCompany(companyData.company);
+          }
+        }
       } catch (error) {
         console.error('Error fetching job:', error);
-        setError('Failed to load job data');
+        setError('Failed to load job details');
       } finally {
-        setDataLoading(false);
+        setLoading(false);
       }
     };
 
-    if (params.id && token) {
+    if (params.id) {
       fetchJob();
     }
-  }, [params.id, token]);
+  }, [params.id]);
 
-  // Load user's companies
-  useEffect(() => {
-    const fetchUserCompanies = async () => {
-      try {
-        setCompaniesLoading(true);
-        const response = await fetch('/api/user/companies', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch companies');
-        }
-        
-        const data = await response.json();
-        setCompanies(data.companies);
-      } catch (error) {
-        console.error('Error fetching companies:', error);
-      } finally {
-        setCompaniesLoading(false);
-      }
-    };
-    
-    if (token) {
-      fetchUserCompanies();
-    }
-  }, [token]);
-
-  // Load branch options
-  useEffect(() => {
-    const fetchBranches = async () => {
-      try {
-        setBranchLoading(true);
-        const response = await fetch('/api/jobs/branches');
-        const data = await response.json();
-        
-        if (data.success && Array.isArray(data.branches)) {
-          const options: Array<{id: string, name: string, isSubcategory: boolean}> = [];
-          data.branches.forEach((category: any) => {
-            // Add main category with translation
-            options.push({ 
-              id: category.id, 
-              name: tBranch(category.id) || category.name,
-              isSubcategory: false 
-            });
-            // Add subcategories with translation
-            category.subcategories.forEach((sub: any) => {
-              options.push({ 
-                id: sub.id, 
-                name: tBranch(sub.id) || sub.name,
-                isSubcategory: true 
-              });
-            });
-          });
-          setBranchOptions(options);
-        }
-      } catch (error) {
-        console.error('Error fetching branches:', error);
-      } finally {
-        setBranchLoading(false);
-      }
-    };
-    
-    fetchBranches();
-  }, [tBranch]);
-  
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { id, value } = e.target;
-    setFormData({ ...formData, [id]: value });
-  };
-
-  // Handle location selection (single location for jobs)
-  const handleLocationSelect = useCallback((location: any) => {
-    if (location) {
-      setSelectedLocation(location);
-      setFormData(prev => ({...prev, location: location.name}));
-    }
-  }, []);
-
-  // Handle branch selection (single industry for jobs)
-  const handleBranchSelect = (branchId: string) => {
-    const selected = branchOptions.find(option => option.id === branchId);
-    if (selected) {
-      setFormData(prev => ({...prev, branch: branchId}));
-      setShowBranchDropdown(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!selectedCompany) {
-      setError(t('selectCompany') || 'Please select a company');
-      return;
-    }
-    
-    if (!formData.branch) {
-      setError('Please select an industry');
-      return;
-    }
-    
-    if (!formData.location) {
-      setError('Please select a location');
-      return;
-    }
-    
-    setLoading(true);
-    setError('');
-    
-    try {
-      const response = await fetch(`/api/jobs/${params.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          ...formData,
-          company_id: selectedCompany,
-          // Convert salary strings to numbers if provided
-          salary_min: formData.salary_min ? parseInt(formData.salary_min) : undefined,
-          salary_max: formData.salary_max ? parseInt(formData.salary_max) : undefined,
-        }),
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to update job');
-      }
-      
-      // Redirect to the job page
-      router.push(`/jobs/${params.id}`);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  if (dataLoading) {
+  if (loading) {
     return (
       <main className="container mx-auto p-8">
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-          <p className="mt-4 text-gray-600">{t('loading') || "Loading..."}</p>
+          <p className="mt-4 text-gray-600">{t('loading') || 'Loading job details...'}</p>
         </div>
       </main>
     );
   }
-  
-  // Get selected branch display name
-  const getSelectedBranchName = () => {
-    const selected = branchOptions.find(option => option.id === formData.branch);
-    return selected ? selected.name : 'Select Industry';
-  };
-  
-  return (
-    <ProtectedRoute>
+
+  if (error || !job) {
+    return (
       <main className="container mx-auto p-8">
-        <h1 className="text-3xl font-bold mb-4">{t('editJob') || 'Edit Job'}</h1>
+        <div className="text-center py-12">
+          <p className="text-red-600 text-lg">{error}</p>
+          <button
+            onClick={() => router.push('/jobs')}
+            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Back to Jobs
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  // Check if current user owns this job (for showing edit button)
+  const isOwner = user && job.user_id && user.id === job.user_id;
+
+  // Translate experience levels
+  const translateExperienceLevel = (level: string) => {
+    const levelKey = level.replace(' ', '');
+    return t(`experienceLevels.${level}`) || level;
+  };
+
+  const formatSalary = (min: number, max: number) => {
+    if (min && max) {
+      return `€${min.toLocaleString()} - €${max.toLocaleString()}`;
+    } else if (min) {
+      return `From €${min.toLocaleString()}`;
+    } else if (max) {
+      return `Up to €${max.toLocaleString()}`;
+    }
+    return null;
+  };
+
+  return (
+    <main className="container mx-auto p-8">
+      <div className="max-w-4xl mx-auto">
         
-        <div className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto">
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md">
-              {error}
-            </div>
-          )}
-          
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2" htmlFor="company">
-                {t('selectCompany') || "Select Company"}
-              </label>
-              {companiesLoading ? (
-                <div className="w-full p-2 border rounded bg-gray-50">Loading companies...</div>
-              ) : (
-                <select
-                  id="company"
-                  value={selectedCompany || ''}
-                  onChange={(e) => setSelectedCompany(Number(e.target.value))}
-                  className="w-full p-2 border rounded"
-                  required
-                >
-                  <option value="">{t('selectCompany') || "Select a company"}</option>
-                  {companies.map(company => (
-                    <option key={company.id} value={company.id}>{company.name}</option>
-                  ))}
-                </select>
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">{job.title}</h1>
+              {company && (
+                <div className="flex items-center text-gray-600 mb-2">
+                  <Building2 className="w-4 h-4 mr-2" />
+                  <span className="text-lg font-semibold">{company.name}</span>
+                </div>
               )}
             </div>
             
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2" htmlFor="title">
-                {t('jobTitle')}
-              </label>
-              <input
-                type="text"
-                id="title"
-                value={formData.title}
-                onChange={handleChange}
-                className="w-full p-2 border rounded"
-                required
-              />
-            </div>
+            {/* Edit button for job owner */}
+            {isOwner && (
+              <Link
+                href={`/jobs/${job.id}/edit`}
+                className="flex items-center bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                <Edit className="w-4 h-4 mr-2" />
+                {t('editJob') || 'Edit Job'}
+              </Link>
+            )}
+          </div>
 
-            {/* Company Description Field */}
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2" htmlFor="companyDescription">
-                {t('companyDescription') || "Company Description"}
-              </label>
-              <textarea
-                id="companyDescription"
-                value={formData.companyDescription}
-                onChange={handleChange}
-                className="w-full p-2 border rounded"
-                rows={3}
-                placeholder={t('companyDescriptionPlaceholder') || "Describe your company to potential candidates..."}
-              ></textarea>
+          {/* Job Meta Information */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="flex items-center text-gray-600">
+              <MapPin className="w-4 h-4 mr-2" />
+              <span>{job.location}</span>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Location Selection */}
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2">
-                  {t('location')} *
-                </label>
-                <LocationFilter
-                  onLocationSelect={handleLocationSelect}
-                  selectedLocation={selectedLocation}
-                  placeholder={t('location') || "Enter job location..."}
-                  regionMappings={{
-                    DE: geoNamesAdmin1ToDERegions,
-                    AT: geoNamesAdmin1ToATRegions,
-                    CH: geoNamesAdmin1ToCHRegions
-                  }}
-                  clearAfterSelect={false} // For jobs, keep the location displayed
-                />
+            <div className="flex items-center text-gray-600">
+              <Briefcase className="w-4 h-4 mr-2" />
+              <span>{tBranch(job.branch) || job.branch}</span>
+            </div>
+            
+            <div className="flex items-center text-gray-600">
+              <Clock className="w-4 h-4 mr-2" />
+              <span>{job.job_type}</span>
+            </div>
+            
+            {job.experience_level && (
+              <div className="flex items-center text-gray-600">
+                <span className="w-4 h-4 mr-2">📊</span>
+                <span>{translateExperienceLevel(job.experience_level)}</span>
               </div>
-              
-              {/* Industry Selection */}
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2">
-                  {t('industry') || "Industry"} *
-                </label>
-                {branchLoading ? (
-                  <div className="w-full p-2 border rounded bg-gray-50">Loading industries...</div>
-                ) : (
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setShowBranchDropdown(!showBranchDropdown)}
-                      className="w-full p-2 border rounded text-left bg-white flex items-center justify-between"
-                    >
-                      <span className={formData.branch ? 'text-black' : 'text-gray-500'}>
-                        {formData.branch ? getSelectedBranchName() : (t('selectIndustry') || 'Select Industry')}
-                      </span>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                    
-                    {showBranchDropdown && (
-                      <div className="absolute z-10 w-full mt-1 bg-white border rounded shadow-lg max-h-60 overflow-y-auto">
-                        {branchOptions.map((option) => (
-                          <div
-                            key={option.id}
-                            onClick={() => handleBranchSelect(option.id)}
-                            className={`
-                              px-3 py-2 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50
-                              ${option.isSubcategory ? 'pl-8' : 'font-semibold'}
-                              ${formData.branch === option.id ? 'bg-blue-100 text-blue-800' : ''}
-                            `}
-                            style={{
-                              paddingLeft: option.isSubcategory ? '2rem' : '0.75rem',
-                            }}
-                          >
-                            {option.isSubcategory ? `└── ${option.name}` : option.name}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+            )}
+          </div>
+
+          {/* Salary */}
+          {(job.salary_min || job.salary_max) && (
+            <div className="flex items-center text-gray-600 mb-4">
+              <DollarSign className="w-4 h-4 mr-2" />
+              <span className="font-semibold">{formatSalary(job.salary_min, job.salary_max)}</span>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2" htmlFor="job_type">
-                  {t('employmentType') || "Employment Type"}
-                </label>
-                <select
-                  id="job_type"
-                  value={formData.job_type}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded"
-                  required
-                >
-                  <option value="100%">{t('jobTypes.100%') || "100%"}</option>
-                  <option value="90%">{t('jobTypes.90%') || "90%"}</option>
-                  <option value="80%">{t('jobTypes.80%') || "80%"}</option>
-                  <option value="70%">{t('jobTypes.70%') || "70%"}</option>
-                  <option value="60%">{t('jobTypes.60%') || "60%"}</option>
-                  <option value="50%">{t('jobTypes.50%') || "50%"}</option>
-                  <option value="40%">{t('jobTypes.40%') || "40%"}</option>
-                  <option value="30%">{t('jobTypes.30%') || "30%"}</option>
-                  <option value="20%">{t('jobTypes.20%') || "20%"}</option>
-                  <option value="10%">{t('jobTypes.10%') || "10%"}</option>
-                </select>
-              </div>
-              
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2" htmlFor="experience_level">
-                  {t('experienceLevel') || "Experience Level"}
-                </label>
-                <select
-                  id="experience_level"
-                  value={formData.experience_level}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded"
-                >
-                  <option value="">{t('selectExperience') || "Select Experience Level"}</option>
-                  <option value="Entry Level">{t('experienceLevels.Entry Level') || "Entry Level"}</option>
-                  <option value="Mid Level">{t('experienceLevels.Mid Level') || "Mid Level"}</option>
-                  <option value="Senior">{t('experienceLevels.Senior') || "Senior"}</option>
-                  <option value="Executive">{t('experienceLevels.Executive') || "Executive"}</option>
-                </select>
-              </div>
+          )}
+
+          {/* Language */}
+          {job.language && (
+            <div className="flex items-center text-gray-600 mb-4">
+              <Globe className="w-4 h-4 mr-2" />
+              <span>{t(`languages.${job.language}`) || job.language}</span>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2" htmlFor="salary_min">
-                  {t('minSalary') || "Minimum Salary (€)"}
-                </label>
-                <input
-                  type="number"
-                  id="salary_min"
-                  value={formData.salary_min}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2" htmlFor="salary_max">
-                  {t('maxSalary') || "Maximum Salary (€)"}
-                </label>
-                <input
-                  type="number"
-                  id="salary_max"
-                  value={formData.salary_max}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
+          )}
+
+          {/* Posted Date */}
+          {job.created_at && (
+            <div className="flex items-center text-gray-500 text-sm">
+              <Calendar className="w-4 h-4 mr-2" />
+              <span>{t('posted') || 'Posted'} {new Date(job.created_at).toLocaleDateString()}</span>
             </div>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2" htmlFor="language">
-                {t('language') || "Language"}
-              </label>
-              <select
-                id="language"
-                value={formData.language}
-                onChange={handleChange}
-                className="w-full p-2 border rounded"
-                required
-              >
-                <option value="Englisch">{t('languages.English') || "English"}</option>
-                <option value="German">{t('languages.German') || "German"}</option>
-              </select>
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2" htmlFor="description">
-                {t('description') || "Job Description"}
-              </label>
-              <textarea
-                id="description"
-                value={formData.description}
-                onChange={handleChange}
-                className="w-full p-2 border rounded"
-                rows={6}
-                required
-              ></textarea>
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2" htmlFor="requirements">
-                {t('requirements') || "Requirements"}
-              </label>
-              <textarea
-                id="requirements"
-                value={formData.requirements}
-                onChange={handleChange}
-                className="w-full p-2 border rounded"
-                rows={4}
-              ></textarea>
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2" htmlFor="benefits">
-                {t('benefits') || "Benefits"}
-              </label>
-              <textarea
-                id="benefits"
-                value={formData.benefits}
-                onChange={handleChange}
-                className="w-full p-2 border rounded"
-                rows={4}
-              ></textarea>
-            </div>
-            
-            <div className="flex gap-4">
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50"
-              >
-                {loading ? (t('updating') || "Updating...") : (t('updateJob') || "Update Job")}
-              </button>
-              
-              <button
-                type="button"
-                onClick={() => router.push(`/jobs/${params.id}`)}
-                className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
-              >
-                {t('cancel') || "Cancel"}
-              </button>
-            </div>
-          </form>
+          )}
         </div>
-      </main>
-    </ProtectedRoute>
+
+        {/* Company Description */}
+        {job.company_description && (
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-3">{t('aboutTheCompany') || 'About the Company'}</h2>
+            <p className="text-gray-700 whitespace-pre-wrap">{job.company_description}</p>
+          </div>
+        )}
+
+        {/* Job Description */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-semibold mb-3">{t('jobDescription') || 'Job Description'}</h2>
+          <div className="text-gray-700 whitespace-pre-wrap">{job.description}</div>
+        </div>
+
+        {/* Requirements */}
+        {job.requirements && (
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-3">{t('requirements') || 'Requirements'}</h2>
+            <div className="text-gray-700 whitespace-pre-wrap">{job.requirements}</div>
+          </div>
+        )}
+
+        {/* Benefits */}
+        {job.benefits && (
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-3">{t('benefits') || 'Benefits'}</h2>
+            <div className="text-gray-700 whitespace-pre-wrap">{job.benefits}</div>
+          </div>
+        )}
+
+        {/* Company Details */}
+        {company && (
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-3">{t('companyDetails') || 'Company Details'}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-gray-600 mb-2">
+                  <Building2 className="w-4 h-4 inline mr-2" />
+                  <strong>{t('industry') || 'Industry'}:</strong> {tBranch(company.industry) || company.industry}
+                </p>
+                <p className="text-gray-600 mb-2">
+                  <MapPin className="w-4 h-4 inline mr-2" />
+                  <strong>{t('location') || 'Location'}:</strong> {company.location}
+                </p>
+              </div>
+              {company.description && (
+                <div>
+                  <p className="text-gray-700">{company.description}</p>
+                </div>
+              )}
+            </div>
+            
+            {company.website && (
+              <div className="mt-4">
+                <a 
+                  href={company.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center text-blue-600 hover:text-blue-800"
+                >
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  {t('visitCompanyWebsite') || 'Visit Company Website'}
+                </a>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Apply Button */}
+        <div className="bg-white rounded-lg shadow-md p-6 text-center">
+          {job.contact_email ? (
+            <a
+              href={`mailto:${job.contact_email}?subject=Application for ${job.title}&body=Dear Hiring Manager,%0D%0A%0D%0AI am interested in applying for the ${job.title} position at ${company?.name || 'your company'}.%0D%0A%0D%0APlease find my application details below.%0D%0A%0D%0ABest regards`}
+              className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold"
+            >
+              <Mail className="w-4 h-4 mr-2" />
+              {t('applyViaEmail') || 'Apply via Email'}
+            </a>
+          ) : job.url ? (
+            <a
+              href={job.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold"
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              {t('applyNow') || 'Apply Now'}
+            </a>
+          ) : (
+            <p className="text-gray-600">{t('contactCompanyDirectly') || 'Contact the company directly to apply for this position.'}</p>
+          )}
+        </div>
+
+        {/* Back to Jobs */}
+        <div className="text-center mt-6">
+          <button
+            onClick={() => router.push('/jobs')}
+            className="text-blue-600 hover:text-blue-800 underline"
+          >
+            {t('backToJobs') || '← Back to All Jobs'}
+          </button>
+        </div>
+      </div>
+    </main>
   );
 }

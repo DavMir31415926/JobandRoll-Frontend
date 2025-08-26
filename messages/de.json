@@ -648,7 +648,16 @@
     "languages": {
       "English": "Englisch",
       "German": "Deutsch"
-    }
+    },
+    "posted": "Veröffentlicht",
+    "aboutTheCompany": "Über das Unternehmen",
+    "jobDescription": "Stellenbeschreibung",
+    "companyDetails": "Unternehmensdetails",
+    "visitCompanyWebsite": "Firmenwebsite besuchen",
+    "applyNow": "Jetzt bewerben",
+    "contactCompanyDirectly": "Wenden Sie sich direkt an das Unternehmen, um sich für diese Position zu bewerben.",
+    "backToJobs": "← Zurück zu allen Stellen",
+    "applyViaEmail": "Per E-Mail bewerben"
   },
   "login": {
     "title": "Anmelden",
@@ -753,7 +762,8 @@
     "confirmDelete": "Löschen bestätigen", 
     "deleteConfirmMessage": "Sind Sie sicher, dass Sie löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.", 
     "cancel": "Abbrechen", 
-    "delete": "Löschen" 
+    "delete": "Löschen",
+    "editProfile": "Profil bearbeiten"
   },
   "terms": {
     "title": "Nutzungsbedingungen",

@@ -370,6 +370,13 @@ export default function DashboardPage() {
                       <Plus className="h-4 w-4 mr-2" />
                       {t('postJob') || 'Post New Job'}
                     </Link>
+                    <Link 
+                      href="/profile"
+                      className="flex items-center text-blue-600 hover:text-blue-800"
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      {t('editProfile') || 'Edit Profile'}
+                    </Link>
                   </div>
                 </motion.div>
               </>
@@ -406,6 +413,32 @@ export default function DashboardPage() {
                       <p className="text-sm text-gray-600">{t('applications') || 'Applications'}</p>
                       <p className="text-2xl font-bold text-gray-900">0</p>
                     </div>
+                  </div>
+                </motion.div>
+
+                {/* Job Seeker Quick Actions */}
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="bg-white p-6 rounded-lg shadow-md border border-gray-100"
+                >
+                  <h3 className="text-lg font-semibold mb-4">{t('quickActions') || 'Quick Actions'}</h3>
+                  <div className="space-y-2">
+                    <Link 
+                      href="/jobs"
+                      className="flex items-center text-blue-600 hover:text-blue-800"
+                    >
+                      <Search className="h-4 w-4 mr-2" />
+                      {t('searchJobs') || 'Search Jobs'}
+                    </Link>
+                    <Link 
+                      href="/profile"
+                      className="flex items-center text-blue-600 hover:text-blue-800"
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      {t('editProfile') || 'Edit Profile'}
+                    </Link>
                   </div>
                 </motion.div>
               </>

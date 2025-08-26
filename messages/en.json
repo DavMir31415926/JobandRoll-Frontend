@@ -646,7 +646,16 @@
     "languages": {
       "English": "English",
       "German": "German"
-    }
+    },
+    "posted": "Posted",
+    "aboutTheCompany": "About the Company",
+    "jobDescription": "Job Description",
+    "companyDetails": "Company Details",
+    "visitCompanyWebsite": "Visit Company Website",
+    "applyNow": "Apply Now",
+    "contactCompanyDirectly": "Contact the company directly to apply for this position.",
+    "backToJobs": "← Back to All Jobs",
+    "applyViaEmail": "Apply via Email"
   },
   "login": {
     "title": "Log In",
@@ -751,7 +760,8 @@
     "confirmDelete": "Confirm Delete", 
     "deleteConfirmMessage": "Are you sure you want to delete? This action cannot be undone.", 
     "cancel": "Cancel", 
-    "delete": "Delete" 
+    "delete": "Delete",
+    "editProfile": "Edit Profile" 
   },
   "terms": {
     "title": "Terms of Service",
