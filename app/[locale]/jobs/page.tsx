@@ -5,6 +5,7 @@ import { useLocale } from 'next-intl';
 import { Search, Briefcase, Building2, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useUser } from '@/app/context/UserContext';
 import JobFilters from '../../../components/JobFilters';
 import SaveJobButton from '../../../components/SaveJobButton';
 
@@ -26,14 +27,15 @@ interface Job {
   posted?: string;
   url?: string;
   company_logo?: string;
-  language: string
+  language: string;
+  source?: 'admin' | 'employer' | 'scraper';
 }
 
 interface FilterState {
   branch: string[];
   job_type: string;
-  job_type_min: string; // Add this line
-  job_type_max: string; // Add this line
+  job_type_min: string;
+  job_type_max: string;
   experience_level: string;
   location: string;
   locationId?: number;
@@ -42,11 +44,11 @@ interface FilterState {
   language: string;
 }
 
-
 export default function JobsPage() {
   const locale = useLocale();
   const t = useTranslations('jobs');
   const tBase = useTranslations();
+  const { user } = useUser();
   
   const [query, setQuery] = useState('');
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -55,20 +57,19 @@ export default function JobsPage() {
   const [requestId, setRequestId] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const jobsPerPage = 50; // Match the default in your backend
+  const jobsPerPage = 50;
   
-  // Update state for filters - branches is now an array
   const [activeFilters, setActiveFilters] = useState({
     branch: [] as string[],
     job_type: '',
-    job_type_min: '10',  // Add this line
-    job_type_max: '100', // Add this line
+    job_type_min: '10',
+    job_type_max: '100',
     experience_level: '',
     location: '',
     locationId: undefined,
     radius: '0',
     salary_min: '',
-    language: 'all' // Add this line
+    language: 'all'
   });
   
   // Helper function to translate branch names
@@ -87,7 +88,7 @@ export default function JobsPage() {
       
       // Build the query string
       const params = new URLSearchParams();
-  
+
       console.log(`[Request #${currentRequestId}] Building search params with filters:`, filters);
       
       // Add pagination parameters
@@ -97,7 +98,7 @@ export default function JobsPage() {
       // Ensure we're using the filters parameter that was passed in, not activeFilters
       const languageFilter = filters.language || 'all';
       params.append('language', languageFilter);
-  
+
       console.log(`[Request #${currentRequestId}] language parameter added:`, languageFilter);
       
       if (searchQuery) {
@@ -120,7 +121,7 @@ export default function JobsPage() {
           }
         }
       });
-  
+
       // Handle job type range parameters separately
       if (filters.job_type_min && filters.job_type_min !== '10') {
         params.append('job_type_min', String(filters.job_type_min));
@@ -130,7 +131,7 @@ export default function JobsPage() {
       }
       
       console.log(`[Request #${currentRequestId}] Final search params:`, params.toString());
-  
+
       const response = await fetch(`/api/jobs/search?${params.toString()}`);
       
       // Check if this response is for the most recent request
@@ -353,8 +354,8 @@ export default function JobsPage() {
               const clearedFilters = {
                 branch: [],
                 job_type: '',
-                job_type_min: '10',  // Add this line
-                job_type_max: '100', // Add this line
+                job_type_min: '10',
+                job_type_max: '100',
                 experience_level: '',
                 location: '',
                 locationId: undefined,
@@ -498,8 +499,8 @@ export default function JobsPage() {
                               )}
                             </div>
                             
-                            {/* Display branch and language if available */}
-                            {(job.branch || job.language) && (
+                            {/* Display branch, language and admin indicator if available */}
+                            {(job.branch || job.language || job.source === 'admin') && (
                               <div className="mt-2 flex flex-wrap gap-2">
                                 {job.branch && (
                                   <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs">
@@ -510,6 +511,11 @@ export default function JobsPage() {
                                   <span className="bg-green-50 text-green-700 px-2 py-1 rounded text-xs">
                                     {job.language === 'Englisch' ? t('english') : 
                                     job.language === 'German' ? t('german') : job.language}
+                                  </span>
+                                )}
+                                {job.source === 'admin' && (
+                                  <span className="bg-orange-50 text-orange-700 px-2 py-1 rounded text-xs font-medium">
+                                    {t('adminLinked')}
                                   </span>
                                 )}
                               </div>

@@ -220,7 +220,8 @@
       "German": "Deutsch",
       "Englisch": "Deutsch"
     },
-    "employees": "Mitarbeiter"
+    "employees": "Mitarbeiter",
+    "adminLinked": "Von Admin verlinkter externer Job"
   },
   "branch": {
   "Technology & IT": "Technologie & IT",

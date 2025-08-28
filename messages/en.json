@@ -218,7 +218,8 @@
       "German": "German",
       "Englisch": "English"
     },
-    "employees": "employees"
+    "employees": "employees",
+    "adminLinked": "Admin Linked External Job"
   },
   "branch": {
   "Technology & IT": "Technology & IT",
