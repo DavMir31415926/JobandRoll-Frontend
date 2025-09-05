@@ -219,7 +219,9 @@
       "Englisch": "English"
     },
     "employees": "employees",
-    "adminLinked": "Admin Linked External Job"
+    "adminLinked": "Admin Linked External Job",
+    "french": "French",
+    "italian": "Italian"
   },
   "branch": {
   "Technology & IT": "Technology & IT",

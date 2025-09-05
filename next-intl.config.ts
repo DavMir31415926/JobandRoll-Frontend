@@ -1,5 +1,5 @@
 // next-intl.config.ts
-export const locales = ['en', 'de'];
+export const locales = ['en', 'de', 'fr', 'it'];
 export const defaultLocale = 'en';
 
 const config = {

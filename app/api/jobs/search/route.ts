@@ -1,5 +1,5 @@
 // app/api/jobs/search/route.ts
-// Simplified implementation that correctly handles radius search
+// Enhanced implementation that correctly handles total count and pagination
 
 import { NextRequest, NextResponse } from 'next/server';
 import { branchHierarchy } from '../branches/data';
@@ -100,9 +100,10 @@ export async function GET(request: NextRequest) {
     // Get the response data
     const apiResponse = await response.json();
     let jobs: Job[] = apiResponse.jobs || [];
+    let totalCount = apiResponse.total || 0;
     
     // Log debug info
-    console.log(`DETAILED JOB DATA: Got ${jobs.length} total jobs`);
+    console.log(`DETAILED JOB DATA: Got ${jobs.length} jobs on page ${page}, total: ${totalCount}`);
     if (jobs.length > 0) {
       console.log('Sample job:', jobs[0]);
     }
@@ -111,17 +112,31 @@ export async function GET(request: NextRequest) {
     if (language !== 'all') {
       console.log(`Filtering for language match: "${language}"`);
       const beforeCount = jobs.length;
+      const beforeTotal = totalCount;
+      
       jobs = jobs.filter(job => job.language === language);
+      
+      // If we filtered the results, we need to adjust the total count proportionally
+      // This is an approximation since we don't know the exact total after language filtering
+      // For a more accurate count, the backend should handle language filtering
+      if (beforeCount > 0) {
+        const filterRatio = jobs.length / beforeCount;
+        totalCount = Math.round(beforeTotal * filterRatio);
+      }
+      
       console.log(`After language filter: ${jobs.length} jobs (filtered out ${beforeCount - jobs.length})`);
+      console.log(`Estimated total after language filter: ${totalCount}`);
     }
     
-    // Return the jobs
+    // Return the jobs with proper pagination info
     return NextResponse.json({
       success: true,
-      count: jobs.length,
+      jobs: jobs,
+      count: jobs.length, // Jobs on this page
+      total: totalCount, // Total jobs matching the search across all pages
       page: parseInt(page),
-      total: apiResponse.total || undefined,
-      jobs: jobs
+      limit: parseInt(limit),
+      totalPages: Math.ceil(totalCount / parseInt(limit))
     });
   } catch (error) {
     console.error('Error searching jobs:', error);

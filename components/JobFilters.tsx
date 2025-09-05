@@ -551,8 +551,10 @@ const getDisplayName = (category: Category) => {
 
   const languages = [
     { value: 'all', label: tJobs('allLanguages') },
-    { value: 'Englisch', label: tJobs('english') },
-    { value: 'German', label: tJobs('german') }
+    { value: 'English', label: tJobs('english') },
+    { value: 'German', label: tJobs('german') },
+    { value: 'French', label: tJobs('french') },
+    { value: 'Italian', label: tJobs('italian') }
   ];
 
   return (

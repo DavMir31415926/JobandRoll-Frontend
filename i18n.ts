@@ -1,11 +1,15 @@
-// i18n/request.ts
-export const locales = ['en', 'de'];
+// i18n.ts
+export const locales = ['en', 'de', 'fr', 'it'];
 export const defaultLocale = 'en';
 
 export default async function getRequestConfig({ locale }: { locale?: string }) {
-  // Explicitly return locale to satisfy the warning
+  const currentLocale = locale || defaultLocale;
+  
+  // Load messages dynamically like in i18n/request.ts
+  const messages = (await import(`./messages/${currentLocale}.json`)).default;
+  
   return {
-    locale: locale || defaultLocale,
-    messages: {} // Messages will be loaded in layout component
+    locale: currentLocale,
+    messages
   };
 }

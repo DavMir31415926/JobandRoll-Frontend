@@ -1,4 +1,3 @@
-// components/LanguageSwitcher.tsx
 'use client';
 
 import { useLocale } from 'next-intl';
@@ -21,6 +20,16 @@ export default function LanguageSwitcher() {
     router.push(`/${newLocale}${pathWithoutLocale}`);
   };
   
+  const getLanguageLabel = (loc: string) => {
+    switch (loc) {
+      case 'en': return '🇬🇧 English';
+      case 'de': return '🇩🇪 Deutsch';
+      case 'fr': return '🇫🇷 Français';
+      case 'it': return '🇮🇹 Italiano';
+      default: return loc;
+    }
+  };
+  
   return (
     <div className="flex items-center bg-white rounded-full px-2 py-1 shadow-md">
       <Globe size={18} className="text-blue-600 mr-1" />
@@ -32,49 +41,10 @@ export default function LanguageSwitcher() {
       >
         {locales.map((loc) => (
           <option key={loc} value={loc}>
-            {loc === 'en' ? '🇬🇧 English' : '🇩🇪 Deutsch'}
+            {getLanguageLabel(loc)}
           </option>
         ))}
       </select>
     </div>
   );
 }
-
-
-
-/*'use client';
-
-import { useLocale } from 'next-intl';
-import { useRouter, usePathname } from 'next/navigation';
-import { locales } from '@/i18n';
-
-export default function LanguageSwitcher() {
-  const locale = useLocale();
-  const router = useRouter();
-  const pathname = usePathname();
-  
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newLocale = e.target.value;
-  
-    const currentPath = pathname;
-    
-    const pathWithoutLocale = currentPath.replace(`/${locale}`, '');
-    
-    router.push(`/${newLocale}${pathWithoutLocale}`);
-  };
-  
-  return (
-    <select 
-      onChange={handleChange} 
-      value={locale} 
-      className="language-selector"
-      aria-label="Select language"
-    >
-      {locales.map((loc) => (
-        <option key={loc} value={loc}>
-          {loc === 'en' ? '🇬🇧 English' : '🇩🇪 Deutsch'}
-        </option>
-      ))}
-    </select>
-  );
-}*/

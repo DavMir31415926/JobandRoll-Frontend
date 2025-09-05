@@ -57,6 +57,7 @@ export default function JobsPage() {
   const [requestId, setRequestId] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalResults, setTotalResults] = useState<number>(0); // Add total results state
   const jobsPerPage = 50;
   
   const [activeFilters, setActiveFilters] = useState({
@@ -71,6 +72,11 @@ export default function JobsPage() {
     salary_min: '',
     language: 'all'
   });
+  
+  // Helper function to scroll to top
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   
   // Helper function to translate branch names
   const translateBranchName = (branchName: string) => {
@@ -152,15 +158,19 @@ export default function JobsPage() {
       
       // Handle different possible data structures
       let jobsData: Job[] = [];
+      let totalCount = 0;
       
       if (Array.isArray(data)) {
         jobsData = data;
+        totalCount = data.length;
       } else if (data && Array.isArray(data.jobs)) {
         jobsData = data.jobs;
+        totalCount = data.total || data.jobs.length;
         
-        // If the API returns a total count or total pages, use it
+        // If the API returns a total count, use it for pagination
         if (data.total) {
           setTotalPages(Math.ceil(data.total / jobsPerPage));
+          setTotalResults(data.total); // Set total results
         } else if (data.count) {
           // If we don't have a total but we have count, and count is less than jobsPerPage
           // then we know we're on the last page
@@ -170,6 +180,7 @@ export default function JobsPage() {
             // If we have a full page, there might be more
             setTotalPages(page + 1);
           }
+          setTotalResults(data.count); // Set total results to count if no total
         }
       } else if (data && typeof data === 'object') {
         // Log more details to help debug
@@ -180,14 +191,15 @@ export default function JobsPage() {
           if (Array.isArray(data[key])) {
             console.log(`[Request #${currentRequestId}] Found array in key: ${key}`);
             jobsData = data[key];
+            totalCount = data.total || jobsData.length;
             break;
           }
         }
       }
       
       console.log(`[Request #${currentRequestId}] API returned jobs with languages:`, jobsData.map(job => job.language));
-      
       console.log(`[Request #${currentRequestId}] Jobs data:`, jobsData);
+      console.log(`[Request #${currentRequestId}] Total results:`, totalCount);
       
       // Add this line - examine the first job object if available
       if (jobsData.length > 0) {
@@ -208,13 +220,21 @@ export default function JobsPage() {
   useEffect(() => {
     console.log('Component mounted or locale/page changed, loading jobs with filters:', activeFilters);
     fetchJobs('', activeFilters, currentPage);
-  }, [locale, currentPage]); 
+  }, [locale, currentPage]);
+
+  // Scroll to top when currentPage changes (after fetchJobs completes)
+  useEffect(() => {
+    if (currentPage > 1) { // Only scroll if not on first page
+      scrollToTop();
+    }
+  }, [currentPage]); 
 
   // Handle search form submission
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     setCurrentPage(1); // Reset to first page on new search
     fetchJobs(query, activeFilters, 1);
+    scrollToTop(); // Scroll to top on new search
   };
   
   // Handle filter changes
@@ -224,6 +244,7 @@ export default function JobsPage() {
     setCurrentPage(1); // Reset to first page when filters change
     // Use the newFilters directly here, not activeFilters, because state update is asynchronous
     fetchJobs(query, newFilters, 1);
+    scrollToTop(); // Scroll to top when filters change
   };
   
   // Function to render active filter badges
@@ -331,9 +352,11 @@ export default function JobsPage() {
 
           {activeFilters.language && activeFilters.language !== 'all' && (
             <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-md flex items-center">
-              {t('language')}: {activeFilters.language === 'Englisch' ? t('english') : 
-                              activeFilters.language === 'German' ? t('german') : 
-                              activeFilters.language}
+              {t('language')}: {activeFilters.language === 'English' ? t('english') : 
+                                activeFilters.language === 'German' ? t('german') :
+                                activeFilters.language === 'French' ? t('french') :
+                                activeFilters.language === 'Italian' ? t('italian') :
+                                activeFilters.language}
               <button 
                 className="ml-2 text-blue-500 hover:text-blue-700"
                 onClick={() => {
@@ -450,7 +473,10 @@ export default function JobsPage() {
             {/* Jobs List */}
             {!loading && !error && jobs.length > 0 && (
               <div>
-                <h3 className="text-xl font-semibold mb-6">{jobs.length} {t('results')}</h3>
+                {/* Updated results count display - only show total */}
+                <h3 className="text-xl font-semibold mb-6">
+                  {totalResults > 0 ? totalResults : jobs.length} {t('results')}
+                </h3>
                 
                 <div className="space-y-6">
                   {jobs.map((job) => (
@@ -509,8 +535,10 @@ export default function JobsPage() {
                                 )}
                                 {job.language && (
                                   <span className="bg-green-50 text-green-700 px-2 py-1 rounded text-xs">
-                                    {job.language === 'Englisch' ? t('english') : 
-                                    job.language === 'German' ? t('german') : job.language}
+                                    {job.language === 'English' ? t('english') : 
+                                    job.language === 'German' ? t('german') :
+                                    job.language === 'French' ? t('french') :
+                                    job.language === 'Italian' ? t('italian') : job.language}
                                   </span>
                                 )}
                                 {job.source === 'admin' && (
@@ -595,7 +623,7 @@ export default function JobsPage() {
                 </div>
               </div>
             )}
-            {/* Add this after your jobs list, just before the closing </div> in the Jobs List section */}
+            {/* Updated pagination without scroll-to-top in onClick */}
             {!loading && !error && jobs.length > 0 && (
               <div className="mt-8 flex justify-center">
                 <nav className="inline-flex rounded-md shadow">
