@@ -2,7 +2,7 @@
 "use client";
 import Link from "next/link";
 import { useTranslations } from 'next-intl';
-import { Mail, Github, Linkedin, Twitter } from 'lucide-react';
+import { Mail } from 'lucide-react';
 
 const Footer = () => {
   const t = useTranslations('common');
@@ -17,17 +17,6 @@ const Footer = () => {
             <p className="text-gray-400 mb-4">
               {t('footerTagline')}
             </p>
-            <div className="flex space-x-4">
-              <a href="https://twitter.com" className="text-gray-400 hover:text-white">
-                <Twitter size={20} />
-              </a>
-              <a href="https://linkedin.com" className="text-gray-400 hover:text-white">
-                <Linkedin size={20} />
-              </a>
-              <a href="https://github.com" className="text-gray-400 hover:text-white">
-                <Github size={20} />
-              </a>
-            </div>
           </div>
           
           {/* For Job Seekers */}
