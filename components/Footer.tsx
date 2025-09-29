@@ -10,65 +10,16 @@ const Footer = () => {
   return (
     <footer className="bg-gray-800 text-white pt-12 pb-8">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Company Info */}
           <div>
             <h3 className="text-lg font-semibold mb-4">{t('Jopoly')}</h3>
-            <p className="text-gray-400 mb-4">
+            <p className="text-gray-400 mb-4 text-sm leading-relaxed">
               {t('footerTagline')}
             </p>
           </div>
           
-          {/* For Job Seekers */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">{t('forJobSeekers')}</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/jobs" className="text-gray-400 hover:text-white">
-                  {t('browseJobs')}
-                </Link>
-              </li>
-              <li>
-                <Link href="/companies" className="text-gray-400 hover:text-white">
-                  {t('companies')}
-                </Link>
-              </li>
-              <li>
-                <Link href="/dashboard" className="text-gray-400 hover:text-white">
-                  {t('dashboard')}
-                </Link>
-              </li>
-              <li>
-                <Link href="/login" className="text-gray-400 hover:text-white">
-                  {t('createAccount')}
-                </Link>
-              </li>
-            </ul>
-          </div>
-          
-          {/* For Employers */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">{t('forEmployers')}</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/post-job" className="text-gray-400 hover:text-white">
-                  {t('postJob')}
-                </Link>
-              </li>
-              <li>
-                <Link href="/pricing" className="text-gray-400 hover:text-white">
-                  {t('pricing')}
-                </Link>
-              </li>
-              <li>
-                <Link href="/resources" className="text-gray-400 hover:text-white">
-                  {t('resources')}
-                </Link>
-              </li>
-            </ul>
-          </div>
-          
-          {/* Company */}
+          {/* Company Links */}
           <div>
             <h3 className="text-lg font-semibold mb-4">{t('company')}</h3>
             <ul className="space-y-2">

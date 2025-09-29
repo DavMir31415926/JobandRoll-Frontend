@@ -35,14 +35,22 @@ export default function JobSearch() {
     setLoading(true);
     
     try {
-      const response = await fetch(`/api/${locale}/jobs?query=${encodeURIComponent(query)}`);
+      // FIXED: Use the enhanced search route instead of basic jobs route
+      const searchParams = new URLSearchParams({
+        q: query,
+        language: 'all',
+        limit: '50',
+        page: '1'
+      });
+      
+      const response = await fetch(`/api/jobs/search?${searchParams.toString()}`);
       
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
       
       const data = await response.json();
-      setJobs(data.jobs);
+      setJobs(data.jobs || []);
       setSearched(true);
     } catch (error) {
       console.error('Error searching jobs:', error);
@@ -123,7 +131,7 @@ export default function JobSearch() {
                 </div>
                 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {job.tags.map((tag, index) => (
+                  {job.tags?.map((tag, index) => (
                     <span key={index} className="bg-gray-100 text-gray-800 text-xs px-3 py-1 rounded-full">
                       {tag}
                     </span>

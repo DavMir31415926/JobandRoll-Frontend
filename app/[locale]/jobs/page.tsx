@@ -138,7 +138,8 @@ export default function JobsPage() {
       
       console.log(`[Request #${currentRequestId}] Final search params:`, params.toString());
 
-      const response = await fetch(`/api/jobs/search?${params.toString()}`);
+      const apiEndpoint = searchQuery ? '/api/jobs/search' : '/api/jobs';
+      const response = await fetch(`${apiEndpoint}?${params.toString()}`);
       
       // Check if this response is for the most recent request
       if (currentRequestId !== requestId + 1) {
@@ -216,13 +217,14 @@ export default function JobsPage() {
     }
   };
 
+  // Scroll to top when currentPage changes (after fetchJobs completes)
+  
   // Initial load of jobs
   useEffect(() => {
-    console.log('Component mounted or locale/page changed, loading jobs with filters:', activeFilters);
-    fetchJobs('', activeFilters, currentPage);
-  }, [locale, currentPage]);
-
-  // Scroll to top when currentPage changes (after fetchJobs completes)
+    console.log('Component mounted or locale changed, loading jobs with filters:', activeFilters);
+    fetchJobs(query, activeFilters, 1);
+  }, [locale]); // IMPORTANT: Only [locale] in the dependency array, NOT currentPage
+  
   useEffect(() => {
     if (currentPage > 1) { // Only scroll if not on first page
       scrollToTop();
@@ -628,7 +630,11 @@ export default function JobsPage() {
               <div className="mt-8 flex justify-center">
                 <nav className="inline-flex rounded-md shadow">
                   <button
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    onClick={() => {
+                      const newPage = currentPage - 1;
+                      setCurrentPage(newPage);
+                      fetchJobs(query, activeFilters, newPage);
+                    }}
                     disabled={currentPage === 1}
                     className={`relative inline-flex items-center px-3 py-2 rounded-l-md border ${
                       currentPage === 1 
@@ -639,13 +645,17 @@ export default function JobsPage() {
                     <span className="sr-only">{t('previous')}</span>
                     &larr; {t('previous')}
                   </button>
-                  
+
                   <span className="relative inline-flex items-center px-4 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-gray-700">
                     {t('page')} {currentPage} {totalPages > 0 && `/ ${totalPages}`}
                   </span>
-                  
+
                   <button
-                    onClick={() => setCurrentPage(prev => prev + 1)}
+                    onClick={() => {
+                      const newPage = currentPage + 1;
+                      setCurrentPage(newPage);
+                      fetchJobs(query, activeFilters, newPage);
+                    }}
                     disabled={jobs.length < jobsPerPage || (totalPages > 0 && currentPage >= totalPages)}
                     className={`relative inline-flex items-center px-3 py-2 rounded-r-md border ${
                       jobs.length < jobsPerPage || (totalPages > 0 && currentPage >= totalPages)
