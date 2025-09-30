@@ -23,7 +23,7 @@ export default function PostJobPage() {
     experience_level: '',
     salary_min: '',
     salary_max: '',
-    language: 'Englisch',
+    language: 'English',
   });
   
   const [companies, setCompanies] = useState<any[]>([]);
@@ -483,8 +483,10 @@ export default function PostJobPage() {
                 className="w-full p-2 border rounded"
                 required
               >
-                <option value="Englisch">{t('english') || "English"}</option>
+                <option value="English">{t('english') || "English"}</option>
                 <option value="German">{t('german') || "German"}</option>
+                <option value="French">{t('french') || "French"}</option>
+                <option value="Italian">{t('italian') || "Italian"}</option>
               </select>
             </div>
             

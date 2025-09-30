@@ -633,6 +633,8 @@
     "language": "Langue",
     "english": "Anglais",
     "german": "Allemand",
+    "french": "Français",
+    "italian": "Italien",
     "posting": "Publication...",
     "postJob": "Publier l'emploi",
     "loading": "Chargement...",
@@ -673,7 +675,9 @@
     },
     "languages": {
       "English": "Anglais",
-      "German": "Allemand"
+      "German": "Allemand",
+      "French": "Français",
+      "Italian": "Italien"
     },
     "posted": "Publié",
     "aboutTheCompany": "À propos de l'entreprise",

@@ -634,6 +634,8 @@
     "language": "Language",
     "english": "English",
     "german": "German",
+    "french": "French",
+    "italian": "Italian",
     "posting": "Posting...",
     "postJob": "Post Job",
     "loading": "Loading...",
@@ -674,7 +676,9 @@
     },
     "languages": {
       "English": "English",
-      "German": "German"
+      "German": "German",
+      "French": "French",
+      "Italian": "Italian"
     },
     "posted": "Posted",
     "aboutTheCompany": "About the Company",

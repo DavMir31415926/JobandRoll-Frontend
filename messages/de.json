@@ -635,6 +635,8 @@
     "language": "Sprache",
     "english": "Englisch",
     "german": "Deutsch",
+    "french": "Französisch",
+    "italian": "Italienisch",
     "posting": "Wird veröffentlicht...",
     "postJob": "Job veröffentlichen",
     "loading": "Wird geladen...",
@@ -675,7 +677,9 @@
     },
     "languages": {
       "English": "Englisch",
-      "German": "Deutsch"
+      "German": "Deutsch",
+      "French": "Französisch",
+      "Italian": "Italienisch"
     },
     "posted": "Veröffentlicht",
     "aboutTheCompany": "Über das Unternehmen",
