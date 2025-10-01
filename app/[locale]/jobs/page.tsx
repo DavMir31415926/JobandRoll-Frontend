@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { useUser } from '@/app/context/UserContext';
 import JobFilters from '../../../components/JobFilters';
 import SaveJobButton from '../../../components/SaveJobButton';
+import LocationFilter from '../../../components/LocationFilter';
+import { geoNamesAdmin1ToDERegions, geoNamesAdmin1ToATRegions, geoNamesAdmin1ToCHRegions } from '@/app/utils/geoNamesMapping';
 
 interface Job {
   id: number;
@@ -60,8 +62,8 @@ export default function JobsPage() {
   const [totalResults, setTotalResults] = useState<number>(0); // Add total results state
   const jobsPerPage = 50;
   
-  const [activeFilters, setActiveFilters] = useState({
-    branch: [] as string[],
+  const [activeFilters, setActiveFilters] = useState<FilterState>({
+    branch: [],
     job_type: '',
     job_type_min: '10',
     job_type_max: '100',
@@ -441,28 +443,114 @@ export default function JobsPage() {
         </p>
       </motion.div>
       
-      {/* Search Form */}
-      <div className="max-w-4xl mx-auto mb-12">
-        <form onSubmit={handleSearch} className="flex bg-white rounded-lg overflow-hidden shadow-lg">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={t('searchPlaceholder')}
-            className="flex-grow px-6 py-4 focus:outline-none text-gray-700"
-          />
-          <motion.button
-            type="submit"
-            className="bg-blue-600 text-white px-6 py-4 flex items-center"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            disabled={loading}
-          >
-            <Search size={20} className="mr-2" />
-            {t('search')}
-          </motion.button>
-        </form>
+  {/* Search Form */}
+  <div className="max-w-4xl mx-auto mb-12">
+    <form onSubmit={handleSearch} className="space-y-3">
+      {/* Job Title Search */}
+      <div className="flex bg-white rounded-lg overflow-hidden shadow-lg">
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={t('searchPlaceholder')}
+          className="flex-grow px-6 py-4 focus:outline-none text-gray-700"
+        />
       </div>
+      
+  {/* Location Search */}
+      <div className="bg-white rounded-lg shadow-lg px-6 py-4 space-y-3">
+        <LocationFilter
+          onLocationSelect={(location) => {
+            const newFilters = {
+              ...activeFilters,
+              location: location?.name || '',
+              locationId: location?.id || undefined,
+              radius: '0'
+            };
+            setActiveFilters(newFilters);
+          }}
+          selectedLocation={activeFilters.locationId ? { 
+            id: activeFilters.locationId,
+            name: activeFilters.location,
+            postal_code: null,
+            admin_level1: null,
+            admin_level2: null,
+            country: '',
+            latitude: 0,
+            longitude: 0
+          } : null}
+          placeholder={t('locationPlaceholder')}
+          clearAfterSelect={false}
+          regionMappings={{
+            DE: geoNamesAdmin1ToDERegions,
+            AT: geoNamesAdmin1ToATRegions,
+            CH: geoNamesAdmin1ToCHRegions
+          }}
+        />
+        
+        {/* Radius selector */}
+        {activeFilters.locationId && (
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">{t('radius')}</label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                min="0"
+                max="200"
+                value={activeFilters.radius}
+                onChange={(e) => {
+                  const value = Math.max(0, Math.min(200, parseInt(e.target.value) || 0));
+                  const newFilters = {
+                    ...activeFilters,
+                    radius: value.toString()
+                  };
+                  setActiveFilters(newFilters);
+                }}
+                className="flex-1 p-2 border border-gray-300 rounded-md"
+                placeholder="0"
+              />
+              <span className="flex items-center text-sm text-gray-600">km</span>
+            </div>
+            {/* Quick select buttons */}
+            <div className="flex gap-2 mt-2">
+              {[0, 10, 25, 50, 100].map(km => (
+                <button
+                  key={km}
+                  type="button"
+                  onClick={() => {
+                    const newFilters = {
+                      ...activeFilters,
+                      radius: km.toString()
+                    };
+                    setActiveFilters(newFilters);
+                  }}
+                  className={`px-3 py-1 text-xs rounded border ${
+                    activeFilters.radius === km.toString()
+                      ? 'bg-blue-500 text-white border-blue-500'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  {km === 0 ? t('exactLocation') : `${km}km`}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+      
+      {/* Search Button */}
+      <motion.button
+        type="submit"
+        className="w-full bg-blue-600 text-white px-6 py-4 rounded-lg flex items-center justify-center"
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        disabled={loading}
+      >
+        <Search size={20} className="mr-2" />
+        {t('search')}
+      </motion.button>
+    </form>
+  </div>
       
       {/* Main content with filters and job listings */}
       <div className="max-w-6xl mx-auto">

@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Filter, Briefcase, Building2, GraduationCap, DollarSign, ChevronDown, ChevronUp, ChevronRight, Search, X, Square, CheckSquare, MapPin, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { geoNamesAdmin1ToDERegions, geoNamesAdmin1ToATRegions, geoNamesAdmin1ToCHRegions } from '../src/utils/geoNamesMapping';
 
 
 interface SubCategory {
@@ -23,16 +22,6 @@ interface FiltersProps {
   initialFilters?: any;
 }
 
-interface Location {
-  id: number;
-  name: string;
-  postal_code: string | null;
-  admin_level1: string | null;
-  admin_level2: string | null;
-  country: string;
-  latitude: number;
-  longitude: number;
-}
 
 
 export default function JobFilters({ onFilterChange, initialFilters = {} }: FiltersProps) {
@@ -48,13 +37,7 @@ export default function JobFilters({ onFilterChange, initialFilters = {} }: Filt
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedFilters, setExpandedFilters] = useState<string[]>([]);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const [locationQuery, setLocationQuery] = useState(initialFilters.location || '');
-  const [locationSuggestions, setLocationSuggestions] = useState<Location[]>([]);
-  const [isLocationLoading, setIsLocationLoading] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
-  const locationInputRef = useRef<HTMLInputElement>(null);
-  const locationSuggestionsRef = useRef<HTMLUListElement>(null);
-  const [isLocationFocused, setIsLocationFocused] = useState(false);
+  const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
 
   const [filters, setFilters] = useState({
     branch: Array.isArray(initialFilters.branch) ? initialFilters.branch : [],
@@ -69,30 +52,6 @@ export default function JobFilters({ onFilterChange, initialFilters = {} }: Filt
     language: initialFilters.language || 'all',
   });
 
-  const formatLocationDisplayName = (location: Location): string => {
-    if (!location) return '';
-    
-    // Apply corrections for known issues
-    let adminLevel1 = location.admin_level1;
-    
-    // Get the region name based on country
-    let regionName = adminLevel1;
-    
-    if (location.country === 'DE' && adminLevel1) {
-      regionName = geoNamesAdmin1ToDERegions[adminLevel1] || adminLevel1;
-    } else if (location.country === 'AT' && adminLevel1) {
-      regionName = geoNamesAdmin1ToATRegions[adminLevel1] || adminLevel1;
-    } else if (location.country === 'CH' && adminLevel1) {
-      regionName = geoNamesAdmin1ToCHRegions[adminLevel1] || adminLevel1;
-    }
-    
-    if (regionName) {
-      return `${location.name}, ${regionName} (${location.country})`;
-    }
-    
-    // Default format for other countries
-    return `${location.name}${adminLevel1 ? `, ${adminLevel1}` : ''} (${location.country})`;
-  };
 
   // Helper functions for dragging
 const handleMinThumbDrag = (initialClientX: number) => {
@@ -299,55 +258,6 @@ const getDisplayName = (category: Category) => {
     }
   }, [searchTerm, branches]);
 
-  // Add this with your other useEffect hooks
-  useEffect(() => {
-    if (!locationQuery || locationQuery.length < 2) {
-      setLocationSuggestions([]);
-      return;
-    }
-    
-    // Don't search if the query is a selected location
-    if (selectedLocation && 
-        `${selectedLocation.name}${selectedLocation.admin_level1 ? `, ${selectedLocation.admin_level1}` : ''} (${selectedLocation.country})` === locationQuery) {
-      return;
-    }
-    
-    const fetchLocations = async () => {
-      setIsLocationLoading(true);
-      try {
-        const response = await fetch(`/api/locations/search?q=${encodeURIComponent(locationQuery)}`);
-        if (response.ok) {
-          const data = await response.json();
-          setLocationSuggestions(data);
-        }
-      } catch (error) {
-        console.error('Error fetching locations:', error);
-      } finally {
-        setIsLocationLoading(false);
-      }
-    };
-    
-    // Debounce API calls
-    const timeoutId = setTimeout(fetchLocations, 300);
-    return () => clearTimeout(timeoutId);
-  }, [locationQuery, selectedLocation]);
-
-  // Close location suggestions when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        locationSuggestionsRef.current && 
-        !locationSuggestionsRef.current.contains(event.target as Node) &&
-        !locationInputRef.current?.contains(event.target as Node)
-      ) {
-        setIsLocationFocused(false);
-      }
-    };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
 
   // Handle filter changes for non-branch filters
   const handleFilterChange = (key: string, value: string) => {
@@ -474,50 +384,6 @@ const getDisplayName = (category: Category) => {
     );
   };
 
-  // Add these helper functions for location
-  const formatLocationName = (location: Location): string => {
-    return formatLocationDisplayName(location);
-  };
-
-  const handleLocationSelect = (location: Location) => {
-    setSelectedLocation(location);
-    setLocationQuery(formatLocationName(location));
-    setLocationSuggestions([]);
-    
-    // When selecting a location, always reset radius to 0 initially
-    const newFilters = { 
-      ...filters, 
-      location: location.name,
-      locationId: location.id,
-      radius: '0'
-    };
-    
-    // Log the selection to help with debugging
-    console.log(`Selected location: ${location.name} (ID: ${location.id})`);
-    
-    setFilters(newFilters);
-    onFilterChange(newFilters);
-  };
-
-  const handleLocationClear = () => {
-    setLocationQuery('');
-    setSelectedLocation(null);
-    setLocationSuggestions([]);
-    
-    const newFilters = { 
-      ...filters, 
-      location: '',
-      locationId: undefined,
-      radius: '0'
-    };
-    setFilters(newFilters);
-    onFilterChange(newFilters);
-    
-    if (locationInputRef.current) {
-      locationInputRef.current.focus();
-    }
-  };
-
   // Job Types
   const jobTypes = [
     { value: '100%', label: tJobs('100%') },
@@ -559,11 +425,23 @@ const getDisplayName = (category: Category) => {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-      <div className="flex items-center mb-4">
-        <Filter className="mr-2 text-blue-600" />
-        <h3 className="text-lg font-semibold text-gray-800">{tJobs('filterJobs')}</h3>      </div>
+      <div 
+        className="flex items-center justify-between mb-4 cursor-pointer"
+        onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
+      >
+        <div className="flex items-center">
+          <Filter className="mr-2 text-blue-600" />
+          <h3 className="text-lg font-semibold text-gray-800">{tJobs('additionalFilters')}</h3>
+        </div>
+        {isFiltersExpanded ? (
+          <ChevronUp className="w-5 h-5 text-gray-500" />
+        ) : (
+          <ChevronDown className="w-5 h-5 text-gray-500" />
+        )}
+      </div>
 
-      <div className="space-y-4">
+      {isFiltersExpanded && (
+        <div className="space-y-4">
         {/* Branch/Industry Filter - Collapsible */}
         <div className="filter-group">
           <div 
@@ -945,113 +823,6 @@ const getDisplayName = (category: Category) => {
           )}
         </div>
 
-        {/* Location Filter */}
-        <div className="filter-group">
-          <div 
-            className="flex items-center justify-between cursor-pointer" 
-            onClick={() => toggleFilterExpansion('location')}
-          >
-            <label className="block text-sm font-medium text-gray-800 mb-1">
-              <MapPin className="inline-block w-4 h-4 mr-1" />
-              {tJobs('location')}
-              {(filters.location || filters.locationId) && (
-                <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
-                  1
-                </span>
-              )}
-            </label>
-            {expandedFilters.includes('location') ? (
-              <ChevronUp className="w-5 h-5 text-gray-500" />
-            ) : (
-              <ChevronDown className="w-5 h-5 text-gray-500" />
-            )}
-          </div>
-          
-          {expandedFilters.includes('location') && (
-            <div className="mt-2">
-              <div className="relative">
-                <input
-                  ref={locationInputRef}
-                  type="text"
-                  value={locationQuery}
-                  onChange={(e) => setLocationQuery(e.target.value)}
-                  onFocus={() => setIsLocationFocused(true)}
-                  placeholder={tJobs('locationPlaceholder')}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                
-                {isLocationLoading && (
-                  <div className="absolute right-2 top-2.5 text-gray-400">
-                    <div className="animate-spin h-5 w-5 border-2 border-gray-300 border-t-blue-500 rounded-full"></div>
-                  </div>
-                )}
-                
-                {locationQuery && !isLocationLoading && (
-                  <button 
-                    onClick={handleLocationClear}
-                    className="absolute right-2 top-2.5 text-gray-400 hover:text-gray-600"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-              
-              {locationSuggestions.length > 0 && isLocationFocused && (
-                <ul 
-                  ref={locationSuggestionsRef}
-                  className="absolute z-10 w-full mt-1 bg-white border rounded shadow-lg max-h-60 overflow-y-auto"
-                >
-                  {locationSuggestions.map((location) => (
-                    <li
-                      key={location.id}
-                      onClick={() => handleLocationSelect(location)}
-                      className="p-2 hover:bg-blue-50 cursor-pointer border-b last:border-b-0"
-                    >
-                      <div className="font-medium">{location.name}</div>
-                      <div className="text-sm text-gray-600">
-                        {location.country === 'DE' || location.country === 'AT' 
-                          ? formatLocationDisplayName(location).split(', ')[1] 
-                          : location.admin_level1 ? `${location.admin_level1}, ${location.country}` : location.country}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
-
-          {/* Radius selector - Add after location input */}
-          {selectedLocation && (
-            <div className="mt-2">
-              <label className="block text-xs text-gray-600 mb-1">{tJobs('radius') || 'Radius (km)'}</label>
-              <select
-                value={filters.radius}
-                onChange={(e) => {
-                  // Log the change to help with debugging
-                  console.log(`Changing radius to ${e.target.value}km`);
-                  handleFilterChange('radius', e.target.value);
-                }}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="0">{tJobs('exactLocation') || 'Exact location only'}</option>
-                <option value="5">5 km</option>
-                <option value="10">10 km</option>
-                <option value="15">15 km</option>
-                <option value="20">20 km</option>
-                <option value="25">25 km</option>
-                <option value="30">30 km</option>
-                <option value="40">40 km</option>
-                <option value="50">50 km</option>
-                <option value="60">60 km</option>
-                <option value="70">70 km</option>
-                <option value="80">80 km</option>
-                <option value="90">90 km</option>
-                <option value="100">100 km</option>
-              </select>
-            </div>
-          )}
-        </div>
-
         {/* Salary Filter */}
         <div className="filter-group">
           <div 
@@ -1126,11 +897,12 @@ const getDisplayName = (category: Category) => {
             className="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-          >
+>
             {tJobs('applyFilters')}
           </motion.button>
         </div>
       </div>
-    </div>
-  );
+    )}
+  </div>
+);
 }

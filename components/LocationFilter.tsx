@@ -172,7 +172,7 @@ const LocationFilter: React.FC<LocationFilterProps> = ({
               className="p-2 hover:bg-blue-50 cursor-pointer border-b last:border-b-0"
             >
               <div className="font-medium">
-                {location.name.split(' ')[0]} {/* Show only the city name without codes */}
+                {location.name} {/* Show FULL name including (Kreis 3) etc */}
               </div>
               <div className="text-sm text-gray-600">
                 {location.admin_level1 && (
@@ -181,9 +181,6 @@ const LocationFilter: React.FC<LocationFilterProps> = ({
                   </span>
                 )}
                 <span>{location.country}</span>
-                <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">
-                  {!location.admin_level2 && location.admin_level1 ? "State/Bundesland" : "City"}
-                </span>
               </div>
             </li>
           ))}

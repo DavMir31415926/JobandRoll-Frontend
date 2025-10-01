@@ -236,7 +236,8 @@
     "employees": "employés",
     "adminLinked": "Emploi externe lié par l'admin",
     "french": "Français",
-    "italian": "Italien"
+    "italian": "Italien",
+    "additionalFilters": "Filtres supplémentaires"
   },
   "branch": {
     "Technology & IT": "Technologie et informatique",
