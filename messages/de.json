@@ -584,7 +584,9 @@
     "updating": "Aktualisierung...",
     "cancel": "Abbrechen",
     "selectIndustry": "Bitte wählen Sie mindestens eine Branche aus",
-    "selectLocation": "Bitte wählen Sie mindestens einen Standort aus"
+    "selectLocation": "Bitte wählen Sie mindestens einen Standort aus",
+    "openPositionsAt": "Offene Stellen bei",
+    "backToCompany": "Zurück zum Unternehmen"
   },
   "contact": {
     "title": "Kontakt",

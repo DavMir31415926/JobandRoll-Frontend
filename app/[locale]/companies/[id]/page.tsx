@@ -18,13 +18,20 @@ interface Company {
   founded?: string;
 }
 
+
+
 export default function CompanyDetailPage({ params }: { params: { id: string } }) {
   const locale = useLocale();
   const t = useTranslations('companies');
+  const tBase = useTranslations();
   const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const translateBranchName = (branchName: string) => {
+    return tBase(`branch.${branchName}`, { fallback: branchName });
+  };
+  
  // In your app/[locale]/companies/[id]/page.tsx, update the useEffect:
 useEffect(() => {
   async function loadCompany() {
@@ -96,7 +103,7 @@ useEffect(() => {
                 <h1 className="text-3xl font-bold text-gray-900">{company.name}</h1>
                 <div className="flex items-center mt-2 text-gray-600">
                   <Building2 size={18} className="mr-1" />
-                  <span className="mr-4">{company.industry}</span>
+                  <span className="mr-4">{translateBranchName(company.industry)}</span>
                   <MapPin size={18} className="mr-1" />
                   <span>{company.location}</span>
                 </div>

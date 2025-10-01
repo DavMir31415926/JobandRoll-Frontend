@@ -582,7 +582,9 @@
     "updating": "Mise à jour...",
     "cancel": "Annuler",
     "selectIndustry": "Veuillez sélectionner au moins un secteur",
-    "selectLocation": "Veuillez sélectionner au moins une localisation"
+    "selectLocation": "Veuillez sélectionner au moins une localisation",
+    "openPositionsAt": "Postes ouverts chez",
+    "backToCompany": "Retour à l'entreprise"
   },
   "contact": {
     "title": "Contactez-nous",

@@ -582,7 +582,9 @@
     "updating": "Aggiornamento...",
     "cancel": "Annulla",
     "selectIndustry": "Seleziona almeno un settore",
-    "selectLocation": "Seleziona almeno una posizione"
+    "selectLocation": "Seleziona almeno una posizione",
+    "openPositionsAt": "Posizioni aperte presso",
+    "backToCompany": "Torna all'azienda"
   },
   "contact": {
     "title": "Contattaci",

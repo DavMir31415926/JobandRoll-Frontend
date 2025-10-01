@@ -583,7 +583,9 @@
     "updating": "Updating...",
     "cancel": "Cancel",
     "selectIndustry": "Please select at least one industry",
-    "selectLocation": "Please select at least one location"
+    "selectLocation": "Please select at least one location",
+    "openPositionsAt": "Open Positions at",
+    "backToCompany": "Back to Company"
   },
   "contact": {
     "title": "Contact Us",
