@@ -16,7 +16,7 @@ export default function LocaleWrapper({ locale, messages, children }: LocaleWrap
   return (
     <TranslationProvider locale={locale} messages={messages} timeZone="Europe/Berlin">
       <Navbar />
-      <div className="language-switcher-container absolute top-4 right-4 z-50">
+      <div className="language-switcher-container absolute top-20 right-4 md:top-4 z-40">
         <LanguageSwitcher />
       </div>
       <main className="flex-grow">
