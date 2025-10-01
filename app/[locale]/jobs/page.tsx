@@ -48,7 +48,7 @@ export default function JobsPage() {
   const locale = useLocale();
   const t = useTranslations('jobs');
   const tBase = useTranslations();
-  const { user } = useUser();
+  const { user , token} = useUser();
   
   const [query, setQuery] = useState('');
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -72,6 +72,8 @@ export default function JobsPage() {
     salary_min: '',
     language: 'all'
   });
+
+  const [savedJobIds, setSavedJobIds] = useState<number[]>([]); // ✅ ADD THIS LINE
   
   // Helper function to scroll to top
   const scrollToTop = () => {
@@ -225,6 +227,32 @@ export default function JobsPage() {
     fetchJobs(query, activeFilters, 1);
   }, [locale]); // IMPORTANT: Only [locale] in the dependency array, NOT currentPage
   
+
+  // ✅ ADD THIS ENTIRE useEffect BLOCK
+  useEffect(() => {
+    const fetchSavedJobs = async () => {
+      if (user && token) {
+        try {
+          const response = await fetch('/api/user/saved-jobs', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            const ids = (data.jobs || []).map((job: any) => job.id);
+            setSavedJobIds(ids);
+          }
+        } catch (error) {
+          console.error('Error fetching saved jobs:', error);
+        }
+      }
+    };
+
+    fetchSavedJobs();
+  }, [user, token]);
+
   useEffect(() => {
     if (currentPage > 1) { // Only scroll if not on first page
       scrollToTop();
@@ -557,7 +585,15 @@ export default function JobsPage() {
                             <SaveJobButton 
                               jobId={job.id} 
                               className="shrink-0"
-                              showText={false} // Only show heart icon to save space
+                              showText={false}
+                              initialSavedJobIds={savedJobIds}
+                              onSaveToggle={(jobId, isSaved) => {
+                                if (isSaved) {
+                                  setSavedJobIds(prev => [...prev, jobId]);
+                                } else {
+                                  setSavedJobIds(prev => prev.filter(id => id !== jobId));
+                                }
+                              }}
                             />
 
                           {job.job_type && (

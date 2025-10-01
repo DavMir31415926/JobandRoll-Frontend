@@ -8,43 +8,32 @@ interface SaveJobButtonProps {
   jobId: number;
   className?: string;
   showText?: boolean;
+  initialSavedJobIds?: number[]; // ✅ NEW
+  onSaveToggle?: (jobId: number, isSaved: boolean) => void; // ✅ NEW
 }
 
-export default function SaveJobButton({ jobId, className = '', showText = true }: SaveJobButtonProps) {
+export default function SaveJobButton({ 
+  jobId, 
+  className = '', 
+  showText = true,
+  initialSavedJobIds = [],
+  onSaveToggle
+}: SaveJobButtonProps) {
   const t = useTranslations('jobs');
   const { user, token, isAuthenticated } = useUser();
-  const [isSaved, setIsSaved] = useState(false);
+  
+  // ✅ Check if saved using the passed-in array (no API call!)
+  const [isSaved, setIsSaved] = useState(initialSavedJobIds.includes(jobId));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Check if job is already saved when component mounts
+  // ✅ Update when initialSavedJobIds changes
   useEffect(() => {
-    if (isAuthenticated && user && token) {
-      checkIfJobIsSaved();
-    }
-  }, [isAuthenticated, user, token, jobId]);
-
-  const checkIfJobIsSaved = async () => {
-    try {
-      const response = await fetch('/api/user/saved-jobs', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        const savedJobs = data.jobs || [];
-        setIsSaved(savedJobs.some((job: any) => job.id === jobId));
-      }
-    } catch (error) {
-      console.error('Error checking saved status:', error);
-    }
-  };
+    setIsSaved(initialSavedJobIds.includes(jobId));
+  }, [initialSavedJobIds, jobId]);
 
   const handleToggleSave = async () => {
     if (!isAuthenticated) {
-      // Redirect to login if not authenticated
       window.location.href = '/login';
       return;
     }
@@ -66,7 +55,13 @@ export default function SaveJobButton({ jobId, className = '', showText = true }
         throw new Error(data.error || 'Failed to save job');
       }
 
-      setIsSaved(data.saved);
+      const newSavedState = data.saved;
+      setIsSaved(newSavedState);
+      
+      // ✅ Notify parent component
+      if (onSaveToggle) {
+        onSaveToggle(jobId, newSavedState);
+      }
     } catch (err: any) {
       setError(err.message);
       console.error('Error toggling save status:', err);
@@ -75,7 +70,6 @@ export default function SaveJobButton({ jobId, className = '', showText = true }
     }
   };
 
-  // Don't show the button for employers
   if (user?.role === 'employer') {
     return null;
   }
