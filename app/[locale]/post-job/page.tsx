@@ -24,6 +24,7 @@ export default function PostJobPage() {
     salary_min: '',
     salary_max: '',
     language: 'English',
+    contact_email: '',
   });
   
   const [companies, setCompanies] = useState<any[]>([]);
@@ -489,7 +490,21 @@ export default function PostJobPage() {
                 <option value="Italian">{t('italian') || "Italian"}</option>
               </select>
             </div>
-            
+
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2" htmlFor="contact_email">
+                {t('contactEmail') || "Contact Email"}
+              </label>
+              <input
+                type="email"
+                id="contact_email"
+                value={formData.contact_email}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+                placeholder="jobs@company.com"
+              />
+            </div>
+                        
             <div className="mb-4">
               <label className="block text-gray-700 mb-2" htmlFor="description">
                 {t('description') || "Job Description"}

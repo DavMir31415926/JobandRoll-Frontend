@@ -26,6 +26,7 @@ export default function EditJobPage() {
     salary_min: '',
     salary_max: '',
     language: 'Englisch',
+    contact_email: '',
   });
   
   const [companies, setCompanies] = useState<any[]>([]);
@@ -118,7 +119,8 @@ export default function EditJobPage() {
           experience_level: job.experience_level || '',
           salary_min: job.salary_min?.toString() || '',
           salary_max: job.salary_max?.toString() || '',
-          language: job.language || 'Englisch'
+          language: job.language || 'Englisch',
+          contact_email: job.contact_email || ''
         });
         
         setSelectedCompany(job.company_id);
@@ -552,6 +554,20 @@ export default function EditJobPage() {
                   <option value="Englisch">{t('english') || "English"}</option>
                   <option value="German">{t('german') || "German"}</option>
                 </select>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2" htmlFor="contact_email">
+                  {t('contactEmail') || "Contact Email"}
+                </label>
+                <input
+                  type="email"
+                  id="contact_email"
+                  value={formData.contact_email}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                  placeholder="jobs@company.com"
+                />
               </div>
               
               <div className="mb-4">
