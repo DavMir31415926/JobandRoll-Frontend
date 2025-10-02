@@ -438,7 +438,7 @@ export default function JobsPage() {
         className="text-center mb-12"
       >
         <h1 className="text-4xl font-bold mb-4">{t('title')}</h1>
-        <p className="text-xl text-gray-800 max-w-3xl mx-auto mb-8">
+        <p className="text-xl text-white max-w-3xl mx-auto mb-8">
           {t('description')}
         </p>
       </motion.div>

@@ -142,7 +142,7 @@ const LocationFilter: React.FC<LocationFilterProps> = ({
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsFocused(true)}
           placeholder={placeholder}
-          className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder:text-gray-500"
         />
         
         {isLoading && (
@@ -171,7 +171,7 @@ const LocationFilter: React.FC<LocationFilterProps> = ({
               onClick={() => handleSelect(location)}  
               className="p-2 hover:bg-blue-50 cursor-pointer border-b last:border-b-0"
             >
-              <div className="font-medium">
+              <div className="font-medium text-gray-900">
                 {location.name} {/* Show FULL name including (Kreis 3) etc */}
               </div>
               <div className="text-sm text-gray-600">
