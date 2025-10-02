@@ -3,17 +3,20 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useUser } from '@/app/context/UserContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import { User, Lock, Mail, Edit3, Save, X } from 'lucide-react';
+import { User, Lock, Mail, Edit3, Save, X, AlertTriangle, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function ProfilePage() {
   const t = useTranslations('profile');
-  const { user, token, updateUser } = useUser();
+  const { user, token, updateUser, logout } = useUser();
   
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const router = useRouter();
   
   // Profile form state
   const [profileData, setProfileData] = useState({
@@ -141,6 +144,37 @@ export default function ProfilePage() {
       });
     } catch (err: any) {
       setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete account');
+      }
+      
+      // Use the logout function from UserContext instead of manually clearing
+      logout();
+      
+      // Redirect to home
+      router.push('/');
+    } catch (err: any) {
+      setError(err.message);
+      setShowDeleteConfirm(false);
     } finally {
       setLoading(false);
     }
@@ -375,6 +409,58 @@ export default function ProfilePage() {
               <p className="text-gray-600">
                 {t('passwordDescription') || 'Click "Change" to update your password'}
               </p>
+            )}
+          </div>
+
+          {/* Delete Account Section */}
+          <div className="bg-white rounded-lg shadow-md p-6 border-2 border-red-100 mt-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold flex items-center text-red-600">
+                <AlertTriangle className="w-5 h-5 mr-2" />
+                {t('deleteAccount') || 'Delete Account'}
+              </h2>
+            </div>
+            
+            <p className="text-gray-600 mb-4">
+              {t('deleteAccountWarning') || 'Permanently delete your account and all associated data. This action cannot be undone.'}
+            </p>
+            
+            {!showDeleteConfirm ? (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                {t('deleteMyAccount') || 'Delete My Account'}
+              </button>
+            ) : (
+              <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                <p className="text-red-800 font-semibold mb-2">
+                  {t('areYouSure') || 'Are you absolutely sure?'}
+                </p>
+                <p className="text-red-700 text-sm mb-4">
+                  {t('deleteAccountConfirmation') || 'This will permanently delete your account, all your job posts, and all your companies. This action cannot be undone.'}
+                </p>
+                
+                <div className="flex space-x-3">
+                  <button
+                    onClick={handleDeleteAccount}
+                    disabled={loading}
+                    className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    {loading ? (t('deleting') || 'Deleting...') : (t('yesDeleteEverything') || 'Yes, Delete Everything')}
+                  </button>
+                  
+                  <button
+                    onClick={() => setShowDeleteConfirm(false)}
+                    className="flex items-center px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                  >
+                    <X className="w-4 h-4 mr-1" />
+                    {t('cancel') || 'Cancel'}
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </div>

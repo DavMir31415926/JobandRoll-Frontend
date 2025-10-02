@@ -877,7 +877,14 @@
       "jobseeker": "Cerca lavoro",
       "employer": "Datore di lavoro",
       "admin": "Amministratore"
-    }
+    },
+    "deleteAccount": "Elimina account",
+    "deleteAccountWarning": "Elimina definitivamente il tuo account e tutti i dati associati. Questa azione non può essere annullata.",
+    "deleteMyAccount": "Elimina il mio account",
+    "areYouSure": "Sei assolutamente sicuro?",
+    "deleteAccountConfirmation": "Questo eliminerà definitivamente il tuo account, tutti i tuoi annunci di lavoro e tutte le tue aziende. Questa azione non può essere annullata.",
+    "yesDeleteEverything": "Sì, elimina tutto",
+    "deleting": "Eliminazione in corso..."
   },
   "savedJobs": {
     "title": "Lavori salvati",

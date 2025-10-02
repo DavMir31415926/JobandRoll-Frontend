@@ -877,7 +877,14 @@
       "jobseeker": "Demandeur d'emploi",
       "employer": "Employeur",
       "admin": "Administrateur"
-    }
+    },
+    "deleteAccount": "Supprimer le compte",
+    "deleteAccountWarning": "Supprimez définitivement votre compte et toutes les données associées. Cette action est irréversible.",
+    "deleteMyAccount": "Supprimer mon compte",
+    "areYouSure": "Êtes-vous absolument sûr ?",
+    "deleteAccountConfirmation": "Cela supprimera définitivement votre compte, toutes vos offres d'emploi et toutes vos entreprises. Cette action est irréversible.",
+    "yesDeleteEverything": "Oui, tout supprimer",
+    "deleting": "Suppression en cours..."
   },
   "savedJobs": {
     "title": "Emplois sauvegardés",

@@ -878,7 +878,14 @@
       "jobseeker": "Job Seeker",
       "employer": "Employer",
       "admin": "Administrator"
-    }
+    },
+    "deleteAccount": "Delete Account",
+    "deleteAccountWarning": "Permanently delete your account and all associated data. This action cannot be undone.",
+    "deleteMyAccount": "Delete My Account",
+    "areYouSure": "Are you absolutely sure?",
+    "deleteAccountConfirmation": "This will permanently delete your account, all your job posts, and all your companies. This action cannot be undone.",
+    "yesDeleteEverything": "Yes, Delete Everything",
+    "deleting": "Deleting..."
   },
   "savedJobs": {
     "title": "Saved Jobs",
