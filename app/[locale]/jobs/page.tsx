@@ -438,7 +438,7 @@ export default function JobsPage() {
         className="text-center mb-12"
       >
         <h1 className="text-4xl font-bold mb-4">{t('title')}</h1>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+        <p className="text-xl text-gray-800 max-w-3xl mx-auto mb-8">
           {t('description')}
         </p>
       </motion.div>
@@ -506,7 +506,7 @@ export default function JobsPage() {
                   };
                   setActiveFilters(newFilters);
                 }}
-                className="flex-1 p-2 border border-gray-300 rounded-md"
+                className="flex-1 p-2 border border-gray-300 rounded-md text-gray-900"
                 placeholder="0"
               />
               <span className="flex items-center text-sm text-gray-600">km</span>
