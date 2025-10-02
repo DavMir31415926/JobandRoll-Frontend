@@ -713,7 +713,10 @@
     "error": "Ungültige E-Mail oder Passwort",
     "success": "Erfolgreich angemeldet",
     "signingIn": "Wird angemeldet...",
-    "createAccount": "Konto erstellen"
+    "createAccount": "Konto erstellen",
+    "invalidCredentials": "Ungültige E-Mail oder Passwort",
+    "loginFailed": "Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "errorOccurred": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
   },
   "register": {
     "title": "Konto erstellen",

@@ -712,7 +712,10 @@
     "signingIn": "Signing in...",
     "error": "Invalid email or password",
     "success": "Logged in successfully",
-    "createAccount": "Create an account"
+    "createAccount": "Create an account",
+    "invalidCredentials": "Invalid email or password",
+    "loginFailed": "Login failed. Please try again.",
+    "errorOccurred": "An error occurred. Please try again."
   },
   "register": {
     "title": "Create Account",

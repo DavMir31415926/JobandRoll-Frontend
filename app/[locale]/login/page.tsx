@@ -43,9 +43,16 @@ export default function LoginPage() {
       } else {
         router.push('/jobs');
       }
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
+      } catch (err: any) {
+        // Check if it's an authentication error and translate it
+        if (err.message === 'Invalid credentials' || err.message.toLowerCase().includes('invalid')) {
+          setError(t('invalidCredentials') || 'Invalid credentials');
+        } else if (err.message === 'Login failed') {
+          setError(t('loginFailed') || 'Login failed');
+        } else {
+          setError(t('errorOccurred') || err.message);
+        }
+      } finally {
       setLoading(false);
     }
   };
@@ -71,7 +78,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
               required
             />
           </div>
@@ -85,7 +92,7 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
               required
             />
           </div>

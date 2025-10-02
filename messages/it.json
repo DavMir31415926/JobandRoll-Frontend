@@ -711,7 +711,10 @@
     "signingIn": "Accesso...",
     "error": "Email o password non valida",
     "success": "Accesso effettuato con successo",
-    "createAccount": "Crea account"
+    "createAccount": "Crea account",
+    "invalidCredentials": "Email o password non validi",
+    "loginFailed": "Accesso fallito. Riprova.",
+    "errorOccurred": "Si è verificato un errore. Riprova."
   },
   "register": {
     "title": "Crea account",

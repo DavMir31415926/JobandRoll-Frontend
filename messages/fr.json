@@ -711,7 +711,10 @@
     "signingIn": "Connexion...",
     "error": "Email ou mot de passe invalide",
     "success": "Connecté avec succès",
-    "createAccount": "Créer un compte"
+    "createAccount": "Créer un compte",
+    "invalidCredentials": "Email ou mot de passe invalide",
+    "loginFailed": "Échec de la connexion. Veuillez réessayer.",
+    "errorOccurred": "Une erreur s'est produite. Veuillez réessayer."
   },
   "register": {
     "title": "Créer un compte",
