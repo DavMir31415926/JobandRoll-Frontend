@@ -1,7 +1,6 @@
-// app/[locale]/companies/page.tsx
 "use client";
 import { useTranslations } from 'next-intl';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useLocale } from 'next-intl';
 import { Search, Building2, MapPin, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -22,7 +21,7 @@ export default function CompaniesPage() {
   const tBranch = useTranslations('branch');
   
   const [query, setQuery] = useState('');
-  const [companies, setCompanies] = useState<Company[]>([]);
+  const [allCompanies, setAllCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,7 +37,7 @@ export default function CompaniesPage() {
         }
         
         const data = await response.json();
-        setCompanies(data.companies);
+        setAllCompanies(data.companies);
         setError(null);
       } catch (error) {
         console.error('Error loading companies:', error);
@@ -51,27 +50,18 @@ export default function CompaniesPage() {
     loadCompanies();
   }, [locale]);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/companies?locale=${locale}${query ? `&query=${encodeURIComponent(query)}` : ''}`);
-      
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      setCompanies(data.companies);
-      setError(null);
-    } catch (error) {
-      console.error('Error searching companies:', error);
-      setError(error instanceof Error ? error.message : 'Unknown error');
-    } finally {
-      setLoading(false);
+  // Client-side filtering - happens instantly as user types
+  const filteredCompanies = useMemo(() => {
+    if (!query.trim()) {
+      return allCompanies; // Show all companies if no search query
     }
-  };
+    
+    const searchTerm = query.toLowerCase().trim();
+    
+    return allCompanies.filter(company => 
+      company.name.toLowerCase().includes(searchTerm)
+    );
+  }, [allCompanies, query]);
 
   return (
     <main className="container mx-auto px-4 py-12">
@@ -85,49 +75,18 @@ export default function CompaniesPage() {
         <p className="text-xl text-white max-w-3xl mx-auto mb-8">{t('description')}</p>
       </motion.div>
       
-      {/* Search Form */}
+      {/* Search Form - Now just updates state, no form submission needed */}
       <div className="max-w-4xl mx-auto mb-12">
-        <form onSubmit={handleSearch} className="flex bg-white rounded-lg overflow-hidden shadow-lg">
+        <div className="flex bg-white rounded-lg overflow-hidden shadow-lg">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={t('searchPlaceholder') || "Search for companies, industries, or locations..."}
+            placeholder={t('searchPlaceholder') || "Search for companies..."}
             className="flex-grow px-6 py-4 focus:outline-none text-gray-700"
           />
-          <motion.button
-            type="submit"
-            className="bg-blue-600 text-white px-6 py-4 flex items-center"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            disabled={loading}
-          >
-            <Search size={20} className="mr-2" />
-            {t('search') || "Search"}
-          </motion.button>
-        </form>
-      </div>
-      
-      {/* Filters Section */}
-      <div className="max-w-4xl mx-auto mb-8">
-        <div className="flex flex-wrap gap-4 items-center justify-between">
-          <h2 className="text-xl font-semibold">{t('filter') || "Filter"}</h2>
-          <div className="flex gap-4 flex-wrap">
-            <select className="bg-white border border-gray-300 rounded-md px-4 py-2 text-gray-800">
-              <option value="">{t('industry')}</option>
-              <option value="technology">Technology</option>
-              <option value="design">Design</option>
-              <option value="software">Software</option>
-              <option value="cloud">Cloud Services</option>
-            </select>
-            
-            <select className="bg-white border border-gray-300 rounded-md px-4 py-2 text-gray-800">
-              <option value="">{t('location')}</option>
-              <option value="berlin">Berlin</option>
-              <option value="munich">Munich</option>
-              <option value="hamburg">Hamburg</option>
-              <option value="remote">Remote</option>
-            </select>
+          <div className="bg-blue-600 text-white px-6 py-4 flex items-center pointer-events-none">
+            <Search size={20} />
           </div>
         </div>
       </div>
@@ -148,7 +107,7 @@ export default function CompaniesPage() {
       )}
       
       {/* Empty State */}
-      {!loading && !error && companies.length === 0 && (
+      {!loading && !error && filteredCompanies.length === 0 && (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <p className="text-gray-600">{t('noResults') || "No companies found matching your search"}</p>
           <p className="mt-2 text-gray-500">{t('tryDifferentSearch') || "Try different keywords or browse all companies"}</p>
@@ -156,12 +115,14 @@ export default function CompaniesPage() {
       )}
       
       {/* Companies List */}
-      {!loading && !error && companies.length > 0 && (
+      {!loading && !error && filteredCompanies.length > 0 && (
         <div className="max-w-4xl mx-auto">
-          <h3 className="text-xl font-semibold mb-6">{companies.length} {t('results', { count: companies.length }) || "companies found"}</h3>
+          <h3 className="text-xl font-semibold mb-6">
+            {filteredCompanies.length} {t('results', { count: filteredCompanies.length }) || "companies found"}
+          </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {companies.map((company) => (
+          {filteredCompanies.map((company) => (
             <motion.div
               key={company.id}
               className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow"
