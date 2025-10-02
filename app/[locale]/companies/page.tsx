@@ -82,7 +82,7 @@ export default function CompaniesPage() {
         className="text-center mb-12"
       >
         <h1 className="text-4xl font-bold mb-4">{t('title')}</h1>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">{t('description')}</p>
+        <p className="text-xl text-white max-w-3xl mx-auto mb-8">{t('description')}</p>
       </motion.div>
       
       {/* Search Form */}
@@ -113,7 +113,7 @@ export default function CompaniesPage() {
         <div className="flex flex-wrap gap-4 items-center justify-between">
           <h2 className="text-xl font-semibold">{t('filter') || "Filter"}</h2>
           <div className="flex gap-4 flex-wrap">
-            <select className="bg-white border border-gray-300 rounded-md px-4 py-2">
+            <select className="bg-white border border-gray-300 rounded-md px-4 py-2 text-gray-800">
               <option value="">{t('industry')}</option>
               <option value="technology">Technology</option>
               <option value="design">Design</option>
@@ -121,7 +121,7 @@ export default function CompaniesPage() {
               <option value="cloud">Cloud Services</option>
             </select>
             
-            <select className="bg-white border border-gray-300 rounded-md px-4 py-2">
+            <select className="bg-white border border-gray-300 rounded-md px-4 py-2 text-gray-800">
               <option value="">{t('location')}</option>
               <option value="berlin">Berlin</option>
               <option value="munich">Munich</option>
