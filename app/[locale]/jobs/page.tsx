@@ -430,15 +430,16 @@ export default function JobsPage() {
   };
 
   return (
-    <main className="container mx-auto px-4 py-12">
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100">
+      <div className="container mx-auto px-4 py-12">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="text-center mb-12"
       >
-        <h1 className="text-4xl font-bold mb-4">{t('title')}</h1>
-        <p className="text-xl text-white max-w-3xl mx-auto mb-8">
+        <h1 className="text-4xl font-bold mb-4 text-gray-800">{t('title')}</h1>
+        <p className="text-xl text-gray-700 max-w-3xl mx-auto mb-8">
           {t('description')}
         </p>
       </motion.div>
@@ -600,7 +601,7 @@ export default function JobsPage() {
                   {jobs.map((job) => (
                     <motion.div
                       key={job.id}
-                      className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow"
+                      className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md overflow-hidden border border-blue-100 border-l-4 border-l-blue-500 hover:shadow-xl hover:bg-white transition-all"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3 }}
@@ -795,6 +796,7 @@ export default function JobsPage() {
             )}
           </div>
         </div>
+      </div>
       </div>
     </main>
   );
