@@ -89,11 +89,11 @@ export default function RegisterPage() {
   
   return (
     <main className="container mx-auto p-8 flex justify-center">
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
+      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md text-gray-700">
         <h1 className="text-3xl font-bold mb-6 text-center">{t('title')}</h1>
         
         {error && (
-          <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md">
+          <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md text-gray-700">
             {error}
           </div>
         )}
@@ -109,7 +109,7 @@ export default function RegisterPage() {
                 type="text"
                 value={formData.firstName}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
                 required
               />
             </div>
@@ -123,7 +123,7 @@ export default function RegisterPage() {
                 type="text"
                 value={formData.lastName}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
                 required
               />
             </div>
@@ -138,7 +138,7 @@ export default function RegisterPage() {
               type="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
               required
             />
           </div>
@@ -151,7 +151,7 @@ export default function RegisterPage() {
               id="role"
               value={formData.role}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
               required
             >
               <option value="jobseeker">{t('jobseeker') || 'Job Seeker'}</option>
@@ -168,7 +168,7 @@ export default function RegisterPage() {
               type="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
               required
             />
           </div>
@@ -182,7 +182,7 @@ export default function RegisterPage() {
               type="password"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
               required
             />
           </div>
