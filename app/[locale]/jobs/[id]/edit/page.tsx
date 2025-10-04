@@ -249,18 +249,39 @@ export default function EditJobPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate required fields
     if (!selectedCompany) {
-      setError(t('selectCompany') || 'Please select a company');
+      setError(t('selectCompanyError') || 'Please select a company');
       return;
     }
     
-    if (!formData.branch) {
-      setError('Please select an industry');
+    if (!formData.title.trim()) {
+      setError(t('jobTitleRequired') || 'Job title is required');
       return;
     }
     
     if (!formData.location) {
-      setError('Please select a location');
+      setError(t('locationRequired') || 'Please select a location');
+      return;
+    }
+    
+    if (!formData.branch) {
+      setError(t('industryRequired') || 'Please select an industry');
+      return;
+    }
+    
+    if (!formData.language) {
+      setError(t('languageRequired') || 'Please select a language');
+      return;
+    }
+    
+    if (!formData.contact_email.trim()) {
+      setError(t('contactEmailRequired') || 'Contact email is required');
+      return;
+    }
+    
+    if (!formData.description.trim()) {
+      setError(t('descriptionRequired') || 'Job description is required');
       return;
     }
     
@@ -277,7 +298,6 @@ export default function EditJobPage() {
         body: JSON.stringify({
           ...formData,
           company_id: selectedCompany,
-          // Convert salary strings to numbers if provided
           salary_min: formData.salary_min ? parseInt(formData.salary_min) : undefined,
           salary_max: formData.salary_max ? parseInt(formData.salary_max) : undefined,
         }),
@@ -289,7 +309,6 @@ export default function EditJobPage() {
         throw new Error(data.error || 'Failed to update job');
       }
       
-      // Redirect to the job page
       router.push(`/jobs/${params.id}`);
     } catch (err: any) {
       setError(err.message);
@@ -333,9 +352,16 @@ export default function EditJobPage() {
   
   return (
     <ProtectedRoute>
-      <main className="container mx-auto p-8">
-        <h1 className="text-3xl font-bold mb-4">{t('editJob') || 'Edit Job'}</h1>
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100">
+      <div className="container mx-auto p-8">        
+        <h1 className="text-3xl font-bold mb-4 text-gray-700">{t('editJob') || 'Edit Job'}</h1>
         
+        <p className="text-sm text-gray-600 mb-6">
+          {t('requiredFieldsNote') || "Fields marked with * are required"}
+        </p>
+
+        <div className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto"></div>
+
         <div className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto">
           {error && (
             <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md">
@@ -357,13 +383,13 @@ export default function EditJobPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="mb-4">
                 <label className="block text-gray-700 mb-2" htmlFor="company">
-                  {t('selectCompany') || "Select Company"}
+                  {t('selectCompany') || "Select Company"} *
                 </label>
                 <select
                   id="company"
                   value={selectedCompany || ''}
                   onChange={(e) => setSelectedCompany(Number(e.target.value))}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded text-gray-700"
                   required
                 >
                   <option value="">{t('selectCompany') || "Select a company"}</option>
@@ -375,14 +401,14 @@ export default function EditJobPage() {
               
               <div className="mb-4">
                 <label className="block text-gray-700 mb-2" htmlFor="title">
-                  {t('jobTitle')}
+                  {t('jobTitle')} *
                 </label>
                 <input
                   type="text"
                   id="title"
                   value={formData.title}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded text-gray-700"
                   required
                 />
               </div>
@@ -396,7 +422,7 @@ export default function EditJobPage() {
                   id="companyDescription"
                   value={formData.companyDescription}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded text-gray-700"
                   rows={3}
                   placeholder={t('companyDescriptionPlaceholder') || "Describe your company to potential candidates..."}
                 ></textarea>
@@ -435,7 +461,7 @@ export default function EditJobPage() {
                         onClick={() => setShowBranchDropdown(!showBranchDropdown)}
                         className="w-full p-2 border rounded text-left bg-white flex items-center justify-between"
                       >
-                        <span className={formData.branch ? 'text-black' : 'text-gray-500'}>
+                        <span className={formData.branch ? 'text-gray-800' : 'text-gray-500'}>
                           {formData.branch ? getSelectedBranchName() : (t('selectIndustry') || 'Select Industry')}
                         </span>
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -452,7 +478,7 @@ export default function EditJobPage() {
                               className={`
                                 px-3 py-2 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50
                                 ${option.isSubcategory ? 'pl-8' : 'font-semibold'}
-                                ${formData.branch === option.id ? 'bg-blue-100 text-blue-800' : ''}
+                                ${formData.branch === option.id ? 'bg-blue-100 text-blue-800' : 'text-gray-700'}
                               `}
                               style={{
                                 paddingLeft: option.isSubcategory ? '2rem' : '0.75rem',
@@ -477,7 +503,7 @@ export default function EditJobPage() {
                     id="job_type"
                     value={formData.job_type}
                     onChange={handleChange}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded text-gray-700"
                     required
                   >
                     <option value="100%">100%</option>
@@ -501,7 +527,7 @@ export default function EditJobPage() {
                     id="experience_level"
                     value={formData.experience_level}
                     onChange={handleChange}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded text-gray-700"
                   >
                     <option value="">{t('selectExperience') || "Select Experience Level"}</option>
                     <option value="Entry Level">{t('entryLevel') || "Entry Level"}</option>
@@ -522,7 +548,7 @@ export default function EditJobPage() {
                     id="salary_min"
                     value={formData.salary_min}
                     onChange={handleChange}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded text-gray-700"
                   />
                 </div>
                 
@@ -535,50 +561,53 @@ export default function EditJobPage() {
                     id="salary_max"
                     value={formData.salary_max}
                     onChange={handleChange}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded text-gray-700"
                   />
                 </div>
               </div>
               
               <div className="mb-4">
                 <label className="block text-gray-700 mb-2" htmlFor="language">
-                  {t('language') || "Language"}
+                  {t('language') || "Language"} *
                 </label>
                 <select
                   id="language"
                   value={formData.language}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded text-gray-700"
                   required
                 >
                   <option value="Englisch">{t('english') || "English"}</option>
                   <option value="German">{t('german') || "German"}</option>
+                  <option value="French">{t('french') || "French"}</option>
+                  <option value="Italian">{t('italian') || "Italian"}</option>
                 </select>
               </div>
 
               <div className="mb-4">
                 <label className="block text-gray-700 mb-2" htmlFor="contact_email">
-                  {t('contactEmail') || "Contact Email"}
+                  {t('contactEmail') || "Contact Email"} *
                 </label>
                 <input
                   type="email"
                   id="contact_email"
                   value={formData.contact_email}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded text-gray-700"
                   placeholder="jobs@company.com"
+                  required
                 />
               </div>
               
               <div className="mb-4">
                 <label className="block text-gray-700 mb-2" htmlFor="description">
-                  {t('description') || "Job Description"}
+                  {t('description') || "Job Description"} *
                 </label>
                 <textarea
                   id="description"
                   value={formData.description}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded text-gray-700"
                   rows={6}
                   required
                 ></textarea>
@@ -592,7 +621,7 @@ export default function EditJobPage() {
                   id="requirements"
                   value={formData.requirements}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded text-gray-700"
                   rows={4}
                 ></textarea>
               </div>
@@ -605,7 +634,7 @@ export default function EditJobPage() {
                   id="benefits"
                   value={formData.benefits}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded text-gray-700"
                   rows={4}
                 ></textarea>
               </div>
@@ -630,6 +659,7 @@ export default function EditJobPage() {
             </form>
           )}
         </div>
+      </div>
       </main>
     </ProtectedRoute>
   );
