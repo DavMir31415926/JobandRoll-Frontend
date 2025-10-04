@@ -450,7 +450,7 @@ export default function DashboardPage() {
         {activeTab === 'companies' && user?.role === 'employer' && (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">{t('myCompanies') || 'My Companies'}</h2>
+              <h2 className="text-2xl font-bold text-gray-600">{t('myCompanies') || 'My Companies'}</h2>
               <Link 
                 href="/companies/create"
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center"
@@ -466,7 +466,7 @@ export default function DashboardPage() {
                 <p className="text-gray-600 mb-4">{t('noCompanies') || 'No companies found'}</p>
                 <Link 
                   href="/companies/create"
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 text-gray-600"
                 >
                   {t('createFirstCompany') || 'Create Your First Company'}
                 </Link>
@@ -480,7 +480,7 @@ export default function DashboardPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="bg-white rounded-lg shadow-md border border-gray-100 p-6"
                   >
-                    <h3 className="text-lg font-semibold mb-2">{company.name}</h3>
+                    <h3 className="text-lg font-semibold mb-2 text-gray-600">{company.name}</h3>
                     <p className="text-gray-600 mb-2">{company.industry}</p>
                     <p className="text-gray-500 text-sm mb-4 flex items-center">
                       <MapPin className="h-4 w-4 mr-1" />
@@ -526,7 +526,7 @@ export default function DashboardPage() {
         {activeTab === 'jobs' && user?.role === 'employer' && (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">{t('myJobs') || 'My Jobs'}</h2>
+              <h2 className="text-2xl font-bold text-gray-600">{t('myJobs') || 'My Jobs'}</h2>
               <Link 
                 href="/post-job"
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center"
@@ -558,7 +558,7 @@ export default function DashboardPage() {
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold mb-2">{job.title}</h3>
+                        <h3 className="text-lg font-semibold mb-2 text-gray-600">{job.title}</h3>
                         <p className="text-gray-600 mb-2">{job.company_name}</p>
                         <div className="flex items-center text-gray-500 text-sm mb-2">
                           <MapPin className="h-4 w-4 mr-1" />
