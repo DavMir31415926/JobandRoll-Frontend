@@ -208,21 +208,21 @@ export default function JobDetailPage() {
         {/* Company Description */}
         {job.company_description && (
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-3">{t('aboutTheCompany') || 'About the Company'}</h2>
+            <h2 className="text-xl font-semibold mb-3 text-gray-700">{t('aboutTheCompany') || 'About the Company'}</h2>
             <p className="text-gray-700 whitespace-pre-wrap">{job.company_description}</p>
           </div>
         )}
 
         {/* Job Description */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-3">{t('jobDescription') || 'Job Description'}</h2>
+          <h2 className="text-xl font-semibold mb-3 text-gray-700">{t('jobDescription') || 'Job Description'}</h2>
           <div className="text-gray-700 whitespace-pre-wrap">{job.description}</div>
         </div>
 
         {/* Requirements */}
         {job.requirements && (
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-3">{t('requirements') || 'Requirements'}</h2>
+            <h2 className="text-xl font-semibold mb-3 text-gray-700">{t('requirements') || 'Requirements'}</h2>
             <div className="text-gray-700 whitespace-pre-wrap">{job.requirements}</div>
           </div>
         )}
@@ -230,7 +230,7 @@ export default function JobDetailPage() {
         {/* Benefits */}
         {job.benefits && (
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-3">{t('benefits') || 'Benefits'}</h2>
+            <h2 className="text-xl font-semibold mb-3 text-gray-700">{t('benefits') || 'Benefits'}</h2>
             <div className="text-gray-700 whitespace-pre-wrap">{job.benefits}</div>
           </div>
         )}
@@ -279,7 +279,7 @@ export default function JobDetailPage() {
             <div className="space-y-4">
               {/* Contact Email Display */}
               <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-2">{t('contactInformation') || 'Contact Information'}</h3>
+                <h3 className="text-lg font-semibold mb-2 text-gray-700">{t('contactInformation') || 'Contact Information'}</h3>
                 <div className="flex items-center justify-center text-gray-700">
                   <Mail className="w-4 h-4 mr-2" />
                   <a 
