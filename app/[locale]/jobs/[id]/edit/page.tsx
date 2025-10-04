@@ -320,11 +320,13 @@ export default function EditJobPage() {
   // If loading or not authenticated, show loading state
   if (isLoading || !isAuthenticated || dataLoading) {
     return (
-      <main className="container mx-auto p-8">
+      <main className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100">
+      <div className="container mx-auto p-8">
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
           <p className="mt-4 text-gray-600">{t('loading') || "Loading..."}</p>
         </div>
+      </div>
       </main>
     );
   }
@@ -332,13 +334,15 @@ export default function EditJobPage() {
   // Show loading while companies are being fetched
   if (companiesLoading) {
     return (
-      <main className="container mx-auto p-8">
+      <main className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100">
+        <div className="container mx-auto p-8">
         <h1 className="text-3xl font-bold mb-4">{t('editJob') || 'Edit Job'}</h1>
         <div className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto">
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
             <p className="mt-4 text-gray-600">{t('loading') || "Loading..."}</p>
           </div>
+        </div>
         </div>
       </main>
     );
