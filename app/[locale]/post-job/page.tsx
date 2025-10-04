@@ -266,8 +266,9 @@ export default function PostJobPage() {
   };
   
   return (
-    <main className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-4">{t('title')}</h1>
+  <main className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100">
+    <div className="container mx-auto p-8">      
+      <h1 className="text-3xl font-bold mb-4 text-gray-700">{t('title')}</h1>
       
       <div className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto">
         {error && (
@@ -296,7 +297,7 @@ export default function PostJobPage() {
                 id="company"
                 value={selectedCompany || ''}
                 onChange={(e) => setSelectedCompany(Number(e.target.value))}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded text-gray-700"
                 required
               >
                 <option value="">{t('selectCompany') || "Select a company"}</option>
@@ -315,7 +316,7 @@ export default function PostJobPage() {
                 id="title"
                 value={formData.title}
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded text-gray-700"
                 required
               />
             </div>
@@ -329,7 +330,7 @@ export default function PostJobPage() {
                 id="companyDescription"
                 value={formData.companyDescription}
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded text-gray-700"
                 rows={3}
                 placeholder={t('companyDescriptionPlaceholder') || "Describe your company to potential candidates..."}
               ></textarea>
@@ -368,7 +369,7 @@ export default function PostJobPage() {
                       onClick={() => setShowBranchDropdown(!showBranchDropdown)}
                       className="w-full p-2 border rounded text-left bg-white flex items-center justify-between"
                     >
-                      <span className={formData.branch ? 'text-black' : 'text-gray-500'}>
+                      <span className={formData.branch ? 'text-gray-800' : 'text-gray-500'}>
                         {formData.branch ? getSelectedBranchName() : (t('selectIndustry') || 'Select Industry')}
                       </span>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -385,7 +386,7 @@ export default function PostJobPage() {
                             className={`
                               px-3 py-2 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50
                               ${option.isSubcategory ? 'pl-8' : 'font-semibold'}
-                              ${formData.branch === option.id ? 'bg-blue-100 text-blue-800' : ''}
+                              ${formData.branch === option.id ? 'bg-blue-100 text-blue-800' : 'text-gray-700'}
                             `}
                             style={{
                               paddingLeft: option.isSubcategory ? '2rem' : '0.75rem',
@@ -410,7 +411,7 @@ export default function PostJobPage() {
                   id="job_type"
                   value={formData.job_type}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded text-gray-700"
                   required
                 >
                   <option value="100%">100%</option>
@@ -434,7 +435,7 @@ export default function PostJobPage() {
                   id="experience_level"
                   value={formData.experience_level}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded text-gray-700"
                 >
                   <option value="">{t('selectExperience') || "Select Experience Level"}</option>
                   <option value="Entry Level">{t('entryLevel') || "Entry Level"}</option>
@@ -455,7 +456,7 @@ export default function PostJobPage() {
                   id="salary_min"
                   value={formData.salary_min}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded text-gray-700"
                 />
               </div>
               
@@ -468,7 +469,7 @@ export default function PostJobPage() {
                   id="salary_max"
                   value={formData.salary_max}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded text-gray-700"
                 />
               </div>
             </div>
@@ -481,7 +482,7 @@ export default function PostJobPage() {
                 id="language"
                 value={formData.language}
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded text-gray-700"
                 required
               >
                 <option value="English">{t('english') || "English"}</option>
@@ -500,7 +501,7 @@ export default function PostJobPage() {
                 id="contact_email"
                 value={formData.contact_email}
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded text-gray-700"
                 placeholder="jobs@company.com"
               />
             </div>
@@ -513,7 +514,7 @@ export default function PostJobPage() {
                 id="description"
                 value={formData.description}
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded text-gray-700"
                 rows={6}
                 required
               ></textarea>
@@ -527,7 +528,7 @@ export default function PostJobPage() {
                 id="requirements"
                 value={formData.requirements}
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded text-gray-700"
                 rows={4}
               ></textarea>
             </div>
@@ -540,7 +541,7 @@ export default function PostJobPage() {
                 id="benefits"
                 value={formData.benefits}
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded text-gray-700"
                 rows={4}
               ></textarea>
             </div>
@@ -555,6 +556,7 @@ export default function PostJobPage() {
           </form>
         )}
       </div>
+    </div>
     </main>
   );
 }
