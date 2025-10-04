@@ -698,7 +698,15 @@
       "greeting": "Dear Hiring Manager,",
       "body": "I am interested in applying for the {jobTitle} position at your company.\n\nPlease find my application details attached.",
       "closing": "Best regards"
-    }
+    },
+    "requiredFieldsNote": "Fields marked with * are required",
+    "selectCompanyError": "Please select a company",
+    "jobTitleRequired": "Job title is required",
+    "locationRequired": "Please select a location",
+    "industryRequired": "Please select an industry",
+    "languageRequired": "Please select a language",
+    "contactEmailRequired": "Contact email is required",
+    "descriptionRequired": "Job description is required"
   },
   "login": {
     "title": "Log In",

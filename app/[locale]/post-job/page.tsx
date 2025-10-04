@@ -184,17 +184,37 @@ export default function PostJobPage() {
     e.preventDefault();
     
     if (!selectedCompany) {
-      setError(t('selectCompany') || 'Please select a company');
+      setError(t('selectCompanyError') || 'Please select a company');
       return;
     }
     
-    if (!formData.branch) {
-      setError('Please select an industry');
+    if (!formData.title.trim()) {
+      setError(t('jobTitleRequired') || 'Job title is required');
       return;
     }
     
     if (!formData.location) {
-      setError('Please select a location');
+      setError(t('locationRequired') || 'Please select a location');
+      return;
+    }
+    
+    if (!formData.branch) {
+      setError(t('industryRequired') || 'Please select an industry');
+      return;
+    }
+    
+    if (!formData.language) {
+      setError(t('languageRequired') || 'Please select a language');
+      return;
+    }
+    
+    if (!formData.contact_email.trim()) {
+      setError(t('contactEmailRequired') || 'Contact email is required');
+      return;
+    }
+    
+    if (!formData.description.trim()) {
+      setError(t('descriptionRequired') || 'Job description is required');
       return;
     }
     
@@ -274,6 +294,12 @@ export default function PostJobPage() {
     <div className="container mx-auto p-8">      
       <h1 className="text-3xl font-bold mb-4 text-gray-700">{t('title')}</h1>
       
+      <p className="text-sm text-gray-600 mb-6">
+        {t('requiredFieldsNote') || "Fields marked with * are required"}
+      </p>
+
+      <div className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto"></div>
+
       <div className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto">
         {error && (
           <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md">
@@ -295,7 +321,7 @@ export default function PostJobPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="mb-4">
               <label className="block text-gray-700 mb-2" htmlFor="company">
-                {t('selectCompany') || "Select Company"}
+                {t('selectCompany') || "Select Company"} *
               </label>
               <select
                 id="company"
@@ -313,7 +339,7 @@ export default function PostJobPage() {
             
             <div className="mb-4">
               <label className="block text-gray-700 mb-2" htmlFor="title">
-                {t('jobTitle')}
+                {t('jobTitle')} *
               </label>
               <input
                 type="text"
@@ -480,7 +506,7 @@ export default function PostJobPage() {
             
             <div className="mb-4">
               <label className="block text-gray-700 mb-2" htmlFor="language">
-                {t('language') || "Language"}
+                {t('language') || "Language"} *
               </label>
               <select
                 id="language"
@@ -498,7 +524,7 @@ export default function PostJobPage() {
 
             <div className="mb-4">
               <label className="block text-gray-700 mb-2" htmlFor="contact_email">
-                {t('contactEmail') || "Contact Email"}
+                {t('contactEmail') || "Contact Email"} *
               </label>
               <input
                 type="email"
@@ -507,12 +533,13 @@ export default function PostJobPage() {
                 onChange={handleChange}
                 className="w-full p-2 border rounded text-gray-700"
                 placeholder="jobs@company.com"
+                required
               />
             </div>
                         
             <div className="mb-4">
               <label className="block text-gray-700 mb-2" htmlFor="description">
-                {t('description') || "Job Description"}
+                {t('description') || "Job Description"} *
               </label>
               <textarea
                 id="description"

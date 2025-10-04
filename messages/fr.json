@@ -697,7 +697,15 @@
       "greeting": "Madame, Monsieur,",
       "body": "Je suis intéressé(e) à postuler pour le poste de {jobTitle} dans votre entreprise.\n\nVeuillez trouver mes détails de candidature en pièce jointe.",
       "closing": "Cordialement"
-    }
+    },
+    "requiredFieldsNote": "Les champs marqués d'un * sont obligatoires",
+    "selectCompanyError": "Veuillez sélectionner une entreprise",
+    "jobTitleRequired": "Le titre du poste est requis",
+    "locationRequired": "Veuillez sélectionner un emplacement",
+    "industryRequired": "Veuillez sélectionner un secteur",
+    "languageRequired": "Veuillez sélectionner une langue",
+    "contactEmailRequired": "L'email de contact est requis",
+    "descriptionRequired": "La description du poste est requise"
   },
   "login": {
     "title": "Se connecter",

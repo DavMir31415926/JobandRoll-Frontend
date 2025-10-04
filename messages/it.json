@@ -697,7 +697,15 @@
       "greeting": "Gentile responsabile assunzioni,",
       "body": "Sono interessato a candidarmi per la posizione di {jobTitle} nella vostra azienda.\n\nTrovate in allegato i miei dettagli di candidatura.",
       "closing": "Cordiali saluti"
-    }
+    },
+    "requiredFieldsNote": "I campi contrassegnati con * sono obbligatori",
+    "selectCompanyError": "Seleziona un'azienda",
+    "jobTitleRequired": "Il titolo della posizione è obbligatorio",
+    "locationRequired": "Seleziona una località",
+    "industryRequired": "Seleziona un settore",
+    "languageRequired": "Seleziona una lingua",
+    "contactEmailRequired": "L'email di contatto è obbligatoria",
+    "descriptionRequired": "La descrizione della posizione è obbligatoria"
   },
   "login": {
     "title": "Accedi",
