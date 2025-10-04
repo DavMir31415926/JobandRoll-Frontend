@@ -771,7 +771,7 @@
     "deleteWarning": "This action cannot be undone. Your account and all data will be permanently deleted."
   },
   "dashboard": {
-    "title": "Dashboard",
+    "title": "My Space",
     "applicationsTitle": "Applications",
     "savedJobsTitle": "Saved Jobs",
     "profileViewsTitle": "Profile Views",
@@ -810,7 +810,7 @@
     "myJobs": "My Jobs",
     "noJobs": "No jobs posted yet",
     "postFirstJob": "Post Your First Job",
-    "loadingDashboard": "Loading dashboard...",
+    "loadingDashboard": "Loading My Space...",
     "confirmDelete": "Confirm Delete", 
     "deleteConfirmMessage": "Are you sure you want to delete? This action cannot be undone.", 
     "cancel": "Cancel", 

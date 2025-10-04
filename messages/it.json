@@ -770,7 +770,7 @@
     "deleteWarning": "Questa azione non può essere annullata. Il tuo account e tutti i dati verranno eliminati permanentemente."
   },
   "dashboard": {
-    "title": "Dashboard",
+    "title": "Il Mio Spazio",
     "applicationsTitle": "Candidature",
     "savedJobsTitle": "Lavori salvati",
     "profileViewsTitle": "Visualizzazioni profilo",
@@ -809,7 +809,7 @@
     "myJobs": "I miei lavori",
     "noJobs": "Nessun lavoro pubblicato ancora",
     "postFirstJob": "Pubblica il tuo primo lavoro",
-    "loadingDashboard": "Caricamento dashboard...",
+    "loadingDashboard": "Caricamento de Il Mio Spazio...",
     "confirmDelete": "Conferma eliminazione",
     "deleteConfirmMessage": "Sei sicuro di voler eliminare? Questa azione non può essere annullata.",
     "cancel": "Annulla",

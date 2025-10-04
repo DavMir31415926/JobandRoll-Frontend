@@ -770,7 +770,7 @@
     "deleteWarning": "Cette action ne peut pas être annulée. Votre compte et toutes les données seront définitivement supprimés."
   },
   "dashboard": {
-    "title": "Tableau de bord",
+    "title": "Mon Espace",
     "applicationsTitle": "Candidatures",
     "savedJobsTitle": "Emplois sauvegardés",
     "profileViewsTitle": "Vues du profil",
@@ -809,7 +809,7 @@
     "myJobs": "Mes emplois",
     "noJobs": "Aucun emploi publié encore",
     "postFirstJob": "Publiez votre premier emploi",
-    "loadingDashboard": "Chargement du tableau de bord...",
+    "loadingDashboard": "Chargement de Mon Espace...",
     "confirmDelete": "Confirmer la suppression",
     "deleteConfirmMessage": "Êtes-vous sûr de vouloir supprimer ? Cette action ne peut pas être annulée.",
     "cancel": "Annuler",

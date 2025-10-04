@@ -772,7 +772,7 @@
     "deleteWarning": "Diese Aktion kann nicht rückgängig gemacht werden. Dein Konto und alle Daten werden dauerhaft gelöscht."
   },
   "dashboard": {
-    "title": "Dashboard",
+    "title": "Mein Bereich",
     "applicationsTitle": "Bewerbungen",
     "savedJobsTitle": "Gespeicherte Jobs",
     "profileViewsTitle": "Profilaufrufe",
@@ -811,7 +811,7 @@
     "myJobs": "Meine Jobs",
     "noJobs": "Noch keine Jobs veröffentlicht",
     "postFirstJob": "Ersten Job veröffentlichen",
-    "loadingDashboard": "Dashboard wird geladen...",
+    "loadingDashboard": "Mein Bereich wird geladen...",
     "confirmDelete": "Löschen bestätigen", 
     "deleteConfirmMessage": "Sind Sie sicher, dass Sie löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.", 
     "cancel": "Abbrechen", 
