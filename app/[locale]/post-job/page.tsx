@@ -247,7 +247,8 @@ export default function PostJobPage() {
   // Show loading while companies are being fetched
   if (companiesLoading) {
     return (
-      <main className="container mx-auto p-8">
+      <main className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100">
+      <div className="container mx-auto p-8">      
         <h1 className="text-3xl font-bold mb-4">{t('title')}</h1>
         <div className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto">
           <div className="text-center py-12">
@@ -255,6 +256,7 @@ export default function PostJobPage() {
             <p className="mt-4 text-gray-600">{t('loading') || "Loading..."}</p>
           </div>
         </div>
+      </div>
       </main>
     );
   }
