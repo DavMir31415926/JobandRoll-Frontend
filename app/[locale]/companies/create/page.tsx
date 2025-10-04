@@ -214,8 +214,9 @@ useEffect(() => {
   }
   
   return (
-    <main className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-4">{t('createCompany') || "Create Company"}</h1>
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100">
+    <div className="container mx-auto p-8">      
+      <h1 className="text-3xl font-bold mb-4 text-gray-700">{t('createCompany') || "Create Company"}</h1>
       
       <div className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto">
         {error && (
@@ -234,7 +235,7 @@ useEffect(() => {
               id="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded text-gray-700"
               required
             />
           </div>
@@ -266,7 +267,7 @@ useEffect(() => {
                           px-3 py-2 cursor-pointer border-b border-gray-100 last:border-b-0
                           ${isSelected 
                             ? 'bg-blue-100 text-blue-800' 
-                            : 'hover:bg-gray-50'
+                            : 'hover:bg-gray-50 text-gray-700'
                           }
                           ${option.isSubcategory ? 'pl-8' : 'font-semibold'}
                         `}
@@ -347,7 +348,7 @@ useEffect(() => {
                 id="website"
                 value={formData.website}
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded text-gray-700"
                 placeholder="https://example.com"
               />
             </div>
@@ -360,7 +361,7 @@ useEffect(() => {
                 id="size"
                 value={formData.size}
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded text-gray-700"
                 required
               >
                 <option value="1-10">1-10</option>
@@ -381,7 +382,7 @@ useEffect(() => {
               id="description"
               value={formData.description}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded text-gray-700"
               rows={6}
               required
             ></textarea>
@@ -396,6 +397,7 @@ useEffect(() => {
           </button>
         </form>
       </div>
+    </div>
     </main>
   );
 }
