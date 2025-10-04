@@ -127,8 +127,9 @@ export default function JobDetailPage() {
   };
 
   return (
-    <main className="container mx-auto p-8">
-      <div className="max-w-4xl mx-auto">
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100">
+      <div className="container mx-auto p-8">
+        <div className="max-w-4xl mx-auto">
         
         {/* Header */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -324,6 +325,7 @@ export default function JobDetailPage() {
             {t('backToJobs') || '← Back to All Jobs'}
           </button>
         </div>
+      </div>
       </div>
     </main>
   );
