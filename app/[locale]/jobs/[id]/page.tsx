@@ -70,11 +70,13 @@ export default function JobDetailPage() {
 
   if (loading) {
     return (
-      <main className="container mx-auto p-8">
+      <main className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100">
+      <div className="container mx-auto p-8">
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
           <p className="mt-4 text-gray-600">{t('loading') || 'Loading job details...'}</p>
         </div>
+      </div>
       </main>
     );
   }
