@@ -249,8 +249,8 @@ export default function DashboardPage() {
 
   return (
     <ProtectedRoute>
-      <main className="container mx-auto px-4 py-8">
-        {/* Welcome Header */}
+      <main className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100">
+      <div className="container mx-auto p-8">        {/* Welcome Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             {t('welcome') || `Welcome back, ${user?.name?.split(' ')[0] || 'User'}!`}
@@ -269,7 +269,7 @@ export default function DashboardPage() {
             <nav className="-mb-px flex space-x-8">
               <button
                 onClick={() => setActiveTab('overview')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                className={`py-2 px-1 border-b-2 font-medium text-sm text-gray-600 ${
                   activeTab === 'overview'
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -282,7 +282,7 @@ export default function DashboardPage() {
                 <>
                   <button
                     onClick={() => setActiveTab('companies')}
-                    className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                    className={`py-2 px-1 border-b-2 font-medium text-sm text-gray-600 ${
                       activeTab === 'companies'
                         ? 'border-blue-500 text-blue-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -293,7 +293,7 @@ export default function DashboardPage() {
                   
                   <button
                     onClick={() => setActiveTab('jobs')}
-                    className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                    className={`py-2 px-1 border-b-2 font-medium text-sm text-gray-600 ${
                       activeTab === 'jobs'
                         ? 'border-blue-500 text-blue-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -354,7 +354,7 @@ export default function DashboardPage() {
                   transition={{ delay: 0.2 }}
                   className="bg-white p-6 rounded-lg shadow-md border border-gray-100"
                 >
-                  <h3 className="text-lg font-semibold mb-4">{t('quickActions') || 'Quick Actions'}</h3>
+                  <h3 className="text-lg font-semibold mb-4 text-gray-600">{t('quickActions') || 'Quick Actions'}</h3>
                   <div className="space-y-2">
                     <Link 
                       href="/companies/create"
@@ -632,6 +632,7 @@ export default function DashboardPage() {
             </div>
           </div>
         )}
+      </div>
       </main>
     </ProtectedRoute>
   );
