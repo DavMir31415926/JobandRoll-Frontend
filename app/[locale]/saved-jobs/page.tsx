@@ -129,7 +129,8 @@ export default function SavedJobsPage() {
   
   return (
     <ProtectedRoute>
-      <main className="container mx-auto px-4 py-8">
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100">
+        <div className="container mx-auto p-8">      
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold text-gray-900 flex items-center">
@@ -278,6 +279,7 @@ export default function SavedJobsPage() {
               ))}
             </div>
           )}
+        </div>
         </div>
       </main>
     </ProtectedRoute>
