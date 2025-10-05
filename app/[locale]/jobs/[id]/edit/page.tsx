@@ -20,6 +20,7 @@ export default function EditJobPage() {
     requirements: '',
     benefits: '',
     location: '', // Will store single location
+    location_id: undefined as number | undefined,
     branch: '', // Will store single industry
     job_type: '100%',
     experience_level: '',
@@ -114,6 +115,7 @@ export default function EditJobPage() {
           requirements: job.requirements || '',
           benefits: job.benefits || '',
           location: job.location || '',
+          location_id: job.location_id || undefined,
           branch: job.branch || '',
           job_type: job.job_type || '100%',
           experience_level: job.experience_level || '',
@@ -229,11 +231,14 @@ export default function EditJobPage() {
     setFormData({ ...formData, [id]: value });
   };
 
-  // Handle location selection (single location for jobs)
   const handleLocationSelect = useCallback((location: any) => {
     if (location) {
       setSelectedLocation(location);
-      setFormData(prev => ({...prev, location: location.name}));
+      setFormData(prev => ({
+        ...prev, 
+        location: location.name,
+        location_id: location.id
+      }));
     }
   }, []);
 

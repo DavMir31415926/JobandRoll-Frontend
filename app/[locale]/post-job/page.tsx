@@ -18,6 +18,7 @@ export default function PostJobPage() {
     requirements: '',
     benefits: '',
     location: '', // Will store single location
+    location_id: undefined as number | undefined,
     branch: '', // Will store single industry
     job_type: '100%',
     experience_level: '',
@@ -167,7 +168,11 @@ export default function PostJobPage() {
   const handleLocationSelect = useCallback((location: any) => {
     if (location) {
       setSelectedLocation(location);
-      setFormData(prev => ({...prev, location: location.name}));
+      setFormData(prev => ({
+        ...prev, 
+        location: location.name,
+        location_id: location.id
+      }));
     }
   }, []);
 
