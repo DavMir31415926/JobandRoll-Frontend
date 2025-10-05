@@ -88,8 +88,8 @@ export default function RegisterPage() {
   };
   
   return (
-    <main className="container mx-auto p-8 flex justify-center">
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md text-gray-700">
+      <main className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100">
+        <div className="container mx-auto p-8">            <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md text-gray-700">
         <h1 className="text-3xl font-bold mb-6 text-center">{t('title')}</h1>
         
         {error && (
@@ -218,6 +218,7 @@ export default function RegisterPage() {
             </Link>
           </p>
         </div>
+      </div>
       </div>
     </main>
   );
