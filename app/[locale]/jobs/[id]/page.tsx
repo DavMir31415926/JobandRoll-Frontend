@@ -17,6 +17,54 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+const getJobSchema = (job: any) => {
+  // Remove undefined fields
+  const schema: any = {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "title": job.title,
+    "description": job.description || job.title,
+    "datePosted": job.created_at,
+    "validThrough": new Date(new Date(job.created_at).setMonth(new Date(job.created_at).getMonth() + 3)).toISOString(),
+    "employmentType": job.job_type === '100%' ? 'FULL_TIME' : 'PART_TIME',
+    "hiringOrganization": {
+      "@type": "Organization",
+      "name": job.company_name
+    },
+    "jobLocation": {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": job.location?.split(',')[0] || job.location,
+        "addressCountry": job.location?.includes('(CH)') ? 'CH' : 
+                          job.location?.includes('(AT)') ? 'AT' : 
+                          job.location?.includes('(DE)') ? 'DE' : 
+                          'CH'      }
+    }
+  };
+
+  // Only add logo if it exists
+  if (job.company_logo) {
+    schema.hiringOrganization.logo = job.company_logo;
+  }
+
+  // Only add salary if it exists
+  if (job.salary_min) {
+    schema.baseSalary = {
+      "@type": "MonetaryAmount",
+      "currency": "EUR",
+      "value": {
+        "@type": "QuantitativeValue",
+        "minValue": job.salary_min,
+        "maxValue": job.salary_max || job.salary_min,
+        "unitText": "YEAR"
+      }
+    };
+  }
+
+  return schema;
+};
+
 export default function JobDetailPage() {
   const t = useTranslations('postJob');
   const tBranch = useTranslations('branch');
@@ -129,6 +177,11 @@ export default function JobDetailPage() {
   };
 
   return (
+  <>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(getJobSchema(job)) }}
+      />
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100">
       <div className="container mx-auto p-8">
         <div className="max-w-4xl mx-auto">
@@ -330,5 +383,6 @@ export default function JobDetailPage() {
       </div>
       </div>
     </main>
+    </>
   );
 }
