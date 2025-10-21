@@ -18,18 +18,23 @@ import {
 import Link from 'next/link';
 
 const getJobSchema = (job: any) => {
-  // Remove undefined fields
   const schema: any = {
     "@context": "https://schema.org/",
     "@type": "JobPosting",
     "title": job.title,
     "description": job.description || job.title,
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": "Jopoly",
+      "value": `jopoly-${job.id}`
+    },
     "datePosted": job.created_at,
     "validThrough": new Date(new Date(job.created_at).setMonth(new Date(job.created_at).getMonth() + 3)).toISOString(),
     "employmentType": job.job_type === '100%' ? 'FULL_TIME' : 'PART_TIME',
     "hiringOrganization": {
       "@type": "Organization",
-      "name": job.company_name
+      "name": job.company_name,
+      "sameAs": job.company_website || undefined
     },
     "jobLocation": {
       "@type": "Place",
@@ -39,16 +44,17 @@ const getJobSchema = (job: any) => {
         "addressCountry": job.location?.includes('(CH)') ? 'CH' : 
                           job.location?.includes('(AT)') ? 'AT' : 
                           job.location?.includes('(DE)') ? 'DE' : 
-                          'CH'      }
+                          'CH'
+      }
     }
   };
 
-  // Only add logo if it exists
+  // Add logo if exists
   if (job.company_logo) {
     schema.hiringOrganization.logo = job.company_logo;
   }
 
-  // Only add salary if it exists
+  // Add salary if exists
   if (job.salary_min) {
     schema.baseSalary = {
       "@type": "MonetaryAmount",
