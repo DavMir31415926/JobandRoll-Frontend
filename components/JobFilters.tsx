@@ -562,26 +562,32 @@ const getDisplayName = (category: Category) => {
                                 (isCategorySelected || allSubsSelected) ? 'bg-blue-50' : ''
                               }`}
                             >
-                              <div 
-                                className="flex-grow text-left flex items-center"
-                                onClick={() => toggleCategoryWithSubcategories(category)}
-                              >
-                                <span className="mr-2">
+                              <div className="flex-grow text-left flex items-center">
+                                <span 
+                                  className="mr-2"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleCategoryWithSubcategories(category);
+                                  }}
+                                >
                                   {renderCheckbox(isChecked, isIndeterminate)}
                                 </span>
-                                <span className={isChecked ? 'font-medium text-gray-800' : 'text-gray-700'}>
+                                <span 
+                                  className={`flex-grow ${isChecked ? 'font-medium text-gray-800' : 'text-gray-700'}`}
+                                  onClick={(e) => toggleCategory(category.id, e)}
+                                >
                                   {getDisplayName(category)}
                                 </span>
                               </div>
                               <button 
                                 onClick={(e) => toggleCategory(category.id, e)}
-                                className="ml-2 focus:outline-none"
+                                className="ml-2 p-1.5 -mr-1 rounded hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 aria-label={expandedCategories.includes(category.id) ? "Collapse" : "Expand"}
                               >
                                 {expandedCategories.includes(category.id) ? (
-                                  <ChevronDown className="h-4 w-4" />
+                                  <ChevronDown className="h-5 w-5 text-blue-600" strokeWidth={2.5} />
                                 ) : (
-                                  <ChevronRight className="h-4 w-4" />
+                                  <ChevronRight className="h-5 w-5 text-blue-600" strokeWidth={2.5} />
                                 )}
                               </button>
                             </div>
